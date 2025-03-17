@@ -1,0 +1,19 @@
+{
+    "radius": "半径",
+    "mass": "质量",
+    "color": "颜色",
+
+    "gravity": "重力加速度",
+    "airResistance": "空气阻力",
+    "collisionFactor": "碰撞系数",
+    "mode": "模式(按P键可切换)",
+    
+    "attrEditor": "属性编辑",
+    "copy": "复制",
+    "delete": "删除",
+    "follow": "视角跟随",
+    "addVelocity": "添加速度",
+    "clearVelocity": "清除速度",
+    "addForce": "添加力",
+    "clearForce": "清除所有外力"
+}
