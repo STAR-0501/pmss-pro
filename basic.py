@@ -4,6 +4,8 @@ import copy
 import pygame
 import math
 
+G = 5e+4  # 添加引力常数调节参数
+
 # 颜色字符串转RGB元组
 def colorStringToTuple(color: str) -> tuple[int, int, int]:
     # 如果是颜色名称格式，先转换为pygame颜色对象获取RGB值
@@ -64,6 +66,10 @@ class Vector2:
 
     def __abs__(self) -> float:
         return (self.x**2 + self.y**2)**0.5
+
+    def magnitude(self) -> float:
+        """返回向量长度"""
+        return abs(self)
 
     def zero(self) -> Self:
         """将向量置零"""
@@ -603,7 +609,7 @@ class Ball(Element):
     # 物体之间的引力
     def gravitate(self, other: Self) -> Vector2:
         """处理球与球之间的引力（稳定版）"""
-        G = 5e+4  # 添加引力常数调节参数
+        
         min_distance = 1  # 防止距离过近导致力过大
         
         # 计算实际距离

@@ -25,6 +25,7 @@ class Game:
         self.isMoving = False
         self.isScreenMoving = False
         self.isMassSetting = False
+        self.isCircularVelocityGetting = False
         self.isCtrlPressing = False
         self.isEditing = False
         self.isElementControlling = False
@@ -76,9 +77,7 @@ class Game:
             self.celestialElements[self.optionsList[i]["type"]] = []
 
         self.elements = self.groundElements
-            
-
-
+        
         self.environmentOptions = []
         with open("config/environmentOptions.json", "r", encoding="utf-8") as f:
             self.environmentOptions = json.load(f)
@@ -955,6 +954,8 @@ class Option:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
                         game.isMassSetting = False
+                    if event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL:
+                        game.isCircularVelocityGetting = False
 
                 if event.type == pygame.QUIT:
                     game.exit()
@@ -979,6 +980,8 @@ class Option:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}.pkl")
                     if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
                         game.isMassSetting = True
+                    if event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL:
+                        game.isCircularVelocityGetting = True
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
                     if event.key == pygame.K_r:
