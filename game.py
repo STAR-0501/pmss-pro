@@ -41,6 +41,8 @@ class Game:
         self.pos = (0,0)   # 鼠标屏幕坐标，而非真实坐标
         self.font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/130))
         self.ratio = 5
+        self.minLimitRatio = 1
+        self.maxLimitRatio = 15
         self.x = self.screen.get_width()/2 / self.ratio
         self.y = self.screen.get_height() / self.ratio
         self.menu : Menu = None
@@ -128,11 +130,11 @@ class Game:
     def loadGame(self, gameFile=""):
         # 保存当前的 screen 属性
         current_screen = getattr(self, 'screen', None)
-        if gameFile == "":
-            gameFile = os.listdir("savefile")[-2]
-
-        print(f"正在加载游戏数据：{gameFile}")
         try:
+            if gameFile == "":
+                gameFile = os.listdir("savefile")[-2]
+
+            print(f"正在加载游戏数据：{gameFile}")
             with open(f"savefile/{gameFile}", "rb") as f:
                 # 加载序列化的字典
                 serializable_dict = pickle.load(f)
@@ -148,6 +150,8 @@ class Game:
                 print("游戏数据加载成功")
                 f.close()
         except FileNotFoundError:
+            ...
+        except IndexError:
             ...
 
 
@@ -208,12 +212,12 @@ class Game:
 
 
             if event.type == pygame.MOUSEWHEEL:
-                speed = 0.5
-                if event.y == 1 and self.ratio < 15:
+                speed = 1.1
+                if event.y == 1 and self.ratio < self.maxLimitRatio:
                     if not self.isCtrlPressing:
                         b_x = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         b_y = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-                        self.ratio += speed
+                        self.ratio *= speed
                         n_x = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         n_y = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
                         self.x += (n_x - b_x)
@@ -221,17 +225,17 @@ class Game:
                     else:
                         b_x = self.screenToReal(self.screen.get_width()/2, self.x)
                         b_y = self.screenToReal(self.screen.get_height()/2, self.y)
-                        self.ratio += speed
+                        self.ratio *= speed
                         n_x = self.screenToReal(self.screen.get_width()/2, self.x)
                         n_y = self.screenToReal(self.screen.get_height()/2, self.y)
                         self.x += (n_x - b_x)
                         self.y += (n_y - b_y)
 
-                elif event.y == -1 and self.ratio > 1:
+                elif event.y == -1 and self.ratio > self.minLimitRatio:
                     if not self.isCtrlPressing:
                         b_x = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         b_y = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-                        self.ratio -= speed
+                        self.ratio /= speed
                         n_x = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         n_y = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
                         self.x += (n_x - b_x)
@@ -239,7 +243,7 @@ class Game:
                     else:
                         b_x = self.screenToReal(self.screen.get_width()/2, self.x)
                         b_y = self.screenToReal(self.screen.get_height()/2, self.y)
-                        self.ratio -= speed
+                        self.ratio /= speed
                         n_x = self.screenToReal(self.screen.get_width()/2, self.x)
                         n_y = self.screenToReal(self.screen.get_height()/2, self.y)
                         self.x += (n_x - b_x)
@@ -512,7 +516,7 @@ class Game:
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
         self.screen.blit(mousePosText, mousePosTextRect)
 
-        ratioText = self.font.render(f"缩放比例 = {self.ratio}x", True, "black")
+        ratioText = self.font.render(f"缩放比例 = {self.ratio:.1f}x", True, "black")
         ratioTextRect =  ratioText.get_rect()
         ratioTextRect.x = self.screen.get_width() - ratioText.get_width()        
         ratioTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height()
@@ -564,12 +568,49 @@ class Game:
                     ...
                 ball1.highLighted = True
                 ball1.follow(self)
+
                 font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", 20)
                 followingTipsText = font.render(f"视角跟随中", True, "blue")
                 followingTipsTextRect =  followingTipsText.get_rect()
                 followingTipsTextRect.x = self.screen.get_width()/2
                 followingTipsTextRect.y = 20
                 self.screen.blit(followingTipsText, followingTipsTextRect)
+
+                
+                massTipsText = font.render(f"质量：{ball1.mass:.1f}", True, "darkgreen")
+                massTipsTextRect =  massTipsText.get_rect()
+                massTipsTextRect.x = self.screen.get_width()/2
+                massTipsTextRect.y = 40
+                self.screen.blit(massTipsText, massTipsTextRect)
+                radiusTipsText = font.render(f"半径：{ball1.radius:.1f}", True, "darkgreen")
+                radiusTipsTextRect =  radiusTipsText.get_rect()
+                radiusTipsTextRect.x = self.screen.get_width()/2
+                radiusTipsTextRect.y = 60
+                self.screen.blit(radiusTipsText, radiusTipsTextRect)
+                
+
+                ballPos = ball1.position
+                tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", self.menu)
+
+                v = ball1.displayedVelocity
+                vp = ballPos + v.copy().normalize() * abs(v) ** 0.5
+                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(vp.x, self.x), self.realToScreen(vp.y, self.y)), "blue")
+                velocityTipsText = font.render(f"速度：{abs(v):.1f} m/s", True, "blue")
+                velocityTipsTextRect =  velocityTipsText.get_rect()
+                velocityTipsTextRect.x = self.realToScreen(vp.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(vp.y, self.y)
+                self.screen.blit(velocityTipsText, velocityTipsTextRect)
+
+                f = ball1.displayedAcceleration
+                fp = ballPos + f / 4
+                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(fp.x, self.x), self.realToScreen(fp.y, self.y)), "red")
+                accelerationTipsText = font.render(f"加速度：{abs(f)/10:.1f} m/s²", True, "red")
+                accelerationTipsTextRect =  accelerationTipsText.get_rect()
+                accelerationTipsTextRect.x = self.realToScreen(fp.x, self.x)
+                accelerationTipsTextRect.y = self.realToScreen(fp.y, self.y)
+                self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
+
+
 
             try:
                 for ball2 in self.elements["ball"]:
@@ -676,6 +717,8 @@ class Game:
     
     def CelestialBodyMode(self):
         if not self.isCelestialBodyMode and not self.isModeChangingNaturally:
+            self.minLimitRatio = 0
+            self.maxLimitRatio = 10
             self.y = 200000
         if self.y - self.screenToReal(self.screen.get_height())/2 < 150000:
             self.isModeChangingNaturally = True
@@ -704,6 +747,8 @@ class Game:
 
     def GroundSurfaceMode(self):
         if self.isCelestialBodyMode and not self.isModeChangingNaturally:
+            self.minLimitRatio = 1
+            self.maxLimitRatio = 15
             self.y = self.screen.get_height()/self.ratio
         if self.y - self.screenToReal(self.screen.get_height())/2 >= 150000:
             self.isModeChangingNaturally = True
@@ -1371,7 +1416,7 @@ class ControlOption:
         target.isFollowing = not target.isFollowing
 
     def addVelocity(self, game: Game, target: Element):
-        option = Option(Vector2(0, 0), Vector2(0,0), "test", game.menu)
+        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", game.menu)
         isAdding = True
         target.highLighted = True
         game.update()
@@ -1379,27 +1424,27 @@ class ControlOption:
         coordinator = Coordinator(0, 0, 200, game)
         coordinator.position = target.position
         coordinator.update(game)
-        option.creationPoints = [target.position, target.position]
-        self.addVelocity = (option.creationPoints[1] - option.creationPoints[0])
+        tempOption.creationPoints = [target.position, target.position]
+        self.addVelocity = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
         while isAdding:
-            target.position = option.creationPoints[0]
+            target.position = tempOption.creationPoints[0]
             start_pos = (game.realToScreen(target.position.x, game.x), game.realToScreen(target.position.y, game.y))
-            end_pos = (game.realToScreen(option.creationPoints[1].x, game.x), game.realToScreen(option.creationPoints[1].y, game.y))
+            end_pos = (game.realToScreen(tempOption.creationPoints[1].x, game.x), game.realToScreen(tempOption.creationPoints[1].y, game.y))
 
 
             game.update()
             pos = pygame.mouse.get_pos()
-            option.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
+            tempOption.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
             
             
             if coordinator.isMouseOn():
-                option.drawArrow(game, start_pos, end_pos, "yellow")
+                tempOption.drawArrow(game, start_pos, end_pos, "yellow")
             else:
-                option.drawArrow(game, start_pos, end_pos, "red")
+                tempOption.drawArrow(game, start_pos, end_pos, "red")
             
             coordinator.update(game)
-            coordinator.draw(game, option, str(round(abs(self.addVelocity)))+"px/s")
-            self.addVelocity = (option.creationPoints[1] - option.creationPoints[0])
+            coordinator.draw(game, tempOption, str(round(abs(self.addVelocity)))+"m/s")
+            self.addVelocity = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     game.exit()
@@ -1409,7 +1454,7 @@ class ControlOption:
                     elif event.gain == 1 and event.state == 1:
                         setCapsLock(True)
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    target.velocity += option.creationPoints[1] - option.creationPoints[0]
+                    target.velocity += tempOption.creationPoints[1] - tempOption.creationPoints[0]
                     isAdding = False
                     target.highLighted = False
                 if event.type == pygame.KEYDOWN:
@@ -1432,7 +1477,7 @@ class ControlOption:
         target.velocity = Vector2(0, 0)
 
     def addForce(self, game: Game, target: Element):
-        option = Option(Vector2(0, 0), Vector2(0,0), "test", game.menu)
+        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", game.menu)
         isAdding = True
         target.highLighted = True
         game.update()
@@ -1440,27 +1485,27 @@ class ControlOption:
         coordinator = Coordinator(0, 0, 200, game)
         coordinator.position = target.position
         coordinator.update(game)
-        option.creationPoints = [target.position, target.position]
-        self.additionForce = (option.creationPoints[1] - option.creationPoints[0])
+        tempOption.creationPoints = [target.position, target.position]
+        self.additionForce = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
 
         while isAdding:
-            target.position = option.creationPoints[0]
+            target.position = tempOption.creationPoints[0]
             start_pos = (game.realToScreen(target.position.x, game.x), game.realToScreen(target.position.y, game.y))
-            end_pos = (game.realToScreen(option.creationPoints[1].x, game.x), game.realToScreen(option.creationPoints[1].y, game.y))
+            end_pos = (game.realToScreen(tempOption.creationPoints[1].x, game.x), game.realToScreen(tempOption.creationPoints[1].y, game.y))
 
             game.update()
             pos = pygame.mouse.get_pos()
-            option.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
+            tempOption.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
             
             if coordinator.isMouseOn():
-                option.drawArrow(game, start_pos, end_pos, "yellow")
+                tempOption.drawArrow(game, start_pos, end_pos, "yellow")
             else:
-                option.drawArrow(game, start_pos, end_pos, "red")
+                tempOption.drawArrow(game, start_pos, end_pos, "red")
             
             
             coordinator.update(game)
-            coordinator.draw(game, option, str(round(abs(self.additionForce))/10)+"N")
-            self.additionForce = (option.creationPoints[1] - option.creationPoints[0])
+            coordinator.draw(game, tempOption, str(round(abs(self.additionForce))/10)+"N")
+            self.additionForce = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
                                 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

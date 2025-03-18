@@ -282,9 +282,11 @@ class Ball(Element):
         self.color = color
         self.mass = mass
         self.velocity = velocity
+        self.displayedVelocity = Vector2(0, 0)
         self.naturalForces = []
         self.artificialForces = artificialForces
         self.acceleration = Vector2(0, 0)
+        self.displayedAcceleration = Vector2(0, 0)
         self.gravity = gravity
         self.highLighted = False
         self.collisionFactor = collisionFactor
@@ -297,7 +299,7 @@ class Ball(Element):
                 "type": "mass",
                 "value": self.mass,
                 "min": 0.1,
-                "max": 128
+                "max": 32767
             },
             {
                 "type": "radius",
@@ -422,26 +424,10 @@ class Ball(Element):
             self.velocity += self.acceleration * dt
             self.position += self.velocity * dt
         self.velocity *= self.airResistance ** dt
-        self.attrs = [
-            {
-                "type": "mass",
-                "value": self.mass,
-                "min": 0.1,
-                "max": 128
-            },
-            {
-                "type": "radius",
-                "value": self.radius,
-                "min": 1,
-                "max": 128
-            },
-            {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
-                "max": "#FFFFFF"
-            }
-        ]
+
+        self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
+        self.displayedAcceleration += (self.acceleration - self.displayedAcceleration) * 0.05
+
         return self.position
 
     def draw(self, game) -> None:
@@ -680,6 +666,15 @@ class Wall(Element):
         self.highLighted = False
         self.type = "wall"
 
+        self.attrs = [
+            {
+                "type": "color",
+                "value": self.color,
+                "min": "#000000",
+                "max": "#FFFFFF"
+            }
+        ]
+
     def setAttr(self, name, value):
         if value != "":
             if name == "color":
@@ -716,14 +711,7 @@ class Wall(Element):
                      CollisionLine(self.vertexes[2], self.vertexes[3]), CollisionLine(self.vertexes[3], self.vertexes[0])]
         self.originalPosition = self.position.copy()
 
-        self.attrs = [
-            {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
-                "max": "#FFFFFF"
-            }
-        ]
+        
 
     def check_vertex_collision(self, ball):
         """检测球与墙体顶点的碰撞"""
