@@ -128,7 +128,7 @@ class Game:
 
     def loadGame(self, gameFile=""):
         # 保存当前的 screen 属性
-        current_screen = getattr(self, 'screen', None)
+        currentScreen = getattr(self, 'screen', None)
         try:
             if gameFile == "" and os.path.exists("savefile/autosave.pkl"):
                 gameFile = "autosave.pkl"
@@ -142,8 +142,8 @@ class Game:
                 self.__dict__.update(serializable_dict)
 
                 # 恢复 screen 属性
-                if current_screen is not None:
-                    self.screen = current_screen
+                if currentScreen is not None:
+                    self.screen = currentScreen
                 self.lastTime = time.time()
                 self.currentTime = time.time()
                 print("游戏数据加载成功")
