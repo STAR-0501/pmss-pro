@@ -510,7 +510,7 @@ class Game:
         objectCountTextRect.y = fpsText.get_height()
         self.screen.blit(objectCountText, objectCountTextRect)
 
-        mousePosText = self.font.render(f"鼠标位置 = ({int(self.screenToReal(pygame.mouse.get_pos()[0], self.x))},{int(self.screenToReal(pygame.mouse.get_pos()[1], self.y))})", True, "black")
+        mousePosText = self.font.render(f"鼠标位置 = ({int(self.screenToReal(pygame.mouse.get_pos()[0]/10, self.x))},{-int(self.screenToReal(pygame.mouse.get_pos()[1]/10, self.y))})", True, "black")
         mousePosTextRect =  mousePosText.get_rect()
         mousePosTextRect.x = self.screen.get_width() - mousePosText.get_width()
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
@@ -538,14 +538,14 @@ class Game:
     # 更新所有物理元素状态
     def update_elements(self):
         for element in self.groundElements["all"]:
-            if element.position.y <= -150000:
+            if element.position.y <= -15000000:
                 self.groundElements["all"].remove(element)
                 self.groundElements[element.type].remove(element)
                 self.celestialElements["all"].append(element)
                 self.celestialElements[element.type].append(element)
         
         for element in self.celestialElements["all"]:
-            if element.position.y >= -150000:
+            if element.position.y >= -15000000:
                 self.groundElements["all"].append(element)
                 self.groundElements[element.type].append(element)
                 self.celestialElements["all"].remove(element)
@@ -595,7 +595,7 @@ class Game:
                 v = ball1.displayedVelocity
                 vp = ballPos + v.copy().normalize() * abs(v) ** 0.5
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(vp.x, self.x), self.realToScreen(vp.y, self.y)), "blue")
-                velocityTipsText = font.render(f"速度：{abs(v):.1f} m/s", True, "blue")
+                velocityTipsText = font.render(f"速度：{abs(v)/10:.1f} m/s", True, "blue")
                 velocityTipsTextRect =  velocityTipsText.get_rect()
                 velocityTipsTextRect.x = self.realToScreen(vp.x, self.x)
                 velocityTipsTextRect.y = self.realToScreen(vp.y, self.y)
@@ -717,10 +717,10 @@ class Game:
     
     def CelestialBodyMode(self):
         if not self.isCelestialBodyMode and not self.isModeChangingNaturally:
-            self.minLimitRatio = 0
+            self.minLimitRatio = 0.01
             self.maxLimitRatio = 10
-            self.y = 200000
-        if self.y - self.screenToReal(self.screen.get_height())/2 < 150000:
+            self.y = 20000000
+        if self.y - self.screenToReal(self.screen.get_height())/2 < 15000000:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
                 if option["type"] == "mode":
@@ -750,7 +750,7 @@ class Game:
             self.minLimitRatio = 1
             self.maxLimitRatio = 15
             self.y = self.screen.get_height()/self.ratio
-        if self.y - self.screenToReal(self.screen.get_height())/2 >= 150000:
+        if self.y - self.screenToReal(self.screen.get_height())/2 >= 15000000:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
                 if option["type"] == "mode":

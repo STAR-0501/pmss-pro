@@ -305,7 +305,7 @@ class Ball(Element):
                 "type": "radius",
                 "value": self.radius,
                 "min": 1,
-                "max": 128
+                "max": 1024
             },
             {
                 "type": "color",
