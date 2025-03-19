@@ -184,8 +184,6 @@ class Element:
         ...
     def draw(self, game):
         ...
-    def updateAttrsList(self):
-        ...
     
 class Coordinator():
     """坐标系辅助类，处理坐标转换和角度显示"""
@@ -302,9 +300,26 @@ class Ball(Element):
         self.gravitation = gravitation
         self.type = "ball"
         self.isFollowing = False
-        self.attrs = []
-        self.updateAttrsList()
-        
+        self.attrs = [
+            {
+                "type": "mass",
+                "value": self.mass,
+                "min": 0.1,
+                "max": 32767
+            },
+            {
+                "type": "radius",
+                "value": self.radius,
+                "min": 1,
+                "max": 1024
+            },
+            {
+                "type": "color",
+                "value": self.color,
+                "min": "#000000",
+                "max": "#FFFFFF"
+            }
+        ]
 
     def isPosOn(self, game, pos: Vector2):  
         """检测坐标点是否在球体范围内"""
@@ -406,28 +421,6 @@ class Ball(Element):
         self.acceleration.zero()
         self.accelerate()
 
-    def updateAttrsList(self):
-        self.attrs = [
-            {
-                "type": "mass",
-                "value": self.mass,
-                "min": 0.1,
-                "max": 32767
-            },
-            {
-                "type": "radius",
-                "value": self.radius,
-                "min": 1,
-                "max": 1024
-            },
-            {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
-                "max": "#FFFFFF"
-            }
-        ]
-
     def update(self, dt) -> Vector2:
         """更新物理状态"""
         self.accelerate()
@@ -440,7 +433,7 @@ class Ball(Element):
 
         self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
         self.displayedAcceleration += (self.acceleration - self.displayedAcceleration) * 0.05
-        self.updateAttrsList()
+
         return self.position
 
     def draw(self, game) -> None:
@@ -679,8 +672,14 @@ class Wall(Element):
         self.highLighted = False
         self.type = "wall"
 
-        self.attrs = []
-        self.updateAttrsList()
+        self.attrs = [
+            {
+                "type": "color",
+                "value": self.color,
+                "min": "#000000",
+                "max": "#FFFFFF"
+            }
+        ]
 
     def setAttr(self, name, value):
         if value != "":
@@ -707,16 +706,6 @@ class Wall(Element):
 
     def getPosToPoint(self, point: Vector2) -> Vector2:
         return self.position - point
-
-    def updateAttrsList(self):
-        self.attrs = [
-            {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
-                "max": "#FFFFFF"
-            }
-        ]
 
     def update(self, dt):
         """更新墙体位置并维护碰撞线段"""
