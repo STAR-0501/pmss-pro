@@ -1350,7 +1350,7 @@ class InputMenu(Element):
 
     def updateBoxes(self, event, game):
         for box in self.inputBoxes:
-            box.handle_event(event, game)
+            box.handleEvent(event, game)
 
     def draw(self, game: Game):
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
