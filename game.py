@@ -175,12 +175,22 @@ class Game:
                 break
 
     # 实际坐标转屏幕坐标
-    def realToScreen(self, r, x=0):
+    def realToScreen(self, r : float | Vector2, x : float | Vector2 = None) -> float | Vector2:
+        if x is None:
+            if isinstance(r, Vector2):
+                x = Vector2.zero()
+            else:
+                x = 0
         return (r + x) * self.ratio
 
     # 屏幕坐标转实际坐标
-    def screenToReal(self, r, x=0):
-       return r / self.ratio - x
+    def screenToReal(self, r : float | Vector2, x : float | Vector2 = None) -> float | Vector2:
+        if x is None:
+            if isinstance(r, Vector2):
+                x = Vector2.zero()
+            else:
+                x = 0
+        return r / self.ratio - x
 
     # 事件处理主循环
     def eventLoop(self):
@@ -695,6 +705,8 @@ class Game:
         self.updateMenu()
 
     def findNearestHeavyBall(self, ball : Ball) -> Ball | None:
+        if ball is None:
+            return
         result = None
         minDis = float('inf')
         for ball2 in self.elements["ball"]:
@@ -849,6 +861,7 @@ class Option:
         radius = float(self.attrs["radius"])
         color = self.attrs["color"]
         mass = float(self.attrs["mass"])
+        ball = None
         self.highLighted = True
         coordinator = Coordinator(0, 0, 200, game)
         self.additionVelocity = Vector2(0, 0)
@@ -856,6 +869,10 @@ class Option:
             game.isElementCreating = True
             pos = pygame.mouse.get_pos()
             game.update()
+
+            nearestHeavyBall = game.findNearestHeavyBall(ball)
+            if game.isCircularVelocityGetting and nearestHeavyBall is not None:
+                pygame.draw.circle(game.screen, "yellow", game.realToScreen(nearestHeavyBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(nearestHeavyBall.position)), 3)
 
             if not game.isDragging:
 
@@ -875,20 +892,28 @@ class Option:
                 game.screen.blit(massText, massTextRect)
 
             if game.isDragging:
-                startPos = (game.realToScreen(ball.position.x, game.x), game.realToScreen(ball.position.y, game.y))
-                endPos = (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(self.creationPoints[1].y, game.y))
+                
+                if not game.isCircularVelocityGetting:
+                    startPos = (game.realToScreen(ball.position.x, game.x), game.realToScreen(ball.position.y, game.y))
+                    endPos = (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(self.creationPoints[1].y, game.y))
 
-                self.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
+                    self.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
 
-                if coordinator.isMouseOn():
-                    self.drawArrow(game, startPos, endPos, "yellow")
+                    if coordinator.isMouseOn():
+                        self.drawArrow(game, startPos, endPos, "yellow")
+                    else:
+                        self.drawArrow(game, startPos, endPos, "blue")
+                    ball.draw(game)
+                    coordinator.position = ball.position
+                    self.additionVelocity = (self.creationPoints[1] - self.creationPoints[0]) * 2
+                    coordinator.update(game)
+                    coordinator.draw(game, self)
                 else:
-                    self.drawArrow(game, startPos, endPos, "blue")
-                ball.draw(game)
-                coordinator.position = ball.position
-                self.additionVelocity = (self.creationPoints[1] - self.creationPoints[0]) * 2
-                coordinator.update(game)
-                coordinator.draw(game, self)
+                    ball.position = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
+                    ball.draw(game)
+                    coordinator.position = ball.position
+                    coordinator.update(game)
+                    coordinator.draw(game, self)
 
             pygame.display.update()
             for event in pygame.event.get():
@@ -913,8 +938,9 @@ class Option:
                     elif not game.menu.isMouseOn() or game.isDragging:
                         game.isDragging = False
                         ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(pos[0], game.x) - ball.position.x, game.screenToReal(pos[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
-                        if game.findNearestHeavyBall(ball) is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
-                            ball.getCircularVelocity(game.findNearestHeavyBall(ball))
+                        nearestHeavyBall = game.findNearestHeavyBall(ball)
+                        if nearestHeavyBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
+                            ball.getCircularVelocity(nearestHeavyBall)
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
 
@@ -1350,7 +1376,7 @@ class InputMenu(Element):
 
     def updateBoxes(self, event, game):
         for box in self.inputBoxes:
-            box.handle_event(event, game)
+            box.handleEvent(event, game)
 
     def draw(self, game: Game):
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))

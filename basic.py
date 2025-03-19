@@ -428,7 +428,7 @@ class Ball(Element):
         dt /= substeps
         for _ in range(substeps):
             self.velocity += self.acceleration * dt
-            self.position += self.velocity * dt
+            self.position += (self.velocity + self.acceleration * dt * 20**0.5) * dt
         self.velocity *= self.airResistance ** dt
 
         self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
@@ -657,6 +657,14 @@ class Ball(Element):
         totalColor = colorTupleToString(colorMiddle(self.color, other.color, self.radius / totalRadius))
         
         newBall = Ball(totalPosition, totalRadius, totalColor, totalMass, totalVelocity, totalForce, gravitation=game.isCelestialBodyMode)
+        if self.highLighted:
+            newBall.highLighted = True
+            newBall.displayedAcceleration = self.displayedAcceleration.copy()
+            newBall.displayedVelocity = self.displayedVelocity.copy()
+        elif other.highLighted:
+            newBall.highLighted = True
+            newBall.displayedAcceleration = other.displayedAcceleration.copy()
+            newBall.displayedVelocity = other.displayedVelocity.copy()
         return newBall
 
 class Wall(Element):
