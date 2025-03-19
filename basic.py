@@ -4,6 +4,8 @@ import copy
 import pygame
 import math
 
+G = 5e+4  # 添加引力常数调节参数
+
 # 颜色字符串转RGB元组
 def colorStringToTuple(color: str) -> tuple[int, int, int]:
     # 如果是颜色名称格式，先转换为pygame颜色对象获取RGB值
@@ -64,6 +66,10 @@ class Vector2:
 
     def __abs__(self) -> float:
         return (self.x**2 + self.y**2)**0.5
+
+    def magnitude(self) -> float:
+        """返回向量长度"""
+        return abs(self)
 
     def zero(self) -> Self:
         """将向量置零"""
@@ -134,7 +140,7 @@ class CollisionLine:
     
     def isLineIntersect(self, other: Self) -> bool:
         """使用叉积法判断线段相交"""
-        def cross_product(v1: Vector2, v2: Vector2) -> float:
+        def crossProduct(v1: Vector2, v2: Vector2) -> float:
             return v1.x * v2.y - v1.y * v2.x
 
         # 判断线段AB和线段CD是否相交
@@ -148,10 +154,10 @@ class CollisionLine:
         BD = B - C
 
         # 计算叉积
-        AC_cross_AB = cross_product(AC, self.vector)
-        AD_cross_AB = cross_product(AD, self.vector)
-        BC_cross_CD = cross_product(BC, other.vector)
-        BD_cross_CD = cross_product(BD, other.vector)
+        AC_cross_AB = crossProduct(AC, self.vector)
+        AD_cross_AB = crossProduct(AD, self.vector)
+        BC_cross_CD = crossProduct(BC, other.vector)
+        BD_cross_CD = crossProduct(BD, other.vector)
 
         # 判断线段是否相交
         return (AC_cross_AB * AD_cross_AB < 0) and (BC_cross_CD * BD_cross_CD < 0)
@@ -177,6 +183,8 @@ class Element:
     def update(self, dt):
         ...
     def draw(self, game):
+        ...
+    def updateAttrsList(self):
         ...
     
 class Coordinator():
@@ -234,21 +242,21 @@ class Coordinator():
             radius = abs(nowDirection)
 
         if self.degree > minDirectionDegree: 
-            start_angle = math.radians(minDirectionDegree)
-            end_angle = math.radians(self.degree)
+            startAngle = math.radians(minDirectionDegree)
+            endAngle = math.radians(self.degree)
         elif self.degree <= minDirectionDegree:
-            start_angle = math.radians(self.degree)
-            end_angle = math.radians(minDirectionDegree)
+            startAngle = math.radians(self.degree)
+            endAngle = math.radians(minDirectionDegree)
         if minDirectionDegree == 0 and self.degree > 270:
-            start_angle = math.radians(self.degree)
-            end_angle = math.radians(minDirectionDegree)
+            startAngle = math.radians(self.degree)
+            endAngle = math.radians(minDirectionDegree)
             # 绘制角度信息
         pygame.draw.arc(game.screen, "black", 
                         (game.realToScreen((self.position.x - radius/2), game.x), 
                          game.realToScreen((self.position.y - radius/2), game.y), 
                          game.realToScreen(radius), 
                          game.realToScreen(radius)), 
-                        start_angle, end_angle, 2)
+                        startAngle, endAngle, 2)
         
         if self.minDegree <= 1.5 and self.minDegree != 0 and self.w > 10:
             self.minDegree = 0
@@ -294,26 +302,9 @@ class Ball(Element):
         self.gravitation = gravitation
         self.type = "ball"
         self.isFollowing = False
-        self.attrs = [
-            {
-                "type": "mass",
-                "value": self.mass,
-                "min": 0.1,
-                "max": 32767
-            },
-            {
-                "type": "radius",
-                "value": self.radius,
-                "min": 1,
-                "max": 1024
-            },
-            {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
-                "max": "#FFFFFF"
-            }
-        ]
+        self.attrs = []
+        self.updateAttrsList()
+        
 
     def isPosOn(self, game, pos: Vector2):  
         """检测坐标点是否在球体范围内"""
@@ -358,16 +349,16 @@ class Ball(Element):
 
     def follow(self, game):
         # 计算屏幕中心在游戏世界坐标系中的位置
-        screen_center_x = - game.x + game.screen.get_width() / (2 * game.ratio)
-        screen_center_y = - game.y + game.screen.get_height() / (2 *game.ratio)
+        screenCenterX = - game.x + game.screen.get_width() / (2 * game.ratio)
+        screenCenterY = - game.y + game.screen.get_height() / (2 *game.ratio)
         
         # 计算 self.position 与屏幕中心的偏移量
-        offset_x = self.position.x - screen_center_x
-        offset_y = self.position.y - screen_center_y
+        offsetX = self.position.x - screenCenterX
+        offsetY = self.position.y - screenCenterY
         
         # 更新屏幕在游戏世界坐标系中的位置
-        game.x -= offset_x
-        game.y -= offset_y
+        game.x -= offsetX
+        game.y -= offsetY
         
 
     def isCollidedByLine(self, line: CollisionLine) -> bool:
@@ -381,12 +372,12 @@ class Ball(Element):
         t = AP.dot(AB) / AB.dot(AB)
 
         if line.isLine:  # 直线无限延长
-            closest_point = line.start + AB * t
+            closestPoint = line.start + AB * t
         else:  # 普通线段
-            t_clamped = max(0, min(t, 1))
-            closest_point = line.start + AB * t_clamped
+            tClamped = max(0, min(t, 1))
+            closestPoint = line.start + AB * tClamped
 
-        distance = self.position.distance(closest_point)
+        distance = self.position.distance(closestPoint)
         return distance <= self.radius
 
     def accelerate(self) -> Vector2:
@@ -415,6 +406,28 @@ class Ball(Element):
         self.acceleration.zero()
         self.accelerate()
 
+    def updateAttrsList(self):
+        self.attrs = [
+            {
+                "type": "mass",
+                "value": self.mass,
+                "min": 0.1,
+                "max": 32767
+            },
+            {
+                "type": "radius",
+                "value": self.radius,
+                "min": 1,
+                "max": 1024
+            },
+            {
+                "type": "color",
+                "value": self.color,
+                "min": "#000000",
+                "max": "#FFFFFF"
+            }
+        ]
+
     def update(self, dt) -> Vector2:
         """更新物理状态"""
         self.accelerate()
@@ -427,7 +440,7 @@ class Ball(Element):
 
         self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
         self.displayedAcceleration += (self.acceleration - self.displayedAcceleration) * 0.05
-
+        self.updateAttrsList()
         return self.position
 
     def draw(self, game) -> None:
@@ -444,22 +457,22 @@ class Ball(Element):
         else:
             c = self.color
         
-        num_circles = 20  # 固定20个同心圆
+        numCircles = 20  # 固定20个同心圆
         
         # 绘制渐变效果
-        for n in range(num_circles):
+        for n in range(numCircles):
             # 计算当前半径比例（从1.0到0.0）
-            ratio = n / (num_circles - 1)  # 修正比例计算
+            ratio = n / (numCircles - 1)  # 修正比例计算
             
             # 当前实际半径
-            current_radius = self.radius * (1 - ratio)
+            currentRadius = self.radius * (1 - ratio)
             
             # 颜色混合计算（外部保持原色，内部变浅）
             # 混合比例：外部（ratio=0）保持原色，内部（ratio=1）变浅50%
-            mix_ratio = ratio  # 使用ratio来控制混合比例
-            r = int(c[0] + (255 - c[0]) * mix_ratio * 0.5)
-            g = int(c[1] + (255 - c[1]) * mix_ratio * 0.5)
-            b = int(c[2] + (255 - c[2]) * mix_ratio * 0.5)
+            mixRatio = ratio  # 使用ratio来控制混合比例
+            r = int(c[0] + (255 - c[0]) * mixRatio * 0.5)
+            g = int(c[1] + (255 - c[1]) * mixRatio * 0.5)
+            b = int(c[2] + (255 - c[2]) * mixRatio * 0.5)
             
             # 透明度控制（外部不透明，内部半透明）
             alpha = int(255 * (1 - ratio * 0.5))  # 保持最低50%透明度
@@ -469,14 +482,14 @@ class Ball(Element):
                 game.realToScreen(self.position.x, game.x),
                 game.realToScreen(self.position.y, game.y)
             )
-            draw_radius = game.realToScreen(current_radius)
+            drawRadius = game.realToScreen(currentRadius)
             
             # 创建临时surface实现透明度
-            temp_surf = pygame.Surface((draw_radius*2, draw_radius*2), pygame.SRCALPHA)
-            pygame.draw.circle(temp_surf, (r, g, b, alpha), 
-                            (draw_radius, draw_radius), 
-                            draw_radius, 0)
-            game.screen.blit(temp_surf, (pos[0]-draw_radius, pos[1]-draw_radius))
+            tempSurface = pygame.Surface((drawRadius*2, drawRadius*2), pygame.SRCALPHA)
+            pygame.draw.circle(tempSurface, (r, g, b, alpha), 
+                            (drawRadius, drawRadius), 
+                            drawRadius, 0)
+            game.screen.blit(tempSurface, (pos[0]-drawRadius, pos[1]-drawRadius))
         
         self.highLighted = False
 
@@ -490,25 +503,25 @@ class Ball(Element):
     def reboundByLine(self, line: CollisionLine, timeIsReversed : bool = False) -> Vector2:
         """处理与线段的碰撞反弹逻辑"""
         AB = line.end - line.start
-        line_length = AB.dot(AB)
+        lineLength = AB.dot(AB)
         if abs(self.velocity) == 0:
             cosine = 1
         else:
             cosine = abs(self.velocity.y) / abs(self.velocity)
         
         # 处理零长度线段
-        if line_length < 1e-5:
+        if lineLength < 1e-5:
             return self.velocity
             
         AP = self.position - line.start
-        t = AP.dot(AB) / line_length
+        t = AP.dot(AB) / lineLength
 
         # 计算最近点和法线
         if line.isLine:  # 直线的情况
             closest = line.start + AB * t
-            edge_normal = Vector2(-AB.y, AB.x).normalize()
+            edgeNormal = Vector2(-AB.y, AB.x).normalize()
             # 根据球的位置确定法线方向
-            normal = edge_normal if (self.position - closest).dot(edge_normal) > 0 else -edge_normal
+            normal = edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal
         else:  # 线段的情况
             if t < 0:
                 closest = line.start
@@ -518,24 +531,24 @@ class Ball(Element):
                 normal = (self.position - closest).normalize()
             else:
                 closest = line.start + AB * t
-                edge_normal = Vector2(-AB.y, AB.x).normalize()
-                normal = edge_normal if (self.position - closest).dot(edge_normal) > 0 else -edge_normal
+                edgeNormal = Vector2(-AB.y, AB.x).normalize()
+                normal = edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal
 
         # 计算穿透深度
         penetration = self.radius - self.position.distance(closest)
         
         if penetration > 0:
             # 更精确的位置修正，穿透深度较大时增加能量损失
-            energy_loss_factor = 1 + min(1, penetration / self.radius)
-            self.position += normal * (penetration * energy_loss_factor)
+            energyLossFactor = 1 + min(1, penetration / self.radius)
+            self.position += normal * (penetration * energyLossFactor)
             
             # 速度反射（保留切线分量）
-            vel_normal = self.velocity.dot(normal)
-            self.velocity -= normal * (2 * vel_normal)
+            velocityNormal = self.velocity.dot(normal)
+            self.velocity -= normal * (2 * velocityNormal)
             
             # 将法向分量乘以 self.collisionFactor
-            vel_normal_after_rebound = self.velocity.dot(normal)
-            self.velocity += normal * (vel_normal_after_rebound * ((self.collisionFactor * line.collisionFactor if not timeIsReversed else 1/self.collisionFactor/line.collisionFactor) - 1))
+            velocityNormalAfterRebound = self.velocity.dot(normal)
+            self.velocity += normal * (velocityNormalAfterRebound * ((self.collisionFactor * line.collisionFactor if not timeIsReversed else 1/self.collisionFactor/line.collisionFactor) - 1))
             
             # 调整速度大小
             self.velocity = self.velocity.copy().normalize() * abs(abs(self.velocity) ** 2 - 2 * 98.1 * cosine * (penetration)) ** 0.5
@@ -547,75 +560,75 @@ class Ball(Element):
         # 获取双方质量
         m1 = self.mass
         m2 = ball.mass
-        total_mass = m1 + m2
+        totalMass = m1 + m2
 
         # 计算实际间距
         delta = self.position - ball.position
-        actual_distance = abs(delta)
-        min_distance = self.radius + ball.radius
+        actualDistance = abs(delta)
+        minDistance = self.radius + ball.radius
         
         # 处理零距离特殊情况
-        if actual_distance < 1e-5:
+        if actualDistance < 1e-5:
             # 使用随机方向避免零向量
             normal = Vector2(1, 0) if random() > 0.5 else Vector2(-1, 0)
-            actual_distance = min_distance
+            actualDistance = minDistance
         else:
-            normal = delta / actual_distance
+            normal = delta / actualDistance
 
         tangent = normal.vertical()
         
         # 记录碰撞前速度用于位置修正
-        original_v1 = self.velocity.copy()
-        original_v2 = ball.velocity.copy()
+        originalVelocity1 = self.velocity.copy()
+        originalVelocity2 = ball.velocity.copy()
         
         # 分解速度分量
-        v1n = original_v1.dot(normal)
-        v1t = original_v1.dot(tangent)
-        v2n = original_v2.dot(normal)
-        v2t = original_v2.dot(tangent)
+        velocityNormal1 = originalVelocity1.dot(normal)
+        velocityTangent1 = originalVelocity1.dot(tangent)
+        velocityNormal2 = originalVelocity2.dot(normal)
+        velocityTangent2 = originalVelocity2.dot(tangent)
         
         # 弹性碰撞公式
-        new_v1n = ((m1 - m2)*v1n + 2*m2*v2n) / total_mass
-        new_v2n = (2*m1*v1n + (m2 - m1)*v2n) / total_mass
+        newVelocityNormal1 = ((m1 - m2)*velocityNormal1 + 2*m2*velocityNormal2) / totalMass
+        newVelocityNormal2 = (2*m1*velocityNormal1 + (m2 - m1)*velocityNormal2) / totalMass
         
         # 应用碰撞因子到法向分量（新增部分）
-        collision_factor = self.collisionFactor * ball.collisionFactor
-        new_v1n *= collision_factor
-        new_v2n *= collision_factor
+        collisionFactor = self.collisionFactor * ball.collisionFactor
+        newVelocityNormal1 *= collisionFactor
+        newVelocityNormal2 *= collisionFactor
         
         # 重建速度矢量（保持原始方向）
-        self.velocity = tangent * v1t + normal * new_v1n
-        ball.velocity = tangent * v2t + normal * new_v2n
+        self.velocity = tangent * velocityTangent1 + normal * newVelocityNormal1
+        ball.velocity = tangent * velocityTangent2 + normal * newVelocityNormal2
         
         # 位置修正
-        overlap = (min_distance - actual_distance)
+        overlap = (minDistance - actualDistance)
         if overlap > 0:
-            relative_velocity = (original_v1 - original_v2).dot(normal)
-            if relative_velocity < 0:
-                collision_factor = self.collisionFactor * ball.collisionFactor
+            relativeVelocity = (originalVelocity1 - originalVelocity2).dot(normal)
+            if relativeVelocity < 0:
+                collisionFactor = self.collisionFactor * ball.collisionFactor
                 # 修改分离量计算方式
-                separation = normal * (overlap * (1.001 / collision_factor))  
-                self.position += separation * (m2 / total_mass)
-                ball.position -= separation * (m1 / total_mass)
+                separation = normal * (overlap * (1.001 / collisionFactor))  
+                self.position += separation * (m2 / totalMass)
+                ball.position -= separation * (m1 / totalMass)
 
         return self.velocity
 
     # 物体之间的引力
     def gravitate(self, other: Self) -> Vector2:
         """处理球与球之间的引力（稳定版）"""
-        G = 5e+4  # 添加引力常数调节参数
-        min_distance = 1  # 防止距离过近导致力过大
+        
+        minDistance = 1  # 防止距离过近导致力过大
         
         # 计算实际距离
-        delta_pos = self.position - other.position
-        distance = max(abs(delta_pos), min_distance)
+        deltaPos = self.position - other.position
+        distance = max(abs(deltaPos), minDistance)
         
         # 计算引力方向（保证单位向量稳定性）
-        direction = delta_pos.normalize() if distance > 0 else Vector2(0,0)
+        direction = deltaPos.normalize() if distance > 0 else Vector2(0,0)
         
         # 完整万有引力公式（含距离缩放）
-        force_mag = G * self.mass * other.mass / (distance ** 2 + 1e-6)
-        force = -direction * force_mag  # 正确的吸引方向
+        forceMagnitude = G * self.mass * other.mass / (distance ** 2 + 1e-6)
+        force = -direction * forceMagnitude  # 正确的吸引方向
         
         # 应用作用力时考虑质量分配
         self.force(force, isNatural=True)
@@ -643,14 +656,14 @@ class Ball(Element):
     def merge(self, other: Self, game) -> Self:
         """处理球与球之间的天体合并"""
         
-        total_position = (self.position * self.mass + other.position * other.mass) / (self.mass + other.mass)
-        total_velocity = (self.velocity * self.mass + other.velocity * other.mass) / (self.mass + other.mass)
-        total_force = self.artificialForces + other.artificialForces
-        total_radius = round((self.radius ** 2 + other.radius ** 2) ** 0.5, 1)
-        total_mass = self.mass + other.mass
-        total_color = colorTupleToString(colorMiddle(self.color, other.color, self.radius / total_radius))
+        totalPosition = (self.position * self.mass + other.position * other.mass) / (self.mass + other.mass)
+        totalVelocity = (self.velocity * self.mass + other.velocity * other.mass) / (self.mass + other.mass)
+        totalForce = self.artificialForces + other.artificialForces
+        totalRadius = round((self.radius ** 2 + other.radius ** 2) ** 0.5, 1)
+        totalMass = self.mass + other.mass
+        totalColor = colorTupleToString(colorMiddle(self.color, other.color, self.radius / totalRadius))
         
-        newBall = Ball(total_position, total_radius, total_color, total_mass, total_velocity, total_force, gravitation=game.isCelestialBodyMode)
+        newBall = Ball(totalPosition, totalRadius, totalColor, totalMass, totalVelocity, totalForce, gravitation=game.isCelestialBodyMode)
         return newBall
 
 class Wall(Element):
@@ -666,14 +679,8 @@ class Wall(Element):
         self.highLighted = False
         self.type = "wall"
 
-        self.attrs = [
-            {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
-                "max": "#FFFFFF"
-            }
-        ]
+        self.attrs = []
+        self.updateAttrsList()
 
     def setAttr(self, name, value):
         if value != "":
@@ -701,6 +708,16 @@ class Wall(Element):
     def getPosToPoint(self, point: Vector2) -> Vector2:
         return self.position - point
 
+    def updateAttrsList(self):
+        self.attrs = [
+            {
+                "type": "color",
+                "value": self.color,
+                "min": "#000000",
+                "max": "#FFFFFF"
+            }
+        ]
+
     def update(self, dt):
         """更新墙体位置并维护碰撞线段"""
         # 计算位置
@@ -713,15 +730,15 @@ class Wall(Element):
 
         
 
-    def check_vertex_collision(self, ball):
+    def checkVertexCollision(self, ball):
         """检测球与墙体顶点的碰撞"""
         for vertex in self.vertexes:
             if ball.position.distance(vertex) <= ball.radius:
                 # 计算从顶点到球心的方向作为法线
                 normal = (ball.position - vertex).normalize()
-                self.handle_vertex_collision(ball, vertex, normal)
+                self.handleVertexCollision(ball, vertex, normal)
 
-    def handle_vertex_collision(self, ball, vertex, normal):
+    def handleVertexCollision(self, ball, vertex, normal):
         """处理顶点碰撞的响应"""
         # 计算穿透深度
         penetration = ball.radius - ball.position.distance(vertex)
@@ -729,8 +746,8 @@ class Wall(Element):
             # 位置修正
             ball.position += normal * penetration * 1.1
             # 速度反射（使用顶点法线）
-            vel_normal = ball.velocity.dot(normal)
-            ball.velocity -= normal * (2 * vel_normal)
+            velocityNormal = ball.velocity.dot(normal)
+            ball.velocity -= normal * (2 * velocityNormal)
 
     def isPosOn(self, game, pos: Vector2):
         """使用射线法判断点是否在多边形内部"""

@@ -1,12 +1,11 @@
 from basic import *
 from game import *
-import pygame, threading, sys, time
+import pygame, threading
 
 def update_elements_thread(game : Game):
     while True:
         game.update_elements()
         
-
 # if __name__ == '__main__':
 #     game = Game()
     
