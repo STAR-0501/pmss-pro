@@ -136,10 +136,10 @@ class Game:
             print(f"正在加载游戏数据：{gameFile}")
             with open(f"savefile/{gameFile}", "rb") as f:
                 # 加载序列化的字典
-                serializable_dict = pickle.load(f)
+                serializableDict = pickle.load(f)
 
                 # 更新 self.__dict__，只更新可序列化的属性
-                self.__dict__.update(serializable_dict)
+                self.__dict__.update(serializableDict)
 
                 # 恢复 screen 属性
                 if currentScreen is not None:
@@ -1209,15 +1209,15 @@ class SettingsButton:
 class InputBox:
     def __init__(self, x, y, width, height, option, target, text=''):
         self.rect = pygame.Rect(x, y, width-100, height)
-        self.color_inactive = pygame.Color('lightskyblue3')
-        self.color_active = pygame.Color('dodgerblue2')
-        self.color = self.color_inactive
+        self.colorInactive = pygame.Color('lightskyblue3')
+        self.colorActive = pygame.Color('dodgerblue2')
+        self.color = self.colorInactive
         self.text = text
         self.font = pygame.font.Font(None, int(height))
         self.textSurface = self.font.render(self.text, True, self.color)
         self.active = False
         self.cursorVisible = True
-        self.cursor_timer = 0
+        self.cursorTimer = 0
         self.option = option
         self.target = target
         self.active = False
@@ -1234,7 +1234,7 @@ class InputBox:
                 self.active = not self.active
             else:
                 self.active = False
-            self.color = self.color_active if self.active else self.color_inactive
+            self.color = self.colorActive if self.active else self.colorInactive
         if event.type == pygame.KEYDOWN:
             
             if self.active:
@@ -1288,10 +1288,10 @@ class InputBox:
     # 更新输入框状态
     def update(self):
         # 更新光标状态
-        self.cursor_timer += 1
-        if self.cursor_timer >= 30:
+        self.cursorTimer += 1
+        if self.cursorTimer >= 30:
             self.cursorVisible = not self.cursorVisible
-            self.cursor_timer = 0
+            self.cursorTimer = 0
 
     # 绘制输入框
     def draw(self, screen):
@@ -1301,8 +1301,8 @@ class InputBox:
 
         # 渲染光标
         if self.active and self.cursorVisible:
-            cursor_pos = self.font.render(self.text, True, self.color).get_width() + self.rect.x + 5
-            pygame.draw.line(screen, self.color, (cursor_pos, self.rect.y + 5), (cursor_pos, self.rect.y + 27), 2)
+            cursorPos = self.font.render(self.text, True, self.color).get_width() + self.rect.x + 5
+            pygame.draw.line(screen, self.color, (cursorPos, self.rect.y + 5), (cursorPos, self.rect.y + 27), 2)
 
 # 输入菜单界面类
 class InputMenu(Element):
