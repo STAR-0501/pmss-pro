@@ -55,7 +55,7 @@
         "attrs": [
             {
                 "type": "color",
-                "value": "RED",
+                "value": "BLUE",
                 "min": "#000000",
                 "max": "#FFFFFF"
             }
