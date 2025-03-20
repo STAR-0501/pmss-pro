@@ -1,5 +1,6 @@
 import os
 from basic import *
+from ai import *
 from tkinter import messagebox
 import pygame
 import sys, time, json, ctypes, pickle
@@ -40,7 +41,8 @@ class Game:
         pygame.display.set_icon(icon)
 
         self.pos = (0,0)   # 鼠标屏幕坐标，而非真实坐标
-        self.font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/130))
+        self.fontSmall = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/125))
+        self.fontBig = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/75))
         self.ratio = 5
         self.minLimitRatio = 1
         self.maxLimitRatio = 15
@@ -136,10 +138,10 @@ class Game:
             print(f"正在加载游戏数据：{gameFile}")
             with open(f"savefile/{gameFile}", "rb") as f:
                 # 加载序列化的字典
-                serializable_dict = pickle.load(f)
+                serializableDict = pickle.load(f)
 
                 # 更新 self.__dict__，只更新可序列化的属性
-                self.__dict__.update(serializable_dict)
+                self.__dict__.update(serializableDict)
 
                 # 恢复 screen 属性
                 if currentScreen is not None:
@@ -482,7 +484,7 @@ class Game:
                 fpsTextColor = "darkgreen"
         else:
             fpsTextColor = "darkgreen"
-        fpsText = self.font.render(f"fps = {self.fpsAverage:.0f} / {self.fpsMinimum:.0f}", True, fpsTextColor)
+        fpsText = self.fontSmall.render(f"fps = {self.fpsAverage:.0f} / {self.fpsMinimum:.0f}", True, fpsTextColor)
         fpsTextRect =  fpsText.get_rect()
         fpsTextRect.x = self.screen.get_width() - fpsText.get_width()
         fpsTextRect.y = 0
@@ -502,31 +504,31 @@ class Game:
                 objectCountTextColor = "darkorange"
             else:
                 objectCountTextColor = "black"
-        objectCountText = self.font.render(f"物体数量 = {len(self.elements['all'])}", True, objectCountTextColor)
+        objectCountText = self.fontSmall.render(f"物体数量 = {len(self.elements['all'])}", True, objectCountTextColor)
         objectCountTextRect =  objectCountText.get_rect()
         objectCountTextRect.x = self.screen.get_width() - objectCountText.get_width()
         objectCountTextRect.y = fpsText.get_height()
         self.screen.blit(objectCountText, objectCountTextRect)
 
-        mousePosText = self.font.render(f"鼠标位置 = ({int(self.screenToReal(pygame.mouse.get_pos()[0]/10, self.x))},{-int(self.screenToReal(pygame.mouse.get_pos()[1]/10, self.y))})", True, "black")
+        mousePosText = self.fontSmall.render(f"鼠标位置 = ({int(self.screenToReal(pygame.mouse.get_pos()[0]/10, self.x))},{-int(self.screenToReal(pygame.mouse.get_pos()[1]/10, self.y))})", True, "black")
         mousePosTextRect =  mousePosText.get_rect()
         mousePosTextRect.x = self.screen.get_width() - mousePosText.get_width()
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
         self.screen.blit(mousePosText, mousePosTextRect)
 
-        ratioText = self.font.render(f"缩放比例 = {self.ratio:.1f}x", True, "black")
+        ratioText = self.fontSmall.render(f"缩放比例 = {self.ratio:.1f}x", True, "black")
         ratioTextRect =  ratioText.get_rect()
         ratioTextRect.x = self.screen.get_width() - ratioText.get_width()        
         ratioTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height()
         self.screen.blit(ratioText, ratioTextRect)
 
-        speedText = self.font.render(f"倍速 = {self.speed:.1f}x", True, "black") 
+        speedText = self.fontSmall.render(f"倍速 = {self.speed:.1f}x", True, "black") 
         speedTextRect =  speedText.get_rect()
         speedTextRect.x = self.screen.get_width() - speedText.get_width()
         speedTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height() + ratioText.get_height()
         self.screen.blit(speedText, speedTextRect)
 
-        pauseText = self.font.render(f"已暂停", True, "red")
+        pauseText = self.fontSmall.render(f"已暂停", True, "red")
         pauseTextRect =  pauseText.get_rect()
         pauseTextRect.x = self.screen.get_width() - pauseText.get_width()
         pauseTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height() + ratioText.get_height() + speedText.get_height()
@@ -567,44 +569,44 @@ class Game:
                 ball1.highLighted = True
                 ball1.follow(self)
 
-                font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", 20)
-                followingTipsText = font.render(f"视角跟随中", True, "blue")
+                followingTipsText = self.fontBig.render(f"视角跟随中", True, "blue")
                 followingTipsTextRect =  followingTipsText.get_rect()
                 followingTipsTextRect.x = self.screen.get_width()/2
-                followingTipsTextRect.y = 20
+                followingTipsTextRect.y = self.screen.get_height()/50
                 self.screen.blit(followingTipsText, followingTipsTextRect)
 
-                massTipsText = font.render(f"质量：{ball1.mass:.1f}", True, "darkgreen")
+                massTipsText = self.fontBig.render(f"质量：{ball1.mass:.1f}", True, "darkgreen")
                 massTipsTextRect =  massTipsText.get_rect()
                 massTipsTextRect.x = self.screen.get_width()/2
-                massTipsTextRect.y = 40
+                massTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height()
                 self.screen.blit(massTipsText, massTipsTextRect)
-                radiusTipsText = font.render(f"半径：{ball1.radius:.1f}", True, "darkgreen")
+
+                radiusTipsText = self.fontBig.render(f"半径：{ball1.radius:.1f}", True, "darkgreen")
                 radiusTipsTextRect =  radiusTipsText.get_rect()
                 radiusTipsTextRect.x = self.screen.get_width()/2
-                radiusTipsTextRect.y = 60
+                radiusTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height() + massTipsText.get_height()
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
                 ballPos = ball1.position
                 tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", self.menu)
 
-                v = ball1.displayedVelocity
-                vp = ballPos + v.copy().normalize() * abs(v) ** 0.5
-                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(vp.x, self.x), self.realToScreen(vp.y, self.y)), "blue")
-                velocityTipsText = font.render(f"速度：{abs(v)/10:.1f} m/s", True, "blue")
-                velocityTipsTextRect =  velocityTipsText.get_rect()
-                velocityTipsTextRect.x = self.realToScreen(vp.x, self.x)
-                velocityTipsTextRect.y = self.realToScreen(vp.y, self.y)
-                self.screen.blit(velocityTipsText, velocityTipsTextRect)
-
                 f = ball1.displayedAcceleration
                 fp = ballPos + f / 4
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(fp.x, self.x), self.realToScreen(fp.y, self.y)), "red")
-                accelerationTipsText = font.render(f"加速度：{abs(f)/10:.1f} m/s²", True, "red")
+                accelerationTipsText = self.fontBig.render(f"加速度：{abs(f)/10:.1f} m/s²", True, "red")
                 accelerationTipsTextRect =  accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(fp.x, self.x)
                 accelerationTipsTextRect.y = self.realToScreen(fp.y, self.y)
                 self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
+
+                v = ball1.displayedVelocity
+                vp = ballPos + v.copy().normalize() * abs(v) ** 0.5
+                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(vp.x, self.x), self.realToScreen(vp.y, self.y)), "blue")
+                velocityTipsText = self.fontBig.render(f"速度：{abs(v)/10:.1f} m/s", True, "blue")
+                velocityTipsTextRect =  velocityTipsText.get_rect()
+                velocityTipsTextRect.x = self.realToScreen(vp.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(vp.y, self.y)
+                self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
             try:
                 for ball2 in self.elements["ball"]:
@@ -874,20 +876,20 @@ class Option:
                 ball = Ball(Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)), radius, color, mass, Vector2(0, 0), [Vector2(0, 0)], True)
                 self.creationPoints = [ball.position, ball.position]
                 ball.draw(game)
-                radiusText = game.font.render(f"半径 = {radius}", True, colorSuitable(ball.color, game.background))
+                radiusText = game.fontSmall.render(f"半径 = {radius}", True, colorSuitable(ball.color, game.background))
                 radiusTextRect =  radiusText.get_rect()
                 radiusTextRect.x = pos[0]
                 radiusTextRect.y = pos[1]
                 game.screen.blit(radiusText, radiusTextRect)
 
-                massText = game.font.render(f"质量 = {mass: .1f}", True, colorSuitable(ball.color, game.background))
+                massText = game.fontSmall.render(f"质量 = {mass: .1f}", True, colorSuitable(ball.color, game.background))
                 massTextRect =  massText.get_rect()
                 massTextRect.x = pos[0]
                 massTextRect.y = pos[1] + radiusText.get_height()
                 game.screen.blit(massText, massTextRect)
 
             if game.isDragging:
-                
+
                 if not game.isCircularVelocityGetting:
                     startPos = (game.realToScreen(ball.position.x, game.x), game.realToScreen(ball.position.y, game.y))
                     endPos = (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(self.creationPoints[1].y, game.y))
@@ -1209,15 +1211,15 @@ class SettingsButton:
 class InputBox:
     def __init__(self, x, y, width, height, option, target, text=''):
         self.rect = pygame.Rect(x, y, width-100, height)
-        self.color_inactive = pygame.Color('lightskyblue3')
-        self.color_active = pygame.Color('dodgerblue2')
-        self.color = self.color_inactive
+        self.colorInactive = pygame.Color('lightskyblue3')
+        self.colorActive = pygame.Color('dodgerblue2')
+        self.color = self.colorInactive
         self.text = text
         self.font = pygame.font.Font(None, int(height))
         self.textSurface = self.font.render(self.text, True, self.color)
         self.active = False
         self.cursorVisible = True
-        self.cursor_timer = 0
+        self.cursorTimer = 0
         self.option = option
         self.target = target
         self.active = False
@@ -1234,11 +1236,11 @@ class InputBox:
                 self.active = not self.active
             else:
                 self.active = False
-            self.color = self.color_active if self.active else self.color_inactive
+            self.color = self.colorActive if self.active else self.colorInactive
         if event.type == pygame.KEYDOWN:
-            
+
             if self.active:
-                
+
                 if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
                     if not self.isColorError:
                         game.isEditing = False
@@ -1253,12 +1255,12 @@ class InputBox:
                         if event.unicode.isdigit() or event.unicode == "." or event.unicode == "-":
                             try:
                                 self.text += event.unicode
-                                
+
                                 if float(self.text) < self.min:
                                     self.text = str(self.min)
                                 elif float(self.text) > self.max:
                                     self.text = str(self.max)
-                                
+
                             except ValueError: 
                                 self.text = self.text[:-1]
                     else:
@@ -1274,12 +1276,11 @@ class InputBox:
                             self.attrUpdate(self.target)
                         except ValueError:
                             self.isColorError = True
-                 
+
                         
             game.lastTime = game.currentTime
             game.currentTime = time.time()
             self.textSurface = self.font.render(self.text, True, self.color)
-                
 
     # 更新目标属性
     def attrUpdate(self, target):
@@ -1288,10 +1289,10 @@ class InputBox:
     # 更新输入框状态
     def update(self):
         # 更新光标状态
-        self.cursor_timer += 1
-        if self.cursor_timer >= 30:
+        self.cursorTimer += 1
+        if self.cursorTimer >= 30:
             self.cursorVisible = not self.cursorVisible
-            self.cursor_timer = 0
+            self.cursorTimer = 0
 
     # 绘制输入框
     def draw(self, screen):
@@ -1301,8 +1302,8 @@ class InputBox:
 
         # 渲染光标
         if self.active and self.cursorVisible:
-            cursor_pos = self.font.render(self.text, True, self.color).get_width() + self.rect.x + 5
-            pygame.draw.line(screen, self.color, (cursor_pos, self.rect.y + 5), (cursor_pos, self.rect.y + 27), 2)
+            cursorPos = self.font.render(self.text, True, self.color).get_width() + self.rect.x + 5
+            pygame.draw.line(screen, self.color, (cursorPos, self.rect.y + 5), (cursorPos, self.rect.y + 27), 2)
 
 # 输入菜单界面类
 class InputMenu(Element):
@@ -1514,7 +1515,7 @@ class ControlOption:
     def draw(self, game: Game):
         pygame.draw.rect(game.screen, self.color, (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
         text = game.translation[self.name]
-        textSurface = game.font.render(text, True, (0, 0, 0))
+        textSurface = game.fontSmall.render(text, True, (0, 0, 0))
         game.screen.blit(textSurface, (self.x + self.width/2 - textSurface.get_width()/2, self.y + self.height/2 - textSurface.get_height()/2))
 
 class ElementController:
