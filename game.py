@@ -1,5 +1,6 @@
 import os
 from basic import *
+from ai import *
 from tkinter import messagebox
 import pygame
 import sys, time, json, ctypes, pickle
@@ -185,11 +186,6 @@ class Game:
     # 事件处理主循环
     def eventLoop(self):
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_o:
-
-                    print(self.isScreenMoving)
-
             if event.type == pygame.QUIT:
                 self.exit()
             elif event.type == pygame.ACTIVEEVENT:
@@ -1188,22 +1184,19 @@ class SettingsButton:
 class InputBox:
     def __init__(self, x, y, width, height, option, target, text=''):
         self.rect = pygame.Rect(x, y, width-100, height)
-        self.colorInactive = pygame.Color('lightskyblue3')
-        self.colorActive = pygame.Color('dodgerblue2')
-        self.color = self.colorInactive
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color = self.color_inactive
         self.text = text
         self.font = pygame.font.Font(None, int(height))
         self.textSurface = self.font.render(self.text, True, self.color)
         self.active = False
         self.cursorVisible = True
-        self.cursorTimer = 0
+        self.cursor_timer = 0
         self.option = option
         self.target = target
         self.active = False
         self.isColorError = False
-        self.cursorPos = len(text)  # 新增光标位置
-        self.backspacePressed = False  # 新增退格长按状态
-        self.backspaceLastTime = 0    # 新增退格计时器
         if self.option["type"] != "color":
             self.min = float(self.option["min"])
             self.max = float(self.option["max"])
@@ -1211,109 +1204,80 @@ class InputBox:
     # 处理输入事件
     def handleEvent(self, event, game : Game):
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # 如果点击了输入框区域，激活输入框
             if self.rect.collidepoint(event.pos):
                 self.active = not self.active
             else:
                 self.active = False
-            self.color = self.colorActive if self.active else self.colorInactive
-
+            self.color = self.color_active if self.active else self.color_inactive
         if event.type == pygame.KEYDOWN:
+            
             if self.active:
-                # 处理方向键移动光标
-                if event.key == pygame.K_LEFT:
-                    if self.cursorPos > 0:
-                        self.cursorPos -= 1
-                elif event.key == pygame.K_RIGHT:
-                    if self.cursorPos < len(self.text):
-                        self.cursorPos += 1
-
-                elif event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+                
+                if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
                     if not self.isColorError:
                         game.isEditing = False
+                        self.attrUpdate(self.target)
                     else:
                         messagebox.showerror("错误", "您输入的颜色不合法!!!\n请输入合法的颜色编号或名称!")
                         game.isEditing = True
                 else:
                     if self.option["type"] != "color":
                         if event.key == pygame.K_BACKSPACE:
-                            self.HandleBackspace()
-                            self.backspacePressed = True
-                            self.backspaceLastTime = pygame.time.get_ticks()
-                        elif event.unicode.isdigit() or event.unicode == "." or event.unicode == "-":
-                            original_text = self.text
-                            original_pos = self.cursorPos
-                            self.text = self.text[:self.cursorPos] + event.unicode + self.text[self.cursorPos:]
-                            self.cursorPos += 1
+                            self.text = self.text[:-1]
+                        if event.unicode.isdigit() or event.unicode == "." or event.unicode == "-":
                             try:
-                                num = float(self.text)
-                                if num < self.min:
+                                self.text += event.unicode
+                                
+                                if float(self.text) < self.min:
                                     self.text = str(self.min)
-                                    self.cursorPos = len(self.text)
-                                elif num > self.max:
+                                elif float(self.text) > self.max:
                                     self.text = str(self.max)
-                                    self.cursorPos = len(self.text)
-                            except ValueError:
-                                self.text = original_text
-                                self.cursorPos = original_pos
-                            self.attrUpdate(self.target)
+                                
+                            except ValueError: 
+                                self.text = self.text[:-1]
                     else:
                         if event.key == pygame.K_BACKSPACE:
-                            self.HandleBackspace()
-                            self.backspacePressed = True
-                            self.backspaceLastTime = pygame.time.get_ticks()
-                        elif event.unicode.isalnum() or event.unicode == "#":
-                            self.text = self.text[:self.cursorPos] + event.unicode + self.text[self.cursorPos:]
-                            self.cursorPos += 1
-                            self.isColorError = False
-                            try:
-                                pygame.Color(self.text)
-                                self.attrUpdate(self.target)
-                            except ValueError:
-                                self.isColorError = True
+                            self.text = self.text[:-1]
+                        if event.unicode.isalnum() or event.unicode == "#":
+                            self.text += event.unicode
+                        self.isColorError = False
+                        try:
+                            if len(self.text) != 0 and self.text[0] == "#":
+                                self.text = self.text[0:7]
+                            pygame.Color(self.text)
+                            self.attrUpdate(self.target)
+                        except ValueError:
+                            self.isColorError = True
+                 
+                        
+            game.lastTime = game.currentTime
+            game.currentTime = time.time()
+            self.textSurface = self.font.render(self.text, True, self.color)
+                
 
-                game.lastTime = game.currentTime
-                game.currentTime = time.time()
-                self.textSurface = self.font.render(self.text, True, self.color)
-
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_BACKSPACE:
-                self.backspacePressed = False
-
-    # 新增退格处理函数
-    def HandleBackspace(self):
-        if self.cursorPos > 0:
-            self.text = self.text[:self.cursorPos-1] + self.text[self.cursorPos:]
-            self.cursorPos -= 1
-            self.attrUpdate(self.target)
+    # 更新目标属性
+    def attrUpdate(self, target):
+        target.setAttr(self.option["type"], self.text)
 
     # 更新输入框状态
     def update(self):
-        self.cursorTimer += 1
-        if self.cursorTimer >= 30:
+        # 更新光标状态
+        self.cursor_timer += 1
+        if self.cursor_timer >= 30:
             self.cursorVisible = not self.cursorVisible
-            self.cursorTimer = 0
-
-        # 处理长按退格
-        if self.backspacePressed:
-            currentTime = pygame.time.get_ticks()
-            if currentTime - self.backspaceLastTime > 500:  # 500ms后开始连续删除
-                self.HandleBackspace()
-                self.backspaceLastTime = currentTime - 450  # 控制删除频率
+            self.cursor_timer = 0
 
     # 绘制输入框
     def draw(self, screen):
+        # 绘制输入框和文本
         screen.blit(self.textSurface, (self.rect.x + 5, self.rect.y + 5))
         pygame.draw.rect(screen, self.color, self.rect, 2)
 
+        # 渲染光标
         if self.active and self.cursorVisible:
-            # 根据光标位置计算渲染位置
-            textBeforeCursor = self.text[:self.cursorPos]
-            cursorX = self.font.render(textBeforeCursor, True, self.color).get_width() + self.rect.x + 5
-            pygame.draw.line(screen, self.color, (cursorX, self.rect.y + 5), (cursorX, self.rect.y + 27), 2)
-
-    # 保留原有方法
-    def attrUpdate(self, target):
-        target.setAttr(self.option["type"], self.text)
+            cursor_pos = self.font.render(self.text, True, self.color).get_width() + self.rect.x + 5
+            pygame.draw.line(screen, self.color, (cursor_pos, self.rect.y + 5), (cursor_pos, self.rect.y + 27), 2)
 
 # 输入菜单界面类
 class InputMenu(Element):
