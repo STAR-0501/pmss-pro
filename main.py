@@ -33,10 +33,3 @@ if __name__ == '__main__':
     while True:
         game.update()
         pygame.display.update()
-
-# if __name__ == '__main__':
-#     game = Game()
-    
-#     while True:
-#         game.update()
-#         pygame.display.update()

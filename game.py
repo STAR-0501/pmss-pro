@@ -125,7 +125,7 @@ class Game:
         # 将可序列化的字典保存到文件
         with open(f"savefile/autosave.pkl", "wb") as f:
             pickle.dump(serializableDict, f)
-            print("游戏数据保存成功")
+            print("\n游戏数据保存成功")
             f.close()
 
     def loadGame(self, gameFile=""):
@@ -374,14 +374,12 @@ class Game:
                                 option["value"] = "0"
                             if option["type"] == "gravity":
                                 option["value"] = "1"
-                        # self.GroundSurfaceMode()
                     else:
                         for option in self.environmentOptions:
                             if option["type"] == "mode":
                                 option["value"] = "1"
                             if option["type"] == "gravity":
                                 option["value"] = "0"
-                        # self.CelestialBodyMode()
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL:
@@ -536,7 +534,7 @@ class Game:
             self.screen.blit(pauseText, pauseTextRect)
 
     # 更新所有物理元素状态
-    def update_elements(self):
+    def updateElements(self):
         for element in self.groundElements["all"]:
             if element.position.y <= -15000000:
                 self.groundElements["all"].remove(element)
@@ -698,7 +696,7 @@ class Game:
     def update(self):
         self.eventLoop()
         self.updateScreen()
-        self.update_elements()
+        self.updateElements()
         self.updateMenu()
 
     def findNearestHeavyBall(self, ball : Ball) -> Ball | None:
@@ -1385,6 +1383,8 @@ class ControlOption:
                 game.elements[type].remove(target)
 
     def follow(self, game: Game, target: Element):
+        for element in game.elements["all"]:
+            element.isFollowing = False
         target.isFollowing = not target.isFollowing
 
     def addVelocity(self, game: Game, target: Element):
@@ -1397,12 +1397,13 @@ class ControlOption:
         coordinator.position = target.position
         coordinator.update(game)
         tempOption.creationPoints = [target.position, target.position]
-        self.addVelocity = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
+        self.additionVelocity = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
+        originVelocity = target.velocity
         while isAdding:
             target.position = tempOption.creationPoints[0]
             startPos = (game.realToScreen(target.position.x, game.x), game.realToScreen(target.position.y, game.y))
             endPos = (game.realToScreen(tempOption.creationPoints[1].x, game.x), game.realToScreen(tempOption.creationPoints[1].y, game.y))
-
+            target.velocity = originVelocity
             game.update()
             pos = pygame.mouse.get_pos()
             tempOption.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
@@ -1413,8 +1414,8 @@ class ControlOption:
                 tempOption.drawArrow(game, startPos, endPos, "blue")
 
             coordinator.update(game)
-            coordinator.draw(game, tempOption, str(round(abs(self.addVelocity)))+"m/s")
-            self.addVelocity = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
+            coordinator.draw(game, tempOption, str(round(abs(self.additionVelocity)/10))+"m/s")
+            self.additionVelocity = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     game.exit()
@@ -1456,12 +1457,12 @@ class ControlOption:
         coordinator.update(game)
         tempOption.creationPoints = [target.position, target.position]
         self.additionForce = (tempOption.creationPoints[1] - tempOption.creationPoints[0])
-
+        originVelocity = target.velocity
         while isAdding:
             target.position = tempOption.creationPoints[0]
             startPos = (game.realToScreen(target.position.x, game.x), game.realToScreen(target.position.y, game.y))
             endPos = (game.realToScreen(tempOption.creationPoints[1].x, game.x), game.realToScreen(tempOption.creationPoints[1].y, game.y))
-
+            target.velocity = originVelocity
             game.update()
             pos = pygame.mouse.get_pos()
             tempOption.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
