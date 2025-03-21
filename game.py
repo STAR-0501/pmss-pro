@@ -228,21 +228,24 @@ class Game:
                 
                 if event.y == 1 and self.ratio < self.maxLimitRatio:
                     if not self.isCtrlPressing:
-                        self.ratio *= speed
 
                         bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
+
+                        self.ratio *= speed
 
                         nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
+
                     else:
-                        self.ratio *= speed
 
                         bx = self.screenToReal(self.screen.get_width()/2, self.x)
                         by = self.screenToReal(self.screen.get_height()/2, self.y)
+
+                        self.ratio *= speed
 
                         nx = self.screenToReal(self.screen.get_width()/2, self.x)
                         ny = self.screenToReal(self.screen.get_height()/2, self.y)
@@ -252,25 +255,28 @@ class Game:
 
                 elif event.y == -1 and self.ratio > self.minLimitRatio:
                     if not self.isCtrlPressing:
-                        self.ratio /= speed
 
                         bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
+
+                        self.ratio /= speed
 
                         nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                         ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
+
                     else:
-                        self.ratio /= speed
 
                         bx = self.screenToReal(self.screen.get_width()/2, self.x)
                         by = self.screenToReal(self.screen.get_height()/2, self.y)
 
+                        self.ratio /= speed
+
                         nx = self.screenToReal(self.screen.get_width()/2, self.x)
                         ny = self.screenToReal(self.screen.get_height()/2, self.y)
-
+                        
                         self.x += nx - bx
                         self.y += ny - by
 

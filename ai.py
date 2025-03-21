@@ -7,7 +7,7 @@ class AI:
         self.key = "sk-c41d82fe4a0b4e97b5c1d8bacff3790e"
         self.baseUrl = "https://api.deepseek.com"
         self.modal = "deepseek-chat"
-        # self.modal = "deepseek-reasoner"      # 使用R1模型
+        # self.modal = "deepseek-reasoner"  # 使用R1模型
         self.client = openai.OpenAI(api_key=self.key, base_url=self.baseUrl)
         self.messages = []
 
@@ -25,7 +25,6 @@ class AI:
             words = json.load(f)
             for k,v in words.items():
                 self.messages.append({"role": "system", "content": v})
-
 
         print("AI初始化完成！")
 
@@ -52,7 +51,6 @@ class AI:
 
         # 初始化一个空字符串来存储模型的回应
         assistant_message = ""
-
         
         # 迭代流式响应，逐步获取数据
         for chunk in response:
@@ -63,7 +61,6 @@ class AI:
         self.messages.append({"role": "assistant", "content": assistant_message})
 
         return assistant_message
-
 
     def clear_memory(self):
         """清空历史对话记忆。"""
