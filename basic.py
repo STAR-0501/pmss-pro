@@ -6,13 +6,16 @@ import math
 
 G = 5e+4  # 添加引力常数调节参数
 
-# 颜色字符串转RGB元组
 def colorStringToTuple(color: str) -> tuple[int, int, int]:
+    """颜色字符串转RGB元组"""
+
     # 如果是颜色名称格式，先转换为pygame颜色对象获取RGB值
     if not color.startswith('#'):
+
         try:
             c = pygame.Color(color.lower())
             return (c.r, c.g, c.b)
+        
         except ValueError:
             # 如果颜色名称无效，返回默认黑色
             return (0, 0, 0)
@@ -20,31 +23,38 @@ def colorStringToTuple(color: str) -> tuple[int, int, int]:
     # 处理十六进制字符串格式
     return tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
 
-# RGB元组转颜色字符串
 def colorTupleToString(color : tuple[int, int, int]) -> str:
+    """RGB元组转颜色字符串"""
     return '#%02x%02x%02x' % color
 
-# 计算平均颜色
-def colorMiddle(color1 : tuple[int, int, int], color2 : tuple[int, int, int], factor : float = 0.5) -> tuple[int, int, int]:
+def colorMiddle(color1 : tuple[int, int, int] | str, color2 : tuple[int, int, int] | str, factor : float = 0.5) -> tuple[int, int, int]:
+    """计算平均颜色"""
+
     if isinstance(color1, str):
         color1 = colorStringToTuple(color1)
+
     if isinstance(color2, str):
         color2 = colorStringToTuple(color2)
+
     return (int(color1[0] * factor + color2[0] * (1 - factor)), int(color1[1] * factor + color2[1] * (1 - factor)), int(color1[2] * factor + color2[2] * (1 - factor)))
 
-# 计算反转颜色
 def colorOpposite(color : tuple[int, int, int]) -> tuple[int, int, int]:
+    """计算反转颜色"""
     return (255 - color[0], 255 - color[1], 255 - color[2])
 
-# 计算合适颜色
 def colorSuitable(color1 : tuple[int, int, int] | str, color2 : tuple[int, int, int] | str) -> tuple[int, int, int]:
+    """计算合适颜色"""
     return colorOpposite(colorMiddle(color1, color2))
+
+# 计算
 
 class Vector2:
     """二维向量类，提供基本向量运算和几何操作方法"""
     def __init__(self, x : float | tuple[float, float], y : float = None) -> None:
+        
         if y is None:
             self.x, self.y = x
+
         else:
             self.x = x
             self.y = y
@@ -80,9 +90,11 @@ class Vector2:
     def normalize(self) -> Self:
         """向量单位化"""
         length = abs(self)
+
         if length != 0:
             self.x /= length
             self.y /= length
+
         return self
 
     def dot(self, other : Self) -> float:
@@ -97,25 +109,30 @@ class Vector2:
         """返回向量副本"""
         return Vector2(self.x, self.y)
 
-    #计算向量a在向量b上的投影
     def project(self, other : Self) -> Self:
         """计算当前向量在另一向量上的投影"""
         dot = self.x * other.x + self.y * other.y
         length = other.x**2 + other.y**2
-        if length != 0: scalar = dot / length
-        else: scalar = 0
+
+        if length != 0:
+            scalar = dot / length
+        else:
+            scalar = 0
+
         return Vector2(other.x * scalar, other.y * scalar)
 
-    #计算向量a在垂直于向量b的向量上的投影
     def projectVertical(self, other : Self) -> Self:
         """计算当前向量在垂直方向上的投影"""
         dot = self.x * other.x + self.y * other.y
         length = other.x**2 + other.y**2
-        if length != 0: scalar = dot / length
-        else: scalar = 0
+
+        if length != 0:
+            scalar = dot / length
+        else:
+            scalar = 0
+
         return Vector2(self.x - other.x * scalar, self.y - other.y * scalar)
 
-    #计算垂线
     def vertical(self) -> Self:
         """返回当前向量的垂直向量"""
         return Vector2(-self.y, self.x)
@@ -174,17 +191,26 @@ class Element:
         self.highLighted = False
         self.type = "element"
         self.attrs = []
+
     def isMouseOn(self, game):
         """检测鼠标是否在元素上"""
         pos = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
         return self.isPosOn(game, pos)
+    
     def isPosOn(self, game, pos):
+        """检测坐标点是否在元素上"""
         ...
+
     def update(self, dt):
+        """更新方法"""
         ...
+
     def draw(self, game):
+        """绘制方法"""
         ...
+
     def updateAttrsList(self):
+        """更新属性列表"""
         ...
 
 class Coordinator():
@@ -200,12 +226,15 @@ class Coordinator():
 
     def draw(self, game, option, text="") -> None:
         """绘制坐标系指示器和角度信息"""
+
         for direction in self.direction:
             pygame.draw.line(game.screen, "black", (game.realToScreen(self.position.x, game.x), game.realToScreen(self.position.y, game.y)), (game.realToScreen(self.position.x + direction.x, game.x), game.realToScreen(self.position.y + direction.y, game.y)))
+        
         self.showDegree(game, Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y)), option, text)
 
     def update(self, game):
         """更新坐标系方向向量"""
+
         self.direction = [
             Vector2(game.screenToReal(self.w), game.screenToReal(0)), 
             Vector2(game.screenToReal(0), game.screenToReal(-self.w)), 
@@ -214,6 +243,7 @@ class Coordinator():
         ]
 
     def isMouseOn(self) -> bool:
+        """检测鼠标是否在坐标系上"""
         return self.minDegree == 0
 
     def showDegree(self, game, pos: Vector2, option, text) -> None:
@@ -221,15 +251,19 @@ class Coordinator():
         minDirectionDegree = 0
         index = -1
         nowDirection = pos - self.position
+
         # 使用 atan2 计算角度，范围 [-180°, 180°]
         self.degree = math.degrees(math.atan2(nowDirection.y, nowDirection.x))
+
         # 转换为 [0°, 360°]，并调整 y 轴向下时的角度
         self.degree = (360 - self.degree) % 360  # 反转角度以适应 y 轴向下
         self.minDegree = 360
+
         for direction in self.direction:
             d = (self.direction.index(direction) * 90) % 360
             # 计算最小差值，考虑角度的周期性
             delta = min(abs(d - self.degree), 360 - abs(d - self.degree))
+
             if delta < self.minDegree:
                 minDirectionDegree = d
                 self.minDegree = delta
@@ -237,34 +271,42 @@ class Coordinator():
 
         if game.realToScreen(abs(nowDirection)) >= self.w:
             radius = game.screenToReal(self.w)
+
         else:
             radius = abs(nowDirection)
 
         if self.degree > minDirectionDegree: 
             startAngle = math.radians(minDirectionDegree)
             endAngle = math.radians(self.degree)
+
         elif self.degree <= minDirectionDegree:
             startAngle = math.radians(self.degree)
             endAngle = math.radians(minDirectionDegree)
+            
         if minDirectionDegree == 0 and self.degree > 270:
             startAngle = math.radians(self.degree)
             endAngle = math.radians(minDirectionDegree)
-            # 绘制角度信息
+
+        # 绘制角度信息
         pygame.draw.arc(game.screen, "black", 
-                        (game.realToScreen((self.position.x - radius/2), game.x), 
-                         game.realToScreen((self.position.y - radius/2), game.y), 
-                         game.realToScreen(radius), 
-                         game.realToScreen(radius)), 
-                        startAngle, endAngle, 2)
+            (game.realToScreen((self.position.x - radius/2), game.x), 
+            game.realToScreen((self.position.y - radius/2), game.y), 
+            game.realToScreen(radius), 
+            game.realToScreen(radius)), 
+            startAngle, endAngle, 2
+        )
 
         if self.minDegree <= 1.5 and self.minDegree != 0 and self.w > 10:
             self.minDegree = 0
+
             # 计算单位方向向量
             minDirectionUnit = self.minDirection.normalize()
+
             # 保持 nowDirection 的长度，但方向与 minDirection 一致
             n = self.position + minDirectionUnit * abs(nowDirection)
             option.creationPoints[1] = n
             option.isAbsorption = True
+
         else:
             option.isAbsorption = False
 
@@ -282,7 +324,7 @@ class Coordinator():
             game.screen.blit(game.fontSmall.render(text, True, "black"), (textX, textY)) 
 
 class Ball(Element):
-    """小球物理实体类，处理运动学计算和碰撞响应"""
+    """球体物理实体类，处理运动学计算和碰撞响应"""
     def __init__(self, position : Vector2, radius, color, mass, velocity : Vector2, artificialForces : list[Vector2], gravity : float = 1, collisionFactor : float = 1, gravitation : bool = False) -> None:
         self.position = position
         self.radius = radius
@@ -290,10 +332,12 @@ class Ball(Element):
         self.mass = mass
         self.velocity = velocity
         self.displayedVelocity = Vector2(0, 0)
+        self.displayedVelocityFactor = 0
         self.naturalForces = []
         self.artificialForces = artificialForces
         self.acceleration = Vector2(0, 0)
         self.displayedAcceleration = Vector2(0, 0)
+        self.displayedAccelerationFactor = 0
         self.gravity = gravity
         self.highLighted = False
         self.collisionFactor = collisionFactor
@@ -314,21 +358,26 @@ class Ball(Element):
         return distance <= self.radius + other.radius
 
     def setAttr(self, name, value):
+        """设置属性值"""
         if value != "":
+
             if name == "color":
                 self.color = value
+
             if name == "radius":
                 self.radius = float(value)
+
             if name == "mass":
                 self.mass = float(value)
 
     def copy(self, game):
-
+        """自我复制"""
         self.isFollowing = False
         newBall = copy.deepcopy(self)
         isMoving = True
         game.elements["all"].append(newBall)
         game.elements["ball"].append(newBall)
+
         while isMoving:
             newBall.position = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
 
@@ -346,6 +395,7 @@ class Ball(Element):
                         isMoving = False
 
     def follow(self, game):
+        """使视角跟随"""
         # 计算屏幕中心在游戏世界坐标系中的位置
         screenCenterX = - game.x + game.screen.get_width() / (2 * game.ratio)
         screenCenterY = - game.y + game.screen.get_height() / (2 *game.ratio)
@@ -396,6 +446,7 @@ class Ball(Element):
         return self.accelerate()
 
     def resetForce(self, isNatural : bool = False) -> None:
+        """重置外力"""
         if isNatural:
             self.naturalForces.clear()
         else:
@@ -404,6 +455,7 @@ class Ball(Element):
         self.accelerate()
 
     def updateAttrsList(self):
+        """更新属性列表"""
         self.attrs = [
             {
                 "type": "mass",
@@ -435,8 +487,11 @@ class Ball(Element):
             self.position += (self.velocity + self.acceleration * dt * 20**0.5) * dt
         self.velocity *= self.airResistance ** dt
 
-        self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
-        self.displayedAcceleration += (self.acceleration - self.displayedAcceleration) * 0.05
+        # self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
+        # self.displayedAcceleration += (self.acceleration - self.displayedAcceleration) * 0.05
+        self.displayedVelocityFactor *= 0.95
+        self.displayedAccelerationFactor *= 0.95
+
         self.updateAttrsList()
         return self.position
 
@@ -509,6 +564,9 @@ class Ball(Element):
         # 处理零长度线段
         if lineLength < 1e-5:
             return self.velocity
+        
+        self.displayedVelocity = self.velocity + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor
+        self.displayedVelocityFactor = 1
 
         AP = self.position - line.start
         t = AP.dot(AB) / lineLength
@@ -572,6 +630,12 @@ class Ball(Element):
         else:
             normal = delta / actualDistance
 
+        self.displayedVelocity = self.velocity + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor
+        self.displayedVelocityFactor = 1
+
+        ball.displayedVelocity = ball.velocity + (ball.displayedVelocity - ball.velocity) * ball.displayedVelocityFactor
+        ball.displayedVelocityFactor = 1
+
         tangent = normal.vertical()
 
         # 记录碰撞前速度用于位置修正
@@ -588,7 +652,7 @@ class Ball(Element):
         newVelocityNormal1 = ((m1 - m2)*velocityNormal1 + 2*m2*velocityNormal2) / totalMass
         newVelocityNormal2 = (2*m1*velocityNormal1 + (m2 - m1)*velocityNormal2) / totalMass
 
-        # 应用碰撞因子到法向分量（新增部分）
+        # 应用碰撞因子到法向分量
         collisionFactor = self.collisionFactor * ball.collisionFactor
         newVelocityNormal1 *= collisionFactor
         newVelocityNormal2 *= collisionFactor
@@ -610,9 +674,8 @@ class Ball(Element):
 
         return self.velocity
 
-    # 物体之间的引力
     def gravitate(self, other: Self) -> Vector2:
-        """处理球与球之间的引力（稳定版）"""
+        """处理球与球之间的引力"""
 
         minDistance = 1  # 防止距离过近导致力过大
 
@@ -633,8 +696,7 @@ class Ball(Element):
 
         return force
 
-    # 计算环绕速度
-    def getCircularVelocity(self, ball : Self) -> Vector2:
+    def getCircularVelocity(self, ball : Self, factor : float = 1) -> Vector2:
         """计算两个球的环绕速度"""
         # 计算距离
         distance = self.position.distance(ball.position)
@@ -645,11 +707,10 @@ class Ball(Element):
         # 计算速度大小
         velocity = direction * (ball.mass / distance * 1e+5) ** 0.5
         # 修改速度
-        self.velocity = velocity + ball.velocity
+        self.velocity = velocity * factor + ball.velocity
 
         return self.velocity
 
-    # 天体合并
     def merge(self, other: Self, game) -> Self:
         """处理球与球之间的天体合并"""
 
@@ -688,11 +749,13 @@ class Wall(Element):
         self.updateAttrsList()
 
     def setAttr(self, name, value):
+        """设置属性值"""
         if value != "":
             if name == "color":
                 self.color = value
 
     def copy(self, game):
+        """自我复制"""
         newWall = copy.deepcopy(self)
         game.elements["all"].append(newWall)
         game.elements["wall"].append(newWall)
@@ -711,9 +774,11 @@ class Wall(Element):
                         isMoving = False
 
     def getPosToPoint(self, point: Vector2) -> Vector2:
+        """获取墙体到点的方向向量"""
         return self.position - point
 
     def updateAttrsList(self):
+        """更新属性列表"""
         self.attrs = [
             {
                 "type": "color",
@@ -732,7 +797,6 @@ class Wall(Element):
         self.lines = [CollisionLine(self.vertexes[0], self.vertexes[1]), CollisionLine(self.vertexes[1], self.vertexes[2]),
                      CollisionLine(self.vertexes[2], self.vertexes[3]), CollisionLine(self.vertexes[3], self.vertexes[0])]
         self.originalPosition = self.position.copy()
-
 
     def checkVertexCollision(self, ball):
         """检测球与墙体顶点的碰撞"""
@@ -793,11 +857,13 @@ class Wall(Element):
         self.highLighted = False
 
 class WallPosition:
+    """墙体位置类，储存墙体上某一点的相对位置"""
     def __init__(self, wall: Wall, position: Vector2):
         self.wall = wall
         self.position = position
 
 class Rope:
+    """绳索类，处理绳索的显示和物理效果"""
     def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float, width: float, color) -> bool:
         self.start = start
         self.end = end
@@ -809,6 +875,7 @@ class Rope:
         return True
 
     def update(self, dt):
+        """更新绳索位置"""
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
         elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
@@ -817,6 +884,6 @@ class Rope:
             ...
         else:
             ...
-
     def draw(self, game):
+        """绘制绳索"""
         pygame.draw.line(game.screen, self.color, (game.realToScreen(self.start.position.x, game.x), game.realToScreen(self.start.position.y, game.y)), (game.realToScreen(self.end.position.x, game.x), game.realToScreen(self.end.position.y, game.y)), self.width)
