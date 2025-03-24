@@ -35,6 +35,7 @@ class Game:
         self.isDragging = False
         self.isCelestialBodyMode = False
         self.isModeChangingNaturally = False
+        self.icon = ""
 
         self.screen = pygame.display.set_mode()
         pygame.display.set_caption("Physics Motion Simulation System Beta")
@@ -49,7 +50,8 @@ class Game:
         self.maxLimitRatio = 15
         self.x = self.screen.get_width()/2 / self.ratio
         self.y = self.screen.get_height() / self.ratio
-        self.menu : Menu = None
+        self.elementMenu : Menu = None
+        self.exampleMenu : Menu = None
         self.currentTime = time.time()
         self.lastTime = self.currentTime
         self.fpsAverage = 0
@@ -114,7 +116,13 @@ class Game:
     def saveGame(self, filename : str = "manualsave"):
         """保存游戏数据"""
         # 创建一个新的字典，用于存储可序列化的属性
-        serializableDict = {}
+        # serializableDict = {
+        #     "gameName" : f"{int(time.time())}备份"
+        # }
+        
+        serializableDict = {               #做预设用的
+            "gameName" : f"自由落体模拟实验"
+        }
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
@@ -151,6 +159,7 @@ class Game:
             with open(f"savefile/{filename}.pkl", "rb") as f:
                 # 加载序列化的字典
                 serializableDict = pickle.load(f)
+                print(serializableDict["gameName"])
 
                 # 更新 self.__dict__，只更新可序列化的属性
                 self.__dict__.update(serializableDict)
@@ -216,11 +225,15 @@ class Game:
                 self.pos = pygame.mouse.get_pos()
 
                 if event.button == 1:
-                    for option in self.menu.options:
+
+                    for option in self.elementMenu.options:
+                        option.createElement(self, Vector2(self.pos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
+                    
+                    for option in self.exampleMenu.options:
                         option.createElement(self, Vector2(self.pos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
                 
                 if event.button == 3:
-                    for option in self.menu.options:
+                    for option in self.elementMenu.options:
                         option.edit(self, Vector2(self.pos))  # edit里会判定对应的按钮是否被点击，并编辑对应的物体
 
             if event.type == pygame.MOUSEWHEEL:
@@ -283,7 +296,7 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.pos = pygame.mouse.get_pos()
                 
-                if event.button == 1 and not self.menu.isMouseOn() and not self.isElementCreating and not self.isElementControlling and not self.isEditing:
+                if event.button == 1 and not self.elementMenu.isMouseOn() and not self.isElementCreating and not self.isElementControlling and not self.isEditing:
                     self.isMoving = True
                     self.isScreenMoving = True
 
@@ -292,7 +305,7 @@ class Game:
                             self.elements["controlling"].append(element)
                             self.isScreenMoving = False
 
-                if event.button == 3 and not self.menu.isMouseOn():
+                if event.button == 3 and not self.elementMenu.isMouseOn():
                     self.isElementControlling = True
                     for element in self.elements["all"]:
                         if(element.isMouseOn(self)):
@@ -323,7 +336,7 @@ class Game:
                                         if event.key == pygame.K_z and self.isCtrlPressing:
                                             lastElement = self.elements["all"][-1]
                                             self.elements["all"].remove(lastElement)
-                                            for option in self.menu.options:
+                                            for option in self.elementMenu.options:
                                                 if option.type == lastElement.type:
                                                     self.elements[option.type].remove(lastElement)
                                                     break
@@ -339,10 +352,19 @@ class Game:
 
                                         if pygame.K_1 <= event.key <= pygame.K_9:
                                             self.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                                            loadedTipText = self.fontSmall.render(f"{self.gameName}加载成功", True, (0, 0, 0))
+                                            loadedTipRect = loadedTipText.get_rect(center=(self.screen.get_width()/2, self.screen.get_height()/2))
+                                            
+                                            self.update()
+                                            self.screen.blit(loadedTipText, loadedTipRect)
+                                            pygame.display.update()
+                                            time.sleep(0.3)
+                                            self.lastTime = time.time()
+                                            self.currentTime = time.time()
 
                                         if event.key == pygame.K_r:
                                             self.elements["all"].clear()
-                                            for option in self.menu.options:
+                                            for option in self.elementMenu.options:
                                                 self.elements[option.type].clear()
                                             self.isElementControlling = False
 
@@ -401,7 +423,7 @@ class Game:
                     if len(self.elements["all"]) > 0:
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
-                        for option in self.menu.options:
+                        for option in self.elementMenu.options:
                             if option.type == lastElement.type:
                                 self.elements[option.type].remove(lastElement)
                                 break
@@ -411,7 +433,7 @@ class Game:
 
                 if event.key == pygame.K_r:
                     self.elements["all"].clear()
-                    for option in self.menu.options:
+                    for option in self.elementMenu.options:
                         self.elements[option.type].clear()
 
                 if event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL:
@@ -431,6 +453,15 @@ class Game:
 
                 if pygame.K_1 <= event.key <= pygame.K_9:
                     self.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                    loadedTipText = self.fontSmall.render(f"{self.gameName}加载成功", True, (0, 0, 0))
+                    loadedTipRect = loadedTipText.get_rect(center=(self.screen.get_width()/2, self.screen.get_height()/2))
+                    
+                    self.update()
+                    self.screen.blit(loadedTipText, loadedTipRect)
+                    pygame.display.update()
+                    time.sleep(0.3)
+                    self.lastTime = time.time()
+                    self.currentTime = time.time()
 
                 if event.key == pygame.K_p:
                     if self.isCelestialBodyMode:
@@ -487,7 +518,7 @@ class Game:
                     if e.key == pygame.K_z and self.isCtrlPressing:
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
-                        for option in self.menu.options:
+                        for option in self.elementMenu.options:
                             if option.type == lastElement.type:
                                 self.elements[option.type].remove(lastElement)
                                 break
@@ -561,9 +592,26 @@ class Game:
     def updateMenu(self):
         """更新菜单界面"""
         w, h = self.screen.get_size()
-        if self.menu == None:
-            self.menu = Menu(Vector2(w, h))
-        self.menu.draw(game=self)
+        if self.elementMenu == None:
+            with open("config/elementOptions.json", "r", encoding="utf-8") as f:
+                self.elementMenu = Menu(Vector2(w*97/100, 0), json.load(f))
+        self.elementMenu.draw(game=self)
+
+        if self.exampleMenu == None:
+            examples = []
+            for s,d,f in os.walk("savefile/default"):
+                for file in f:
+                    example = {
+                    "name": os.path.basename(s),
+                    "type": "example",
+                    "attrs": [{
+                        "type": "path", 
+                        "value": "default/"+file
+                    }]
+                    }
+                    examples.append(example)
+            self.exampleMenu = Menu(Vector2(0, 0), examples)
+        self.exampleMenu.draw(game=self)
 
         if self.speed != 0:
             if self.fpsAverage / abs(self.speed) ** 0.5 < 60 or self.fpsMinimum / abs(self.speed) ** 0.5 < 30:
@@ -680,7 +728,7 @@ class Game:
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
                 ballPos = ball1.position
-                tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", self.menu)
+                tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], self.elementMenu)
 
                 acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
                 accelerationPosition = ballPos + acceleration / 4
@@ -883,20 +931,19 @@ class Game:
                 ball.naturalForces.clear()
 
 class Menu:
-    """游戏菜单界面类"""
-    def __init__(self, size : Vector2):
-        self.width = size.x*3/100
-        self.height = size.y*80/100
+    def __init__(self, pos : Vector2, optionsList = []):
+        w, h = pygame.display.get_surface().get_size()
+        self.width = w*3/100
+        self.height = h*80/100
 
-        self.x = size.x-self.width
-        self.y = (size.y-self.height)/2
+        self.x = pos.x
+        self.y = pos.y + (h - self.height)/2
 
-        with open("config/elementOptions.json", "r", encoding="utf-8") as f:
-            self.optionsList = json.load(f)
+        self.optionsList = optionsList
 
         self.options = []
         for i in range(len(self.optionsList)):
-            option = Option(Vector2(self.x+self.width*1/10, self.y+self.width*1/10+i*self.width*9/10), Vector2(self.width*8/10, self.width*8/10), self.optionsList[i]["type"], self)
+            option = Option(Vector2(self.x+self.width*1/10, self.y+self.width*1/10+i*self.width*9/10), Vector2(self.width*8/10, self.width*8/10), self.optionsList[i]["type"], self.optionsList[i]["attrs"], self)
             self.options.append(option)
 
     def isMouseOn(self):
@@ -916,7 +963,7 @@ class Menu:
 
 class Option:
     """菜单选项类"""
-    def __init__(self, pos : Vector2, size : Vector2, type: str, menu : Menu):
+    def __init__(self, pos : Vector2, size : Vector2, type: str, attrs_ : list, menu : Menu):
         self.x = pos.x
         self.y = pos.y
         self.width = size.x
@@ -927,13 +974,10 @@ class Option:
         self.isAbsorption = False
         self.attrs = {}
         self.highLighted = False
-
-        for option in menu.optionsList:
-            if option["type"] == self.type:
-                self.name = option["name"]
-                self.attrs_ = option["attrs"]
-                for attr in self.attrs_:
-                    self.attrs[attr["type"]] = attr["value"]
+        self.attrs_ = attrs_
+        for attr in self.attrs_:
+            self.attrs[attr["type"]] = attr["value"]
+                
 
     def drawArrow(self, game, startPos, endPos, color):
         """绘制箭头"""
@@ -1067,8 +1111,8 @@ class Option:
                         if element.isMouseOn(game):
                             allowToPlace = False
                             break
-
-                    if not game.menu.isMouseOn() and allowToPlace:
+                        
+                    if not game.elementMenu.isMouseOn() and allowToPlace:
                         ball = Ball(Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)), radius, color, mass, Vector2(0, 0), [Vector2(0, 0)])
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
@@ -1078,7 +1122,7 @@ class Option:
                         game.isElementCreating = False
                         break
 
-                    elif not game.menu.isMouseOn() or game.isDragging:
+                    elif not game.elementMenu.isMouseOn() or game.isDragging:
                         game.isDragging = False
                         ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(pos[0], game.x) - ball.position.x, game.screenToReal(pos[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
                         nearestHeavyBall = game.findNearestHeavyBall(ball)
@@ -1089,7 +1133,16 @@ class Option:
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
 
-                    for option in game.menu.options:
+                    else:
+                        for option in game.elementMenu.options:
+                            if option.isMouseOn():
+                                game.isElementCreating = False
+                                self.highLighted = False
+                                method = eval(f"option.{option.type}Create")
+                                method(game)
+                                break
+
+                    for option in game.elementMenu.options:
                         if option.isMouseOn():
                             game.isElementCreating = False
                             self.highLighted = False
@@ -1146,7 +1199,7 @@ class Option:
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
 
-                        for option in game.menu.options:
+                        for option in game.elementMenu.options:
                             if option.type == lastElement.type:
                                 game.elements[option.type].remove(lastElement)
                                 break
@@ -1162,6 +1215,15 @@ class Option:
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                        loadedTipText = game.fontSmall.render(f"{game.gameName}加载成功", True, (0, 0, 0))
+                        loadedTipRect = loadedTipText.get_rect(center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                       
+                        game.update() 
+                        game.screen.blit(loadedTipText, loadedTipRect)
+                        pygame.display.update()
+                        time.sleep(0.3)
+                        game.lastTime = time.time()
+                        game.currentTime = time.time()
 
                     if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
                         game.isMassSetting = True
@@ -1175,7 +1237,7 @@ class Option:
                     if event.key == pygame.K_r:
                         game.elements["all"].clear()
 
-                        for option in game.menu.options:
+                        for option in game.elementMenu.options:
                             game.elements[option.type].clear()
 
                     if event.key == pygame.K_ESCAPE:
@@ -1264,7 +1326,7 @@ class Option:
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
 
-                        if not game.menu.isMouseOn():
+                        if not game.elementMenu.isMouseOn():
                             allowToPlace = True
 
                             for element in game.elements["ball"]:
@@ -1296,7 +1358,7 @@ class Option:
                             game.isElementCreating = False
                             break
 
-                        for option in game.menu.options:
+                        for option in game.elementMenu.options:
                             if option.isMouseOn():
                                 game.isElementCreating = False
                                 self.highLighted = False
@@ -1319,7 +1381,7 @@ class Option:
                     if event.key == pygame.K_z and game.isCtrlPressing:
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
-                        for option in game.menu.options:
+                        for option in game.elementMenu.options:
                             if option.type == lastElement.type:
                                 game.elements[option.type].remove(lastElement)
                                 break
@@ -1335,13 +1397,22 @@ class Option:
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                        loadedTipText = game.fontSmall.render(f"{game.gameName}加载成功", True, (0, 0, 0))
+                        loadedTipRect = loadedTipText.get_rect(center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                        
+                        game.update()
+                        game.screen.blit(loadedTipText, loadedTipRect)
+                        pygame.display.update()
+                        time.sleep(0.3)
+                        game.lastTime = time.time()
+                        game.currentTime = time.time()
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
                         
                     if event.key == pygame.K_r:
                         game.elements["all"].clear()
-                        for option in game.menu.options:
+                        for option in game.elementMenu.options:
                             game.elements[option.type].clear()
 
                     if event.key == pygame.K_ESCAPE:
@@ -1372,6 +1443,18 @@ class Option:
                             game.CelestialBodyMode()
 
                 game.screenMove(event)
+
+    def exampleCreate(self, game : Game):
+        game.loadGame(self.attrs["path"])
+        loadedTipText = game.fontSmall.render(f"{game.gameName}加载成功", True, (0, 0, 0))
+        loadedTipRect = loadedTipText.get_rect(center=(game.screen.get_width()/2, game.screen.get_height()/2))
+        
+        game.update()
+        game.screen.blit(loadedTipText, loadedTipRect)
+        pygame.display.update()
+        time.sleep(0.3)
+        game.lastTime = time.time()
+        game.currentTime = time.time()
 
     def elementEdit(self, game : Game, attrs : list):
         """打开编辑元素属性框"""
@@ -1529,7 +1612,10 @@ class InputBox:
 
     def attrUpdate(self, target):
         """更新目标属性"""
-        target.setAttr(self.option["type"], self.text)
+        if self.text == "":
+            target.setAttr(self.option["type"], self.option["min"])
+        else:
+            target.setAttr(self.option["type"], self.text)
 
     def update(self):
         """更新输入框状态"""
@@ -1571,6 +1657,7 @@ class InputMenu(Element):
 
     def update(self, game: Game):
         """更新输入菜单布局"""
+        game.isPaused = False
         l = len(self.options)
         self.height = 0
         self.inputBoxes.clear()
@@ -1625,7 +1712,7 @@ class ControlOption:
         """打开属性编辑器"""
         inputMenu = InputMenu(Vector2(game.screen.get_width()/2, game.screen.get_height()/2), game, target)
 
-        for option in game.menu.optionsList:
+        for option in game.elementMenu.optionsList:
             if option["type"] == target.type:
                 inputMenu.options = target.attrs
                 inputMenu.target = target
@@ -1652,10 +1739,11 @@ class ControlOption:
 
     def addVelocity(self, game: Game, target: Element):
         """添加速度"""
-        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", game.menu)
+        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
+        game.isPaused = True
 
         coordinator = Coordinator(0, 0, 200, game)
         coordinator.position = target.position
@@ -1663,12 +1751,14 @@ class ControlOption:
         tempOption.creationPoints = [target.position, target.position]
         self.additionVelocity = tempOption.creationPoints[1] - tempOption.creationPoints[0]
         originVelocity = target.velocity
+        originAcceleration = target.acceleration
 
         while isAdding:
             target.position = tempOption.creationPoints[0]
             startPos = game.realToScreen(target.position, Vector2(game.x, game.y)).toTuple()
             endPos = game.realToScreen(tempOption.creationPoints[1], Vector2(game.x, game.y)).toTuple()
             target.velocity = originVelocity
+            target.acceleration = originAcceleration
 
             game.update()
             pos = pygame.mouse.get_pos()
@@ -1680,7 +1770,7 @@ class ControlOption:
                 tempOption.drawArrow(game, startPos, endPos, "blue")
 
             coordinator.update(game)
-            coordinator.draw(game, tempOption, str(round(abs(self.additionVelocity)))+"m/s")
+            coordinator.draw(game, tempOption, str(round(abs(self.additionVelocity)/10))+"m/s")
             self.additionVelocity = tempOption.creationPoints[1] - tempOption.creationPoints[0]
 
             for event in pygame.event.get():
@@ -1716,6 +1806,15 @@ class ControlOption:
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                        loadedTipText = game.fontSmall.render(f"{game.gameName}加载成功", True, (0, 0, 0))
+                        loadedTipRect = loadedTipText.get_rect(center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                        
+                        game.update()
+                        game.screen.blit(loadedTipText, loadedTipRect)
+                        pygame.display.update()
+                        time.sleep(0.3)
+                        game.lastTime = time.time()
+                        game.currentTime = time.time()
 
                     if event.key == pygame.K_ESCAPE:
                         isAdding = False
@@ -1724,6 +1823,8 @@ class ControlOption:
             game.lastTime = game.currentTime
             game.currentTime = time.time()
             pygame.display.update()
+        
+        game.isPaused = False
 
     def clearVelocity(self, game: Game, target: Element):
         """清除速度"""
@@ -1733,10 +1834,11 @@ class ControlOption:
 
     def addForce(self, game: Game, target: Element):
         """添加力"""
-        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", game.menu)
+        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
+        game.isPaused = True
 
         coordinator = Coordinator(0, 0, 200, game)
         coordinator.position = target.position
@@ -1744,12 +1846,14 @@ class ControlOption:
         tempOption.creationPoints = [target.position, target.position]
         self.additionForce = tempOption.creationPoints[1] - tempOption.creationPoints[0]
         originVelocity = target.velocity
+        originAcceleration = target.acceleration
 
         while isAdding:
             target.position = tempOption.creationPoints[0]
             startPos = game.realToScreen(target.position, Vector2(game.x, game.y)).toTuple()
             endPos = game.realToScreen(tempOption.creationPoints[1], Vector2(game.x, game.y)).toTuple()
             target.velocity = originVelocity
+            target.acceleration = originAcceleration
 
             game.update()
             pos = pygame.mouse.get_pos()
@@ -1797,6 +1901,14 @@ class ControlOption:
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                        loadedTipText = game.fontSmall.render(f"{game.gameName}加载成功", True, (0, 0, 0))
+                        loadedTipRect = loadedTipText.get_rect(center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                        game.screen.blit(loadedTipText, loadedTipRect)
+                        game.update()
+                        pygame.display.update()
+                        time.sleep(0.3)
+                        game.lastTime = time.time()
+                        game.currentTime = time.time()
 
                     if event.key == pygame.K_ESCAPE:
                         isAdding = False
@@ -1805,6 +1917,8 @@ class ControlOption:
             game.lastTime = game.currentTime
             game.currentTime = time.time()
             pygame.display.update()
+        
+        game.isPaused = False
 
     def clearForce(self, game: Game, target: Element):
         """清除所有外力"""
@@ -1858,7 +1972,7 @@ class ElementController:
 
     def update(self, game: Game):
         """更新控制器"""
-        options = game.menu.optionsList
+        options = game.elementMenu.optionsList
 
         for option in options:
             if option["type"] == self.element.type:

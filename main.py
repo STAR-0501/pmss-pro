@@ -16,7 +16,7 @@ def aiThread(game : Game):
     while True:
         userInput = input("我: ")
         newExecutor = threading.Thread(target=executor, args=(userInput, ai, ))
-        newExecutor.daemon = True 
+        newExecutor.daemon = True
         newExecutor.start()
         newExecutor.join(timeout=60)
         if newExecutor.is_alive():
@@ -33,4 +33,3 @@ if __name__ == '__main__':
     while True:
         game.update()
         pygame.display.update()
-        
