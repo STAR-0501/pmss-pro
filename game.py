@@ -922,6 +922,7 @@ class Game:
         if self.isCelestialBodyMode and not self.isModeChangingNaturally:
             self.minLimitRatio = 1
             self.maxLimitRatio = 15
+            self.ratio = self.minLimitRatio
             self.y = self.screen.get_height()/self.ratio
 
         if self.y - self.screenToReal(self.screen.get_height())/2 >= 15000000:
