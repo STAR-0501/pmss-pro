@@ -42,14 +42,17 @@ class Game:
         icon = pygame.image.load("static/icon.png").convert_alpha()
         pygame.display.set_icon(icon)
 
-        self.pos = (0, 0)   # 鼠标屏幕坐标，而非真实坐标
+        self.mousePos = (0, 0)   # 鼠标屏幕坐标，而非真实坐标
         self.fontSmall = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/125))
         self.fontBig = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/75))
         self.ratio = 5
+        self.lastRatio = self.ratio
         self.minLimitRatio = 1
         self.maxLimitRatio = 15
         self.x = self.screen.get_width()/2 / self.ratio
         self.y = self.screen.get_height() / self.ratio
+        self.lastX = self.x
+        self.lastY = 20000000
         self.elementMenu : Menu = None
         self.exampleMenu : Menu = None
         self.currentTime = time.time()
@@ -235,19 +238,19 @@ class Game:
                     setCapsLock(True)
 
             if event.type == pygame.MOUSEBUTTONUP:
-                self.pos = pygame.mouse.get_pos()
+                self.mousePos = pygame.mouse.get_pos()
 
                 if event.button == 1:
 
                     for option in self.elementMenu.options:
-                        option.createElement(self, Vector2(self.pos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
+                        option.createElement(self, Vector2(self.mousePos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
                     
                     for option in self.exampleMenu.options:
-                        option.createElement(self, Vector2(self.pos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
+                        option.createElement(self, Vector2(self.mousePos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
                 
                 if event.button == 3:
                     for option in self.elementMenu.options:
-                        option.edit(self, Vector2(self.pos))  # edit里会判定对应的按钮是否被点击，并编辑对应的物体
+                        option.edit(self, Vector2(self.mousePos))  # edit里会判定对应的按钮是否被点击，并编辑对应的物体
 
             if event.type == pygame.MOUSEWHEEL:
                 speed = 1.1
@@ -307,7 +310,7 @@ class Game:
                         self.y += ny - by
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.pos = pygame.mouse.get_pos()
+                self.mousePos = pygame.mouse.get_pos()
                 
                 if event.button == 1 and not self.elementMenu.isMouseOn() and not self.isElementCreating and not self.isElementControlling and not self.isEditing:
                     self.isMoving = True
@@ -325,7 +328,7 @@ class Game:
                             element.highLighted = True
                             self.update()
                             pygame.display.update()
-                            elementController = ElementController(element, Vector2(self.pos))
+                            elementController = ElementController(element, Vector2(self.mousePos))
                             while self.isElementControlling:   
                                 self.updateFPS()
                                 elementController.update(self)
@@ -407,12 +410,12 @@ class Game:
                         element.highLighted = False
                         element.isFollowing = False
 
-                    self.x += self.screenToReal(pygame.mouse.get_pos()[0] - self.pos[0])
+                    self.x += self.screenToReal(pygame.mouse.get_pos()[0] - self.mousePos[0])
                     
-                    if not self.isFloorIllegal or self.screenToReal(pygame.mouse.get_pos()[1] - self.pos[1]) > 0:
-                        self.y += self.screenToReal(pygame.mouse.get_pos()[1] - self.pos[1])
+                    if not self.isFloorIllegal or self.screenToReal(pygame.mouse.get_pos()[1] - self.mousePos[1]) > 0:
+                        self.y += self.screenToReal(pygame.mouse.get_pos()[1] - self.mousePos[1])
 
-                    self.pos = pygame.mouse.get_pos()
+                    self.mousePos = pygame.mouse.get_pos()
 
             if event.type == pygame.MOUSEBUTTONUP:
 
@@ -885,7 +888,18 @@ class Game:
         if not self.isCelestialBodyMode and not self.isModeChangingNaturally:
             self.minLimitRatio = 0.01
             self.maxLimitRatio = 10
-            self.y = 20000000
+
+            r = self.ratio
+            self.ratio = self.lastRatio
+            self.lastRatio = r
+            
+            x = self.x
+            self.x = self.lastX
+            self.lastX = x
+
+            y = self.y
+            self.y = self.lastY
+            self.lastY = y
 
         if self.y - self.screenToReal(self.screen.get_height())/2 < 15000000:
             self.isModeChangingNaturally = True
@@ -922,8 +936,18 @@ class Game:
         if self.isCelestialBodyMode and not self.isModeChangingNaturally:
             self.minLimitRatio = 1
             self.maxLimitRatio = 15
-            self.ratio = self.minLimitRatio
-            self.y = self.screen.get_height()/self.ratio
+            
+            r = self.ratio
+            self.ratio = self.lastRatio
+            self.lastRatio = r
+            
+            x = self.x
+            self.x = self.lastX
+            self.lastX = x
+            
+            y = self.y
+            self.y = self.lastY
+            self.lastY = y
 
         if self.y - self.screenToReal(self.screen.get_height())/2 >= 15000000:
             self.isModeChangingNaturally = True

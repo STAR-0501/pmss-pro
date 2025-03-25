@@ -14,7 +14,7 @@ def executor(userInput, ai : AI):
 def aiThread(game : Game):
     ai = AI(game)
     while True:
-        userInput = input("我: ")
+        userInput = input("")
         newExecutor = threading.Thread(target=executor, args=(userInput, ai, ))
         newExecutor.daemon = True
         newExecutor.start()
