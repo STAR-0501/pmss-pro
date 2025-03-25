@@ -113,8 +113,11 @@ class Game:
         """测试方法（预留）"""
         ...
 
-    def saveGame(self, filename : str = "manualsave"):
+    def saveGame(self, filename="autosave"):
         """保存游戏数据"""
+        for elementOption in self.elementMenu.options:
+            elementOption.highLighted = False
+
         # 创建一个新的字典，用于存储可序列化的属性
         # serializableDict = {
         #     "gameName" : f"{int(time.time())}备份"
@@ -127,7 +130,6 @@ class Game:
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
             if attr != "screen":
-
                 try:
                     # 尝试序列化对象，如果成功则添加到 serializableDict 中
                     pickle.dumps(value)
@@ -159,7 +161,6 @@ class Game:
             with open(f"savefile/{filename}.pkl", "rb") as f:
                 # 加载序列化的字典
                 serializableDict = pickle.load(f)
-                print(serializableDict["gameName"])
 
                 # 更新 self.__dict__，只更新可序列化的属性
                 self.__dict__.update(serializableDict)
@@ -167,7 +168,16 @@ class Game:
                 # 恢复 screen 属性
                 if currentScreen is not None:
                     self.screen = currentScreen
-                    
+                
+                # 恢复坐标系统相关参数
+                self.x = serializableDict.get("x", self.screen.get_width()/2 / self.ratio)
+                self.y = serializableDict.get("y", self.screen.get_height() / self.ratio)
+                self.ratio = serializableDict.get("ratio", 5)
+                
+                # 重置移动控制状态
+                self.rightMove = 0
+                self.upMove = 0
+                            
                 self.lastTime = time.time()
                 self.currentTime = time.time()
                 print("游戏数据加载成功")
@@ -177,6 +187,9 @@ class Game:
             ...
 
         except IndexError:
+            ...
+
+        except PermissionError:
             ...
 
     def setAttr(self, name, value):
@@ -358,7 +371,7 @@ class Game:
                                             self.update()
                                             self.screen.blit(loadedTipText, loadedTipRect)
                                             pygame.display.update()
-                                            time.sleep(0.3)
+                                            time.sleep(0.5)
                                             self.lastTime = time.time()
                                             self.currentTime = time.time()
 
@@ -385,6 +398,7 @@ class Game:
                                             self.isElementControlling = False
 
                                 pygame.display.update()
+                    self.isElementControlling = False
 
             if event.type == pygame.MOUSEMOTION:
                 if self.isScreenMoving:
@@ -459,7 +473,7 @@ class Game:
                     self.update()
                     self.screen.blit(loadedTipText, loadedTipRect)
                     pygame.display.update()
-                    time.sleep(0.3)
+                    time.sleep(0.5)
                     self.lastTime = time.time()
                     self.currentTime = time.time()
 
@@ -1204,9 +1218,6 @@ class Option:
                                 game.elements[option.type].remove(lastElement)
                                 break
 
-                    if event.key == pygame.K_g:
-                        game.saveGame()
-
                     if event.key == pygame.K_l:
                         game.loadGame("autosave")
 
@@ -1221,7 +1232,7 @@ class Option:
                         game.update() 
                         game.screen.blit(loadedTipText, loadedTipRect)
                         pygame.display.update()
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         game.lastTime = time.time()
                         game.currentTime = time.time()
 
@@ -1385,10 +1396,7 @@ class Option:
                             if option.type == lastElement.type:
                                 game.elements[option.type].remove(lastElement)
                                 break
-
-                    if event.key == pygame.K_g:
-                        game.saveGame()
-
+                            
                     if event.key == pygame.K_l:
                         game.loadGame("autosave")
 
@@ -1403,7 +1411,7 @@ class Option:
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
                         pygame.display.update()
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         game.lastTime = time.time()
                         game.currentTime = time.time()
 
@@ -1445,14 +1453,16 @@ class Option:
                 game.screenMove(event)
 
     def exampleCreate(self, game : Game):
-        game.loadGame(self.attrs["path"])
+        attrs = copy.deepcopy(self.attrs)
+        attrs["path"] = attrs["path"].replace(".pkl", "")
+        game.loadGame(attrs["path"])
         loadedTipText = game.fontSmall.render(f"{game.gameName}加载成功", True, (0, 0, 0))
         loadedTipRect = loadedTipText.get_rect(center=(game.screen.get_width()/2, game.screen.get_height()/2))
         
         game.update()
         game.screen.blit(loadedTipText, loadedTipRect)
         pygame.display.update()
-        time.sleep(0.3)
+        time.sleep(0.5)
         game.lastTime = time.time()
         game.currentTime = time.time()
 
@@ -1812,7 +1822,7 @@ class ControlOption:
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
                         pygame.display.update()
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         game.lastTime = time.time()
                         game.currentTime = time.time()
 
@@ -1906,7 +1916,7 @@ class ControlOption:
                         game.screen.blit(loadedTipText, loadedTipRect)
                         game.update()
                         pygame.display.update()
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         game.lastTime = time.time()
                         game.currentTime = time.time()
 

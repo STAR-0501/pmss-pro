@@ -707,7 +707,7 @@ class Ball(Element):
         # 计算速度大小
         velocity = direction * (ball.mass / distance * 1e+5) ** 0.5
         # 修改速度
-        self.velocity = velocity * factor + ball.velocity
+        self.velocity = velocity * factor * 2 ** 0.5 / 2 + ball.velocity
 
         return self.velocity
 
