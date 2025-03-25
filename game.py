@@ -875,7 +875,7 @@ class Game:
         minDis = float("inf")
 
         for ball2 in self.elements["ball"]:
-            if ball2.mass >= ball.mass and ball.position.distance(ball2.position) < minDis:
+            if ball2.mass > ball.mass and ball.position.distance(ball2.position) < minDis:
                 result = ball2
                 minDis = ball.position.distance(ball2.position)
         return result
