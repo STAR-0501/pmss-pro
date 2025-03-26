@@ -37,10 +37,10 @@ class AI:
         )
         return response.choices[0].message.content
 
-    def chat(self, user_input):
+    def chat(self, userInput):
         """进行多轮对话。将用户输入与历史对话一起发送。"""
         # 添加用户输入到历史对话
-        self.messages.append({"role": "user", "content": user_input})
+        self.messages.append({"role": "user", "content": userInput})
 
         # 发送整个对话历史给 DeepSeek，获取模型回应
         response = self.client.chat.completions.create(
@@ -70,8 +70,8 @@ if __name__ == '__main__':
     game = "game"
     ai = AI(game)
     while True:
-        user_input = input("我：")
-        if user_input == "exit":
+        userInput = input("我：")
+        if userInput == "exit":
             break
-        assistant_message = ai.chat(user_input)
-        eval(assistant_message)
+        assistantMessage = ai.chat(userInput)
+        eval(assistantMessage)
