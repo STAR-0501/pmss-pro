@@ -1,9 +1,14 @@
-import os
 from basic import *
 from ai import *
 from tkinter import messagebox
 import pygame
-import sys, time, json, ctypes, pickle
+import copy
+import os
+import sys
+import time
+import json
+import ctypes
+import pickle
 
 def setCapsLock(state=True) -> None:
     """
@@ -28,6 +33,7 @@ class Game:
         self.isScreenMoving = False
         self.isMassSetting = False
         self.isCircularVelocityGetting = False
+        self.isCircularVelocityDirectionAnticlockwise = True
         self.isCtrlPressing = False
         self.isEditing = False
         self.isElementControlling = False
@@ -142,12 +148,13 @@ class Game:
                 except (pickle.PicklingError, TypeError):
                     # 如果序列化失败，跳过该属性
                     ...
+
         os.makedirs("savefile", exist_ok=True)
 
         # 将可序列化的字典保存到文件
         with open(f"savefile/{filename}.pkl", "wb") as f:
             pickle.dump(serializableDict, f)
-            print(f"\n游戏数据保存成功: {filename}.pkl")
+            print(f"\n游戏数据保存成功：{filename}.pkl")
             f.close()
 
     def loadGame(self, filename="autosave") -> None:
@@ -160,7 +167,7 @@ class Game:
             if filename == "" and os.path.exists("savefile/autosave.pkl"):
                 filename = "autosave"
 
-            print(f"正在加载游戏数据: {filename}.pkl")
+            print(f"正在加载游戏数据：{filename}.pkl")
 
             with open(f"savefile/{filename}.pkl", "rb") as f:
                 # 加载序列化的字典
@@ -207,7 +214,7 @@ class Game:
         """实际坐标转屏幕坐标"""
         if x is None:
             if isinstance(r, Vector2):
-                x = Vector2.zero()
+                x = ZERO
             else:
                 x = 0
 
@@ -217,7 +224,7 @@ class Game:
         """屏幕坐标转实际坐标"""
         if x is None:
             if isinstance(r, Vector2):
-                x = Vector2.zero()
+                x = ZERO
             else:
                 x = 0
 
@@ -242,12 +249,13 @@ class Game:
                 self.mousePos = pygame.mouse.get_pos()
 
                 if event.button == 1:
-
+                    
+                    # createElement里会判定对应的按钮是否被点击，并生成对应的物体
                     for option in self.elementMenu.options:
-                        option.createElement(self, Vector2(self.mousePos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
+                        option.createElement(self, Vector2(self.mousePos))
                     
                     for option in self.exampleMenu.options:
-                        option.createElement(self, Vector2(self.mousePos))  # createElement里会判定对应的按钮是否被点击，并生成对应的物体
+                        option.createElement(self, Vector2(self.mousePos))
                 
                 if event.button == 3:
                     for option in self.elementMenu.options:
@@ -628,7 +636,7 @@ class Game:
                     }]
                     }
                     examples.append(example)
-            self.exampleMenu = Menu(Vector2(0, 0), examples)
+            self.exampleMenu = Menu(ZERO, examples)
         self.exampleMenu.draw(game=self)
 
         if self.speed != 0:
@@ -709,11 +717,11 @@ class Game:
                 self.celestialElements["all"].remove(element)
                 self.celestialElements[element.type].remove(element)    
 
-        dt = self.currentTime - self.lastTime
+        deltaTime = self.currentTime - self.lastTime
         for element1 in self.elements["all"]:
             element1.draw(self)
             if not self.isPaused or self.tempFrames > 0:
-                element1.update(dt * self.speed)
+                element1.update(deltaTime * self.speed)
 
         for ball1 in self.elements["ball"]:
 
@@ -746,10 +754,10 @@ class Game:
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
                 ballPos = ball1.position
-                tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], self.elementMenu)
+                tempOption = Option(ZERO, Vector2(0,0), "temp", [], self.elementMenu)
 
                 acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
-                accelerationPosition = ballPos + acceleration / 4
+                accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
                 accelerationTipsText = self.fontBig.render(f"加速度：{abs(acceleration)/10:.1f} m/s²", True, "red")
                 accelerationTipsTextRect =  accelerationTipsText.get_rect()
@@ -758,7 +766,7 @@ class Game:
                 self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
 
                 velocity = ball1.velocity + (ball1.displayedVelocity - ball1.velocity) * ball1.displayedVelocityFactor
-                velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5
+                velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
                 velocityTipsText = self.fontBig.render(f"速度：{abs(velocity)/10:.1f} m/s", True, "blue")
                 velocityTipsTextRect =  velocityTipsText.get_rect()
@@ -827,7 +835,7 @@ class Game:
 
         if not self.isCelestialBodyMode:
             self.floor.position.x = self.screenToReal(self.screen.get_width()/2,self.x)
-            self.floor.update(dt)
+            self.floor.update(deltaTime)
             self.floor.draw(self)
 
         if self.isMoving and not self.isElementCreating:
@@ -850,7 +858,7 @@ class Game:
                 if allowToPlace:
                     element1.position.x = self.screenToReal(pos[0],self.x)
                     element1.position.y = self.screenToReal(pos[1],self.y)
-                element1.update(dt)
+                element1.update(deltaTime)
         self.updateFPS()
 
     def updateFPS(self) -> None:
@@ -878,12 +886,17 @@ class Game:
             return
         
         result = None
-        minDis = float("inf")
+        # minDistance = float("inf")
+        maxGravitation = 0
 
         for ball2 in self.elements["ball"]:
-            if ball2.mass > ball.mass and ball.position.distance(ball2.position) < minDis:
+            # if ball2.mass > ball.mass and ball.position.distance(ball2.position) < minDistance:
+            #     result = ball2
+            #     minDistance = ball.position.distance(ball2.position)
+            distance = ball.position.distance(ball2.position)
+            if G * ball.mass * ball2.mass / (distance ** 2 + 1e-6) > maxGravitation:
                 result = ball2
-                minDis = ball.position.distance(ball2.position)
+                maxGravitation = G * ball.mass * ball2.mass / (distance ** 2 + 1e-6)
         return result
 
     def CelestialBodyMode(self) -> None:
@@ -1020,9 +1033,8 @@ class Option:
         for attr in self.attrs_:
             self.attrs[attr["type"]] = attr["value"]
                 
-
-    def drawArrow(self, game, startPos, endPos, color) -> None:
-        """绘制箭头"""
+    def drawArrow(self, game : Game, startPos : tuple[float, float], endPos : tuple[float, float], color : pygame.Color) -> None:
+        """绘制箭头（坐标参数用tuple而不是Vector2）"""
         pygame.draw.line(game.screen, color, startPos, endPos, 3)
 
         # 计算箭头的方向
@@ -1070,15 +1082,18 @@ class Option:
         ball = None
         self.highLighted = True
         coordinator = Coordinator(0, 0, 200, game)
-        self.additionVelocity = Vector2(0, 0)
+        self.additionVelocity = ZERO
 
         while game.isElementCreating:
 
             game.isElementCreating = True
-            pos = pygame.mouse.get_pos()
+            mousePosition = pygame.mouse.get_pos()
             game.update()
 
-            nearestHeavyBall = game.findNearestHeavyBall(ball)
+            nearestHeavyBall = copy.deepcopy(game.findNearestHeavyBall(ball))
+            if nearestHeavyBall is not None:
+                nearestHeavyBall.velocity = ZERO
+
             if game.isCelestialBodyMode and game.isCircularVelocityGetting and nearestHeavyBall is not None:
 
                 if 0 <= game.circularVelocityFactor <= 1:
@@ -1091,6 +1106,8 @@ class Option:
                     circularVelocityFactorColor = "red"
 
                 pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(nearestHeavyBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(nearestHeavyBall.position)), 3)
+                velocity = ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                self.drawArrow(game, mousePosition, game.realToScreen(ball.position + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2, Vector2(game.x, game.y)).toTuple(), circularVelocityFactorColor)
                 
                 if game.circularVelocityFactor != 1:
                     circularVelocityFactorText = game.fontSmall.render(f"{game.circularVelocityFactor:.1f}x", True, circularVelocityFactorColor)
@@ -1101,19 +1118,19 @@ class Option:
 
             if not game.isDragging:
 
-                ball = Ball(Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)), radius, color, mass, Vector2(0, 0), [Vector2(0, 0)], True)
+                ball = Ball(Vector2(game.screenToReal(mousePosition[0], game.x), game.screenToReal(mousePosition[1], game.y)), radius, color, mass, ZERO, [ZERO], True)
                 self.creationPoints = [ball.position, ball.position]
                 ball.draw(game)
                 radiusText = game.fontSmall.render(f"半径 = {radius}", True, colorSuitable(ball.color, game.background))
                 radiusTextRect =  radiusText.get_rect()
-                radiusTextRect.x = pos[0]
-                radiusTextRect.y = pos[1]
+                radiusTextRect.x = mousePosition[0]
+                radiusTextRect.y = mousePosition[1]
                 game.screen.blit(radiusText, radiusTextRect)
 
                 massText = game.fontSmall.render(f"质量 = {mass: .1f}", True, colorSuitable(ball.color, game.background))
                 massTextRect =  massText.get_rect()
-                massTextRect.x = pos[0]
-                massTextRect.y = pos[1] + radiusText.get_height()
+                massTextRect.x = mousePosition[0]
+                massTextRect.y = mousePosition[1] + radiusText.get_height()
                 game.screen.blit(massText, massTextRect)
 
             if game.isDragging:
@@ -1122,7 +1139,7 @@ class Option:
                     startPos = (game.realToScreen(ball.position.x, game.x), game.realToScreen(ball.position.y, game.y))
                     endPos = (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(self.creationPoints[1].y, game.y))
 
-                    self.creationPoints[1] = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
+                    self.creationPoints[1] = Vector2(game.screenToReal(mousePosition[0], game.x), game.screenToReal(mousePosition[1], game.y))
 
                     if coordinator.isMouseOn():
                         self.drawArrow(game, startPos, endPos, "yellow")
@@ -1134,8 +1151,9 @@ class Option:
                     self.additionVelocity = (self.creationPoints[1] - self.creationPoints[0]) * 2
                     coordinator.update(game)
                     coordinator.draw(game, self)
+
                 else:
-                    ball.position = Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y))
+                    ball.position = Vector2(game.screenToReal(mousePosition[0], game.x), game.screenToReal(mousePosition[1], game.y))
                     ball.draw(game)
                     coordinator.position = ball.position
                     coordinator.update(game)
@@ -1145,17 +1163,22 @@ class Option:
             for event in pygame.event.get():
 
                 game.isPressed = False
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    allowToPlace = True
-                    game.isDragging = True
+                if event.type == pygame.MOUSEBUTTONDOWN:
 
-                    for element in game.elements["all"]:
-                        if element.isMouseOn(game):
-                            allowToPlace = False
-                            break
-                        
-                    if not game.elementMenu.isMouseOn() and allowToPlace:
-                        ball = Ball(Vector2(game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)), radius, color, mass, Vector2(0, 0), [Vector2(0, 0)])
+                    if event.button == 1:
+                        allowToPlace = True
+                        game.isDragging = True
+
+                        for element in game.elements["all"]:
+                            if element.isMouseOn(game):
+                                allowToPlace = False
+                                break
+                            
+                        if not game.elementMenu.isMouseOn() and allowToPlace:
+                            ball = Ball(Vector2(game.screenToReal(mousePosition[0], game.x), game.screenToReal(mousePosition[1], game.y)), radius, color, mass, ZERO, [ZERO])
+                    
+                    elif event.button == 3 and game.isCelestialBodyMode and game.isCircularVelocityGetting:
+                        game.isCircularVelocityDirectionAnticlockwise = not game.isCircularVelocityDirectionAnticlockwise
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
 
@@ -1166,11 +1189,13 @@ class Option:
 
                     elif not game.elementMenu.isMouseOn() or game.isDragging:
                         game.isDragging = False
-                        ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(pos[0], game.x) - ball.position.x, game.screenToReal(pos[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
-                        nearestHeavyBall = game.findNearestHeavyBall(ball)
+                        ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(mousePosition[0], game.x) - ball.position.x, game.screenToReal(mousePosition[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
+                        nearestHeavyBall = copy.deepcopy(game.findNearestHeavyBall(ball))
+                        if nearestHeavyBall is not None:
+                            nearestHeavyBall.velocity = ZERO
 
                         if nearestHeavyBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
-                            ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor)
+                            ball.velocity = ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
 
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
@@ -1188,7 +1213,7 @@ class Option:
                         if option.isMouseOn():
                             game.isElementCreating = False
                             self.highLighted = False
-                            option.createElement(game, Vector2(pos[0], pos[1]))
+                            option.createElement(game, Vector2(mousePosition[0], mousePosition[1]))
                             break
 
                 if event.type == pygame.MOUSEWHEEL and not game.isDragging:
@@ -1790,7 +1815,7 @@ class ControlOption:
 
     def addVelocity(self, game: Game, target: Element) -> None:
         """添加速度"""
-        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], game.elementMenu)
+        tempOption = Option(ZERO, Vector2(0,0), "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
@@ -1881,11 +1906,11 @@ class ControlOption:
         """清除速度"""
         target.displayedVelocity = target.velocity
         target.displayedVelocityFactor = 1
-        target.velocity = Vector2(0, 0)
+        target.velocity = ZERO
 
     def addForce(self, game: Game, target: Element) -> None:
         """添加力"""
-        tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], game.elementMenu)
+        tempOption = Option(ZERO, Vector2(0,0), "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()

@@ -139,6 +139,8 @@ class Vector2:
         """转换为元组形式"""
         return (self.x, self.y)
 
+ZERO = Vector2(0, 0)
+
 def triangleArea(p1 : Vector2, p2 : Vector2, p3 : Vector2) -> float:
     """计算三角形面积"""
     return abs((p1.x*(p2.y-p3.y) + p2.x*(p3.y-p1.y) + p3.x*(p1.y-p2.y))/2)
@@ -199,7 +201,7 @@ class Element:
         """检测坐标点是否在元素上"""
         ...
 
-    def update(self, dt) -> Self:
+    def update(self, deltaTime) -> Self:
         """更新方法"""
         ...
         return self
@@ -322,7 +324,7 @@ class Coordinator():
             textSize = game.fontSmall.size(text)
             textX = game.realToScreen(self.position.x + (nowDirection.x*2/3), game.x) - textSize[0]*2/3
             textY = game.realToScreen(self.position.y + (nowDirection.y*2/3), game.y) - textSize[1]*2/3
-            game.screen.blit(game.fontSmall.render(text, True, "black"), (textX, textY)) 
+            game.screen.blit(game.fontSmall.render(text, True, "black"), (textX, textY))
 
 class Ball(Element):
     """球体物理实体类，处理运动学计算和碰撞响应"""
@@ -490,17 +492,17 @@ class Ball(Element):
             }
         ]
 
-    def update(self, dt) -> Self:
+    def update(self, deltaTime) -> Self:
         """更新物理状态"""
         self.accelerate()
         substeps = 10  # 从4增加到10
-        dt /= substeps
+        deltaTime /= substeps
 
         for _ in range(substeps):
-            self.velocity += self.acceleration * dt
-            self.position += (self.velocity + self.acceleration * dt * 20**0.5) * dt
+            self.velocity += self.acceleration * deltaTime
+            self.position += (self.velocity + self.acceleration * deltaTime * 20**0.5) * deltaTime
 
-        self.velocity *= self.airResistance ** dt
+        self.velocity *= self.airResistance ** deltaTime
 
         # self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
         # self.displayedAcceleration += (self.acceleration - self.displayedAcceleration) * 0.05
@@ -736,10 +738,7 @@ class Ball(Element):
         # 计算速度大小
         velocity = direction * (ball.mass / distance * 1e+5) ** 0.5
 
-        # 修改速度
-        self.velocity = velocity * factor * 2 ** 0.5 / 2 + ball.velocity
-
-        return self.velocity
+        return velocity * factor * 2 ** 0.5 / 2 + ball.velocity
 
     def merge(self, other: Self, game) -> Self:
         """处理球与球之间的天体合并"""
@@ -833,7 +832,7 @@ class Wall(Element):
             }
         ]
 
-    def update(self, dt) -> Self:
+    def update(self, deltaTime) -> Self:
         """更新墙体位置并维护碰撞线段"""
         # 计算位置
         offset = self.position - self.originalPosition
@@ -935,7 +934,7 @@ class Rope:
         
         return True
 
-    def update(self, dt) -> Self:
+    def update(self, deltaTime) -> Self:
         """更新绳索位置"""
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
