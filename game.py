@@ -147,7 +147,7 @@ class Game:
         # 将可序列化的字典保存到文件
         with open(f"savefile/{filename}.pkl", "wb") as f:
             pickle.dump(serializableDict, f)
-            print("\n游戏数据保存成功")
+            print(f"\n游戏数据保存成功: {filename}.pkl")
             f.close()
 
     def loadGame(self, filename="autosave") -> None:
@@ -160,7 +160,7 @@ class Game:
             if filename == "" and os.path.exists("savefile/autosave.pkl"):
                 filename = "autosave"
 
-            print(f"正在加载游戏数据：{filename}.pkl")
+            print(f"正在加载游戏数据: {filename}.pkl")
 
             with open(f"savefile/{filename}.pkl", "rb") as f:
                 # 加载序列化的字典
@@ -359,7 +359,7 @@ class Game:
                                                     break
 
                                         if event.key == pygame.K_g:
-                                            self.saveGame()
+                                            self.saveGame("manualsave")
 
                                         if event.key == pygame.K_l:
                                             self.loadGame("autosave")
@@ -461,7 +461,7 @@ class Game:
                     self.openEditor(self.inputMenu)
 
                 if event.key == pygame.K_g:
-                    self.saveGame()
+                    self.saveGame("manualsave")
 
                 if event.key == pygame.K_l:
                     self.loadGame("autosave")
@@ -1847,7 +1847,7 @@ class ControlOption:
                 if event.type == pygame.KEYDOWN:
 
                     if event.key == pygame.K_g:
-                        game.saveGame()
+                        game.saveGame("autosave")
 
                     if event.key == pygame.K_l:
                         game.loadGame("autosave")
@@ -1942,7 +1942,7 @@ class ControlOption:
                 if event.type == pygame.KEYDOWN:
 
                     if event.key == pygame.K_g:
-                        game.saveGame()
+                        game.saveGame("manualsave")
 
                     if event.key == pygame.K_l:
                         game.loadGame("autosave")
