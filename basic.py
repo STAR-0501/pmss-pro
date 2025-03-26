@@ -249,7 +249,6 @@ class Coordinator():
     def showDegree(self, game, pos: Vector2, option, text) -> None:
         """显示当前鼠标位置的角度信息"""
         minDirectionDegree = 0
-        index = -1
         nowDirection = pos - self.position
 
         # 使用 atan2 计算角度，范围 [-180°, 180°]
@@ -288,7 +287,8 @@ class Coordinator():
             endAngle = math.radians(minDirectionDegree)
 
         # 绘制角度信息
-        pygame.draw.arc(game.screen, "black", 
+        pygame.draw.arc(
+            game.screen, "black", 
             (game.realToScreen((self.position.x - radius/2), game.x), 
             game.realToScreen((self.position.y - radius/2), game.y), 
             game.realToScreen(radius), 
@@ -388,8 +388,10 @@ class Ball(Element):
             game.update()
             pygame.display.update()
             for event in pygame.event.get():
+
                 if event.type == pygame.QUIT:
                     game.exit()
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         isMoving = False
@@ -420,6 +422,7 @@ class Ball(Element):
 
         if line.isLine:  # 直线无限延长
             closestPoint = line.start + AB * t
+
         else:  # 普通线段
             tClamped = max(0, min(t, 1))
             closestPoint = line.start + AB * tClamped
@@ -430,10 +433,13 @@ class Ball(Element):
     def accelerate(self) -> Vector2:
         """计算当前加速度"""
         self.acceleration.zero()
+
         for force in self.artificialForces:
             self.acceleration += force / self.mass
+
         for force in self.naturalForces:
             self.acceleration += force / self.mass
+
         self.acceleration += Vector2(0, 98.1 * self.gravity)
         return self.acceleration
 
@@ -441,8 +447,10 @@ class Ball(Element):
         """施加外力并更新加速度"""
         if isNatural:
             self.naturalForces.append(force)
+
         else:
             self.artificialForces.append(force)
+
         return self.accelerate()
 
     def resetForce(self, isNatural : bool = False) -> None:
@@ -451,24 +459,28 @@ class Ball(Element):
             self.naturalForces.clear()
         else:
             self.artificialForces.clear()
+
         self.acceleration.zero()
         self.accelerate()
 
     def updateAttrsList(self):
         """更新属性列表"""
         self.attrs = [
+
             {
                 "type": "mass",
                 "value": self.mass,
                 "min": 0.1,
                 "max": 32767
             },
+
             {
                 "type": "radius",
                 "value": self.radius,
                 "min": 1,
                 "max": 1024
             },
+            
             {
                 "type": "color",
                 "value": self.color,
@@ -482,9 +494,11 @@ class Ball(Element):
         self.accelerate()
         substeps = 10  # 从4增加到10
         dt /= substeps
+
         for _ in range(substeps):
             self.velocity += self.acceleration * dt
             self.position += (self.velocity + self.acceleration * dt * 20**0.5) * dt
+
         self.velocity *= self.airResistance ** dt
 
         # self.displayedVelocity += (self.velocity - self.displayedVelocity) * 0.05
@@ -498,10 +512,12 @@ class Ball(Element):
     def draw(self, game) -> None:
         """绘制带渐变效果的小球"""
         if self.highLighted:
-            pygame.draw.circle(game.screen, (255, 255, 0), 
-                            (game.realToScreen(self.position.x, game.x), 
-                            game.realToScreen(self.position.y, game.y)), 
-                            game.realToScreen(self.radius + 0.5), 0)
+            pygame.draw.circle(
+                game.screen, (255, 255, 0), 
+                (game.realToScreen(self.position.x, game.x), 
+                game.realToScreen(self.position.y, game.y)), 
+                game.realToScreen(self.radius + 0.5), 0
+            )
 
         # 确保颜色是tuple格式
         if isinstance(self.color, str):
@@ -534,13 +550,17 @@ class Ball(Element):
                 game.realToScreen(self.position.x, game.x),
                 game.realToScreen(self.position.y, game.y)
             )
+
             drawRadius = game.realToScreen(currentRadius)
 
             # 创建临时surface实现透明度
             tempSurface = pygame.Surface((drawRadius*2, drawRadius*2), pygame.SRCALPHA)
-            pygame.draw.circle(tempSurface, (r, g, b, alpha), 
-                            (drawRadius, drawRadius), 
-                            drawRadius, 0)
+
+            pygame.draw.circle(
+                tempSurface, (r, g, b, alpha), 
+                (drawRadius, drawRadius), drawRadius, 0
+            )
+            
             game.screen.blit(tempSurface, (pos[0]-drawRadius, pos[1]-drawRadius))
 
         self.highLighted = False
@@ -556,6 +576,7 @@ class Ball(Element):
         """处理与线段的碰撞反弹逻辑"""
         AB = line.end - line.start
         lineLength = AB.dot(AB)
+
         if abs(self.velocity) == 0:
             cosine = 1
         else:
@@ -577,13 +598,17 @@ class Ball(Element):
             edgeNormal = Vector2(-AB.y, AB.x).normalize()
             # 根据球的位置确定法线方向
             normal = edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal
+
         else:  # 线段的情况
+
             if t < 0:
                 closest = line.start
                 normal = (self.position - closest).normalize()
+
             elif t > 1:
                 closest = line.end
                 normal = (self.position - closest).normalize()
+
             else:
                 closest = line.start + AB * t
                 edgeNormal = Vector2(-AB.y, AB.x).normalize()
@@ -700,12 +725,16 @@ class Ball(Element):
         """计算两个球的环绕速度"""
         # 计算距离
         distance = self.position.distance(ball.position)
+
         if distance == 0:
             return Vector2(0, 0)
+        
         # 计算速度方向
         direction = (ball.position - self.position).vertical().normalize()
+
         # 计算速度大小
         velocity = direction * (ball.mass / distance * 1e+5) ** 0.5
+
         # 修改速度
         self.velocity = velocity * factor * 2 ** 0.5 / 2 + ball.velocity
 
@@ -722,14 +751,17 @@ class Ball(Element):
         totalColor = colorTupleToString(colorMiddle(self.color, other.color, self.radius / totalRadius))
 
         newBall = Ball(totalPosition, totalRadius, totalColor, totalMass, totalVelocity, totalForce, gravitation=game.isCelestialBodyMode)
+
         if self.highLighted:
             newBall.highLighted = True
             newBall.displayedAcceleration = self.displayedAcceleration.copy()
             newBall.displayedVelocity = self.displayedVelocity.copy()
+
         elif other.highLighted:
             newBall.highLighted = True
             newBall.displayedAcceleration = other.displayedAcceleration.copy()
             newBall.displayedVelocity = other.displayedVelocity.copy()
+
         return newBall
 
 class Wall(Element):
@@ -737,11 +769,19 @@ class Wall(Element):
     def __init__(self, vertexes: list[Vector2], color):
         self.vertexes = vertexes
         self.color = color
-        self.position = Vector2((vertexes[0].x + vertexes[1].x + vertexes[2].x + vertexes[3].x) / 4,
-                                (vertexes[0].y + vertexes[1].y + vertexes[2].y + vertexes[3].y) / 4)
+
+        self.position = Vector2(
+            (vertexes[0].x + vertexes[1].x + vertexes[2].x + vertexes[3].x) / 4,
+            (vertexes[0].y + vertexes[1].y + vertexes[2].y + vertexes[3].y) / 4
+        )
+        
         self.originalPosition = self.position.copy()
-        self.lines = [CollisionLine(vertexes[0], vertexes[1]), CollisionLine(vertexes[1], vertexes[2]),
-                     CollisionLine(vertexes[2], vertexes[3]), CollisionLine(vertexes[3], vertexes[0])]
+        
+        self.lines = [
+            CollisionLine(vertexes[0], vertexes[1]), CollisionLine(vertexes[1], vertexes[2]),
+            CollisionLine(vertexes[2], vertexes[3]), CollisionLine(vertexes[3], vertexes[0])
+        ]
+        
         self.highLighted = False
         self.type = "wall"
 
@@ -760,6 +800,7 @@ class Wall(Element):
         game.elements["all"].append(newWall)
         game.elements["wall"].append(newWall)
         isMoving = True 
+
         while isMoving:
             newWall.position = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
             newWall.draw(game)
@@ -767,8 +808,10 @@ class Wall(Element):
             game.update()
             pygame.display.update()
             for event in pygame.event.get():
+
                 if event.type == pygame.QUIT:
                     game.exit()
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         isMoving = False
@@ -794,8 +837,12 @@ class Wall(Element):
         offset = self.position - self.originalPosition
         for i in range(len(self.vertexes)):
             self.vertexes[i] += offset
-        self.lines = [CollisionLine(self.vertexes[0], self.vertexes[1]), CollisionLine(self.vertexes[1], self.vertexes[2]),
-                     CollisionLine(self.vertexes[2], self.vertexes[3]), CollisionLine(self.vertexes[3], self.vertexes[0])]
+
+        self.lines = [
+            CollisionLine(self.vertexes[0], self.vertexes[1]), CollisionLine(self.vertexes[1], self.vertexes[2]),
+            CollisionLine(self.vertexes[2], self.vertexes[3]), CollisionLine(self.vertexes[3], self.vertexes[0])
+        ]
+        
         self.originalPosition = self.position.copy()
 
     def checkVertexCollision(self, ball):
@@ -829,6 +876,7 @@ class Wall(Element):
         for line in self.lines:
             if line.isLineIntersect(ray):
                 intersections += 1
+
         # 如果射线与多边形的边相交的次数是奇数，则点在多边形内
         return intersections % 2 == 1
 
@@ -842,15 +890,19 @@ class Wall(Element):
 
             highLightList = []
             for v in self.vertexes:
+
                 # 获取中心到顶点的方向向量
                 direction = (v - center)
+
                 # 归一化后扩展
                 if abs(direction) > 0:
                     direction.normalize()
+                    
                     # 保持原始顶点顺序，沿方向向外扩展
                     highLightList.append(v + direction * expand)
                 else:
                     highLightList.append(v.copy())
+
             pygame.draw.polygon(game.screen, (255, 255, 0), [(game.realToScreen(hightLight.x, game.x), game.realToScreen(hightLight.y, game.y)) for hightLight in highLightList], 0)
 
         pygame.draw.polygon(game.screen, self.color, [(game.realToScreen(v.x, game.x), game.realToScreen(v.y, game.y)) for v in self.vertexes], 0)
@@ -870,20 +922,26 @@ class Rope:
         self.length = length
         self.width = width
         self.color = color
+
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             return False
+        
         return True
 
     def update(self, dt):
         """更新绳索位置"""
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
+
         elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
             ...
+
         elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
             ...
+
         else:
             ...
+
     def draw(self, game):
         """绘制绳索"""
         pygame.draw.line(game.screen, self.color, (game.realToScreen(self.start.position.x, game.x), game.realToScreen(self.start.position.y, game.y)), (game.realToScreen(self.end.position.x, game.x), game.realToScreen(self.end.position.y, game.y)), self.width)
