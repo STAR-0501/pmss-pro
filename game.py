@@ -63,7 +63,7 @@ class Game:
         self.upMove = 0
         self.speed = 1
         self.circularVelocityFactor = 1
-        self.floor = Wall([Vector2(0,-10), Vector2(self.screen.get_width(), -10), Vector2(self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200,200,200))
+        self.floor = Wall([Vector2(0,-10), Vector2(self.screen.get_width(), -10), Vector2(self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200,200,200), True)
         self.isFloorIllegal = False
         self.background = "lightgrey"
         self.settingsButton = SettingsButton(0, 0, 50, 50)

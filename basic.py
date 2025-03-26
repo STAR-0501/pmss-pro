@@ -57,19 +57,19 @@ class Vector2:
             self.x = x
             self.y = y
 
-    def __add__(self, other : Self):
+    def __add__(self, other : Self) -> Self:
         return Vector2(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other : Self):
+    def __sub__(self, other : Self) -> Self:
         return Vector2(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, number : float):
+    def __mul__(self, number : float) -> Self:
         return Vector2(self.x * number, self.y * number)
 
-    def __truediv__(self, number : float):
+    def __truediv__(self, number : float) -> Self:
         return Vector2(self.x / number, self.y / number)
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         return Vector2(-self.x, -self.y)
 
     def __abs__(self) -> float:
@@ -145,7 +145,7 @@ def triangleArea(p1 : Vector2, p2 : Vector2, p3 : Vector2) -> float:
 
 class CollisionLine:
     """碰撞线段类，处理线段相交检测和显示"""
-    def __init__(self, start : Vector2, end : Vector2, isLine : bool = False, collisionFactor : float = 1, display : bool = True):
+    def __init__(self, start : Vector2, end : Vector2, isLine : bool = False, collisionFactor : float = 1, display : bool = True) -> None:
         self.start = start
         self.end = end
         self.vector = end - start
@@ -184,30 +184,31 @@ class CollisionLine:
 
 class Element:
     """游戏元素基类，定义通用接口"""
-    def __init__(self, position : Vector2, velocity : Vector2, mass : float, color : str) -> None:
+    def __init__(self, position : Vector2, velocity : Vector2, mass : float, color : pygame.Color) -> None:
         self.position = position
         self.highLighted = False
         self.type = "element"
         self.attrs = []
 
-    def isMouseOn(self, game):
+    def isMouseOn(self, game) -> bool:
         """检测鼠标是否在元素上"""
         pos = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
         return self.isPosOn(game, pos)
     
-    def isPosOn(self, game, pos):
+    def isPosOn(self, game, pos) -> bool:
         """检测坐标点是否在元素上"""
         ...
 
-    def update(self, dt):
+    def update(self, dt) -> Self:
         """更新方法"""
         ...
+        return self
 
-    def draw(self, game):
+    def draw(self, game) -> None:
         """绘制方法"""
         ...
 
-    def updateAttrsList(self):
+    def updateAttrsList(self) -> None:
         """更新属性列表"""
         ...
 
@@ -230,7 +231,7 @@ class Coordinator():
         
         self.showDegree(game, Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y)), option, text)
 
-    def update(self, game):
+    def update(self, game) -> Self:
         """更新坐标系方向向量"""
 
         self.direction = [
@@ -239,6 +240,8 @@ class Coordinator():
             Vector2(game.screenToReal(-self.w), game.screenToReal(0)), 
             Vector2(game.screenToReal(0), game.screenToReal(self.w))
         ]
+
+        return self
 
     def isMouseOn(self) -> bool:
         """检测鼠标是否在坐标系上"""
@@ -323,7 +326,7 @@ class Coordinator():
 
 class Ball(Element):
     """球体物理实体类，处理运动学计算和碰撞响应"""
-    def __init__(self, position : Vector2, radius, color, mass, velocity : Vector2, artificialForces : list[Vector2], gravity : float = 1, collisionFactor : float = 1, gravitation : bool = False) -> None:
+    def __init__(self, position : Vector2, radius : float, color : pygame.Color, mass : float, velocity : Vector2, artificialForces : list[Vector2], gravity : float = 1, collisionFactor : float = 1, gravitation : bool = False) -> None:
         self.position = position
         self.radius = radius
         self.color = color
@@ -346,7 +349,7 @@ class Ball(Element):
         self.attrs = []
         self.updateAttrsList()
 
-    def isPosOn(self, game, pos: Vector2):  
+    def isPosOn(self, game, pos: Vector2) -> bool:  
         """检测坐标点是否在球体范围内"""
         return (pos.x - self.position.x)**2 + (pos.y - self.position.y)**2 <= self.radius**2
 
@@ -355,7 +358,7 @@ class Ball(Element):
         distance = self.position.distance(other.position)
         return distance <= self.radius + other.radius
 
-    def setAttr(self, name, value):
+    def setAttr(self, name, value) -> None:
         """设置属性值"""
         if value != "":
 
@@ -368,7 +371,7 @@ class Ball(Element):
             if name == "mass":
                 self.mass = float(value)
 
-    def copy(self, game):
+    def copy(self, game) -> None:
         """自我复制"""
         self.isFollowing = False
         newBall = copy.deepcopy(self)
@@ -394,7 +397,7 @@ class Ball(Element):
                     if event.button == 1:
                         isMoving = False
 
-    def follow(self, game):
+    def follow(self, game) -> None:
         """使视角跟随"""
         # 计算屏幕中心在游戏世界坐标系中的位置
         screenCenterX = - game.x + game.screen.get_width() / (2 * game.ratio)
@@ -417,7 +420,7 @@ class Ball(Element):
         AB = line.end - line.start
         AP = self.position - line.start
         t = AP.dot(AB) / AB.dot(AB)
-
+    
         if line.isLine:  # 直线无限延长
             closestPoint = line.start + AB * t
 
@@ -461,7 +464,7 @@ class Ball(Element):
         self.acceleration.zero()
         self.accelerate()
 
-    def updateAttrsList(self):
+    def updateAttrsList(self) -> None:
         """更新属性列表"""
         self.attrs = [
 
@@ -487,7 +490,7 @@ class Ball(Element):
             }
         ]
 
-    def update(self, dt) -> Vector2:
+    def update(self, dt) -> Self:
         """更新物理状态"""
         self.accelerate()
         substeps = 10  # 从4增加到10
@@ -505,7 +508,7 @@ class Ball(Element):
         self.displayedAccelerationFactor *= 0.95
 
         self.updateAttrsList()
-        return self.position
+        return self
 
     def draw(self, game) -> None:
         """绘制带渐变效果的小球"""
@@ -764,9 +767,10 @@ class Ball(Element):
 
 class Wall(Element):
     """墙体类，处理多边形碰撞和显示"""
-    def __init__(self, vertexes: list[Vector2], color):
+    def __init__(self, vertexes: list[Vector2], color : pygame.Color, isLine : bool = False) -> None:
         self.vertexes = vertexes
         self.color = color
+        self.isLine = isLine
 
         self.position = Vector2(
             (vertexes[0].x + vertexes[1].x + vertexes[2].x + vertexes[3].x) / 4,
@@ -776,8 +780,8 @@ class Wall(Element):
         self.originalPosition = self.position.copy()
         
         self.lines = [
-            CollisionLine(vertexes[0], vertexes[1]), CollisionLine(vertexes[1], vertexes[2]),
-            CollisionLine(vertexes[2], vertexes[3]), CollisionLine(vertexes[3], vertexes[0])
+            CollisionLine(vertexes[0], vertexes[1], isLine), CollisionLine(vertexes[1], vertexes[2], isLine),
+            CollisionLine(vertexes[2], vertexes[3], isLine), CollisionLine(vertexes[3], vertexes[0], isLine)
         ]
         
         self.highLighted = False
@@ -786,13 +790,13 @@ class Wall(Element):
         self.attrs = []
         self.updateAttrsList()
 
-    def setAttr(self, name, value):
+    def setAttr(self, name, value) -> None:
         """设置属性值"""
         if value != "":
             if name == "color":
                 self.color = value
 
-    def copy(self, game):
+    def copy(self, game) -> None:
         """自我复制"""
         newWall = copy.deepcopy(self)
         game.elements["all"].append(newWall)
@@ -818,7 +822,7 @@ class Wall(Element):
         """获取墙体到点的方向向量"""
         return self.position - point
 
-    def updateAttrsList(self):
+    def updateAttrsList(self) -> None:
         """更新属性列表"""
         self.attrs = [
             {
@@ -829,7 +833,7 @@ class Wall(Element):
             }
         ]
 
-    def update(self, dt):
+    def update(self, dt) -> Self:
         """更新墙体位置并维护碰撞线段"""
         # 计算位置
         offset = self.position - self.originalPosition
@@ -837,13 +841,15 @@ class Wall(Element):
             self.vertexes[i] += offset
 
         self.lines = [
-            CollisionLine(self.vertexes[0], self.vertexes[1]), CollisionLine(self.vertexes[1], self.vertexes[2]),
+            CollisionLine(self.vertexes[0], self.vertexes[1], self.isLine), CollisionLine(self.vertexes[1], self.vertexes[2]),
             CollisionLine(self.vertexes[2], self.vertexes[3]), CollisionLine(self.vertexes[3], self.vertexes[0])
         ]
         
         self.originalPosition = self.position.copy()
 
-    def checkVertexCollision(self, ball):
+        return self
+
+    def checkVertexCollision(self, ball) -> None:
         """检测球与墙体顶点的碰撞"""
         for vertex in self.vertexes:
             if ball.position.distance(vertex) <= ball.radius:
@@ -851,7 +857,7 @@ class Wall(Element):
                 normal = (ball.position - vertex).normalize()
                 self.handleVertexCollision(ball, vertex, normal)
 
-    def handleVertexCollision(self, ball, vertex, normal):
+    def handleVertexCollision(self, ball, vertex, normal) -> None:
         """处理顶点碰撞的响应"""
         # 计算穿透深度
         penetration = ball.radius - ball.position.distance(vertex)
@@ -862,10 +868,11 @@ class Wall(Element):
             velocityNormal = ball.velocity.dot(normal)
             ball.velocity -= normal * (2 * velocityNormal)
 
-    def isPosOn(self, game, pos: Vector2):
+    def isPosOn(self, game, pos: Vector2) -> bool:
         """使用射线法判断点是否在多边形内部"""
         mx = pos.x
         my = pos.y
+
         # 射线法检测点是否在多边形内
         # 创建一条从点开始的水平射线
         ray = CollisionLine(Vector2(mx, my), Vector2(mx + 10000, my))  # 假设射线足够长
@@ -878,11 +885,13 @@ class Wall(Element):
         # 如果射线与多边形的边相交的次数是奇数，则点在多边形内
         return intersections % 2 == 1
 
-    def draw(self, game):
+    def draw(self, game) -> None:
         """绘制带高亮效果的墙体"""
         if self.highLighted: 
+
             # 计算中心点
             center = self.position
+
             # 计算扩展比例
             expand = 1  # 向外扩展
 
@@ -908,7 +917,7 @@ class Wall(Element):
 
 class WallPosition:
     """墙体位置类，储存墙体上某一点的相对位置"""
-    def __init__(self, wall: Wall, position: Vector2):
+    def __init__(self, wall: Wall, position: Vector2) -> None:
         self.wall = wall
         self.position = position
 
@@ -926,7 +935,7 @@ class Rope:
         
         return True
 
-    def update(self, dt):
+    def update(self, dt) -> Self:
         """更新绳索位置"""
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
@@ -939,7 +948,9 @@ class Rope:
 
         else:
             ...
+        
+        return self
 
-    def draw(self, game):
+    def draw(self, game) -> None:
         """绘制绳索"""
         pygame.draw.line(game.screen, self.color, (game.realToScreen(self.start.position.x, game.x), game.realToScreen(self.start.position.y, game.y)), (game.realToScreen(self.end.position.x, game.x), game.realToScreen(self.end.position.y, game.y)), self.width)
