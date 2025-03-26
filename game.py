@@ -5,7 +5,7 @@ from tkinter import messagebox
 import pygame
 import sys, time, json, ctypes, pickle
 
-def setCapsLock(state=True):
+def setCapsLock(state=True) -> None:
     """
     设置或取消CapsLock状态
     state=True: 开启大写
@@ -20,7 +20,7 @@ def setCapsLock(state=True):
 
 class Game:
     """物理运动模拟系统主游戏类"""
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
         self.isPaused = False
         self.isElementCreating = False
@@ -52,7 +52,7 @@ class Game:
         self.x = self.screen.get_width()/2 / self.ratio
         self.y = self.screen.get_height() / self.ratio
         self.lastX = self.x
-        self.lastY = 20000000
+        self.lastY = 1e+7
         self.elementMenu : Menu = None
         self.exampleMenu : Menu = None
         self.currentTime = time.time()
@@ -105,7 +105,7 @@ class Game:
 
         self.test()
 
-    def exit(self):
+    def exit(self) -> None:
         """退出游戏并取消大写锁定"""
         setCapsLock(False)
         self.saveGame("autosave")
@@ -113,11 +113,11 @@ class Game:
         pygame.quit()
         sys.exit()
 
-    def test(self):
+    def test(self) -> None:
         """测试方法（预留）"""
         ...
 
-    def saveGame(self, filename="autosave"):
+    def saveGame(self, filename="autosave") -> None:
         """保存游戏数据"""
         for elementOption in self.elementMenu.options:
             elementOption.highLighted = False
@@ -150,7 +150,7 @@ class Game:
             print("\n游戏数据保存成功")
             f.close()
 
-    def loadGame(self, filename="autosave"):
+    def loadGame(self, filename="autosave") -> None:
         """加载游戏数据"""
         # 保存当前的 screen 属性
         currentScreen = getattr(self, "screen", None)
@@ -196,7 +196,7 @@ class Game:
         except PermissionError:
             ...
 
-    def setAttr(self, name, value):
+    def setAttr(self, name, value) -> None:
         """设置环境属性"""
         for option in self.environmentOptions:
             if option["type"] == name:
@@ -223,7 +223,7 @@ class Game:
 
         return r / self.ratio - x
 
-    def eventLoop(self):
+    def eventLoop(self) -> None:
         """事件处理主循环"""
         for event in pygame.event.get():
 
@@ -512,7 +512,7 @@ class Game:
 
             self.screenMove(event)
 
-    def openEditor(self, inputMenu):
+    def openEditor(self, inputMenu) -> None:
         """打开参数编辑器"""
         inputMenu.update(self)
         self.isEditing = True
@@ -547,7 +547,7 @@ class Game:
                 inputMenu.updateBoxes(e, self)
         self.updateFPS()
 
-    def screenMove(self, event):
+    def screenMove(self, event) -> None:
         """处理屏幕移动控制"""
         if event.type == pygame.KEYDOWN:
 
@@ -584,7 +584,7 @@ class Game:
             if event.key == pygame.K_s:
                 self.upMove = 0
 
-    def updateScreen(self):
+    def updateScreen(self) -> None:
         """更新屏幕状态"""
         for option in self.environmentOptions:
             if option["type"] == "mode" and option["value"] != "":
@@ -607,7 +607,7 @@ class Game:
         self.screen.fill(self.background)
         self.settingsButton.draw(self)
 
-    def updateMenu(self):
+    def updateMenu(self) -> None:
         """更新菜单界面"""
         w, h = self.screen.get_size()
         if self.elementMenu == None:
@@ -693,17 +693,17 @@ class Game:
         if self.isPaused and self.tempFrames == 0:
             self.screen.blit(pauseText, pauseTextRect)
 
-    def updateElements(self):
+    def updateElements(self) -> None:
         """更新所有物理元素状态"""
         for element in self.groundElements["all"]:
-            if element.position.y <= -15000000:
+            if element.position.y <= -1e+6:
                 self.groundElements["all"].remove(element)
                 self.groundElements[element.type].remove(element)
                 self.celestialElements["all"].append(element)
                 self.celestialElements[element.type].append(element)
 
         for element in self.celestialElements["all"]:
-            if element.position.y >= -15000000:
+            if element.position.y >= -1e+6:
                 self.groundElements["all"].append(element)
                 self.groundElements[element.type].append(element)
                 self.celestialElements["all"].remove(element)
@@ -853,7 +853,7 @@ class Game:
                 element1.update(dt)
         self.updateFPS()
 
-    def updateFPS(self):
+    def updateFPS(self) -> None:
         """更新帧率"""
         self.lastTime = self.currentTime
         self.currentTime = time.time()
@@ -863,7 +863,7 @@ class Game:
         if sum(self.fpsSaver) >= 1:
             del self.fpsSaver[0]
 
-    def update(self):
+    def update(self) -> None:
         """主更新循环"""
         self.eventLoop()
         self.updateScreen()
@@ -886,7 +886,7 @@ class Game:
                 minDis = ball.position.distance(ball2.position)
         return result
 
-    def CelestialBodyMode(self):
+    def CelestialBodyMode(self) -> None:
         """切换天体模式"""
         if not self.isCelestialBodyMode and not self.isModeChangingNaturally:
             self.minLimitRatio = 0.01
@@ -904,7 +904,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height())/2 < 15000000:
+        if self.y - self.screenToReal(self.screen.get_height())/2 < 1e+6:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -934,7 +934,7 @@ class Game:
             for ball in self.elements["ball"]:
                 ball.gravitation = True
 
-    def GroundSurfaceMode(self):
+    def GroundSurfaceMode(self) -> None:
         """切换地表模式"""
         if self.isCelestialBodyMode and not self.isModeChangingNaturally:
             self.minLimitRatio = 1
@@ -952,7 +952,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height())/2 >= 15000000:
+        if self.y - self.screenToReal(self.screen.get_height())/2 >= 1e+6:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -973,7 +973,7 @@ class Game:
                 ball.naturalForces.clear()
 
 class Menu:
-    def __init__(self, pos : Vector2, optionsList = []):
+    def __init__(self, pos : Vector2, optionsList = []) -> None:
         w, h = pygame.display.get_surface().get_size()
         self.width = w*3/100
         self.height = h*80/100
@@ -988,16 +988,16 @@ class Menu:
             option = Option(Vector2(self.x+self.width*1/10, self.y+self.width*1/10+i*self.width*9/10), Vector2(self.width*8/10, self.width*8/10), self.optionsList[i]["type"], self.optionsList[i]["attrs"], self)
             self.options.append(option)
 
-    def isMouseOn(self):
+    def isMouseOn(self) -> bool:
         """判断鼠标是否在菜单区域"""
         pos = Vector2(pygame.mouse.get_pos())
         return self.isPosOn(pos)
 
-    def isPosOn(self, pos:Vector2):
+    def isPosOn(self, pos:Vector2) -> bool:
         """判断指定位置是否在菜单区域"""
         return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height  
 
-    def draw(self, game : Game):
+    def draw(self, game : Game) -> None:
         """绘制菜单界面"""
         pygame.draw.rect(game.screen, (220, 220, 220), (self.x, self.y, self.width, self.height),border_radius=int(self.width*15/100))
         for option in self.options:
@@ -1005,7 +1005,7 @@ class Menu:
 
 class Option:
     """菜单选项类"""
-    def __init__(self, pos : Vector2, size : Vector2, type: str, attrs_ : list, menu : Menu):
+    def __init__(self, pos : Vector2, size : Vector2, type: str, attrs_ : list, menu : Menu) -> None:
         self.x = pos.x
         self.y = pos.y
         self.width = size.x
@@ -1021,7 +1021,7 @@ class Option:
             self.attrs[attr["type"]] = attr["value"]
                 
 
-    def drawArrow(self, game, startPos, endPos, color):
+    def drawArrow(self, game, startPos, endPos, color) -> None:
         """绘制箭头"""
         pygame.draw.line(game.screen, color, startPos, endPos, 3)
 
@@ -1048,16 +1048,16 @@ class Option:
         # 绘制箭头
         pygame.draw.polygon(game.screen, color, [endPos, arrowPoint1, arrowPoint2])
 
-    def isMouseOn(self):
+    def isMouseOn(self) -> bool:
         """判断鼠标是否在选项区域"""
         pos = pygame.mouse.get_pos()
         return self.isPosOn(Vector2(pos))
 
-    def isPosOn(self, pos : Vector2):
+    def isPosOn(self, pos : Vector2) -> bool:
         """判断指定位置是否在选项区域"""
         return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height  
 
-    def ballCreate(self, game : Game):
+    def ballCreate(self, game : Game) -> None:
         """创建球体"""
         game.isScreenMoving = False
         game.isMoving = False
@@ -1309,7 +1309,7 @@ class Option:
 
                 game.screenMove(event)
 
-    def wallCreate(self, game : Game):
+    def wallCreate(self, game : Game) -> None:
         """创建墙体"""
         game.isElementCreating = True
         self.highLighted = True
@@ -1480,7 +1480,7 @@ class Option:
 
                 game.screenMove(event)
 
-    def exampleCreate(self, game : Game):
+    def exampleCreate(self, game : Game) -> None:
         attrs = copy.deepcopy(self.attrs)
         attrs["path"] = attrs["path"].replace(".pkl", "")
         game.loadGame(attrs["path"])
@@ -1494,7 +1494,7 @@ class Option:
         game.lastTime = time.time()
         game.currentTime = time.time()
 
-    def elementEdit(self, game : Game, attrs : list):
+    def elementEdit(self, game : Game, attrs : list) -> None:
         """打开编辑元素属性框"""
         inputMenu = InputMenu(Vector2(game.screen.get_width()/2, game.screen.get_height()/2), game, self)
         
@@ -1512,7 +1512,7 @@ class Option:
         inputMenu.options = updated_attrs  # 使用更新后的属性列表
         game.openEditor(inputMenu)
 
-    def setAttr(self, name, value):
+    def setAttr(self, name, value) -> None:
         """设置元素属性"""
         for atr in self.attrs_:     
            if atr["type"] == name:
@@ -1520,7 +1520,7 @@ class Option:
 
         self.attrs[name] = value
 
-    def draw(self, game : Game):
+    def draw(self, game : Game) -> None:
         """绘制选项界面"""
         if self.highLighted:
             pygame.draw.rect(game.screen, "yellow", (self.x-3, self.y-3, self.width+6, self.height+6),border_radius=int(self.width*15/100))
@@ -1533,7 +1533,7 @@ class Option:
         if self.type == "wall":
             pygame.draw.rect(game.screen, self.attrs["color"], (self.x+self.width/10, self.y+self.height/10, self.width*8/10, self.height*8/10))
 
-    def createElement(self, game: Game, pos: Vector2):
+    def createElement(self, game: Game, pos: Vector2) -> None:
         """创建元素对象"""
         x = pos.x
         y = pos.y
@@ -1542,7 +1542,7 @@ class Option:
             method = eval(f"self.{self.type}Create")
             method(game)
 
-    def edit(self, game : Game, pos: Vector2):
+    def edit(self, game : Game, pos: Vector2) -> None:
         """编辑元素属性"""
         x = pos.x
         y = pos.y
@@ -1552,7 +1552,7 @@ class Option:
 
 class SettingsButton:
     """设置按钮控件类"""
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height) -> None:
         self.x = x
         self.y = y
         self.width = width
@@ -1564,21 +1564,21 @@ class SettingsButton:
         # 调整图片大小
         self.icon = pygame.transform.scale(originalIcon, (self.width, self.height))
 
-    def draw(self, game: Game):
+    def draw(self, game: Game) -> None:
         """绘制设置按钮"""
         game.screen.blit(self.icon, (self.x, self.y))
 
-    def isMouseOn(self):
+    def isMouseOn(self) -> bool:
         """判断鼠标是否在按钮上"""
         return self.isPosOn(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
 
-    def isPosOn(self, pos: Vector2):
+    def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在按钮上"""
         return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height
 
 class InputBox:
     """输入框控件类"""
-    def __init__(self, x, y, width, height, option, target, text=""):
+    def __init__(self, x, y, width, height, option, target, text="") -> None:
         self.rect = pygame.Rect(x, y, width-100, height)
         self.colorInactive = pygame.Color("lightskyblue3")
         self.colorActive = pygame.Color("dodgerblue2")
@@ -1598,7 +1598,7 @@ class InputBox:
             self.min = float(self.option["min"])
             self.max = float(self.option["max"])
 
-    def handleEvent(self, event, game : Game):
+    def handleEvent(self, event, game : Game) -> None:
         """处理输入事件"""
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -1660,14 +1660,14 @@ class InputBox:
             game.currentTime = time.time()
             self.textSurface = self.font.render(self.text, True, self.color)
 
-    def attrUpdate(self, target):
+    def attrUpdate(self, target) -> None:
         """更新目标属性"""
         if self.text == "":
             target.setAttr(self.option["type"], self.option["min"])
         else:
             target.setAttr(self.option["type"], self.text)
 
-    def update(self):
+    def update(self) -> None:
         """更新输入框状态"""
 
         # 更新光标状态
@@ -1677,7 +1677,7 @@ class InputBox:
             self.cursorVisible = not self.cursorVisible
             self.cursorTimer = 0
 
-    def draw(self, screen):
+    def draw(self, screen) -> None:
         """绘制输入框"""
 
         # 绘制输入框和文本
@@ -1691,7 +1691,7 @@ class InputBox:
 
 class InputMenu(Element):
     """输入菜单界面类"""
-    def __init__(self, position: Vector2, game: Game, target):
+    def __init__(self, position: Vector2, game: Game, target) -> None:
         # 每个输入框的垂直间距
         self.verticalSpacing = 100
         self.position = position
@@ -1705,7 +1705,7 @@ class InputMenu(Element):
         self.inputBoxes = []
         self.target = target
 
-    def update(self, game: Game):
+    def update(self, game: Game) -> None:
         """更新输入菜单布局"""
         # game.isPaused = False
         game.tempFrames = 1
@@ -1726,12 +1726,12 @@ class InputMenu(Element):
         game.lastTime = game.currentTime
         game.currentTime = time.time()
 
-    def updateBoxes(self, event, game):
+    def updateBoxes(self, event, game) -> None:
         """更新输入框状态"""
         for box in self.inputBoxes:
             box.handleEvent(event, game)
 
-    def draw(self, game: Game):
+    def draw(self, game: Game) -> None:
         """绘制输入菜单"""
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
 
@@ -1751,7 +1751,7 @@ class InputMenu(Element):
 
 class ControlOption:
     """控制选项类"""
-    def __init__(self, name, x, y, width, height, color):
+    def __init__(self, name, x, y, width, height, color) -> None:
         self.name = name
         self.x = x
         self.y = y
@@ -1759,7 +1759,7 @@ class ControlOption:
         self.height = height
         self.color = color
 
-    def attrEditor(self, game: Game, target):
+    def attrEditor(self, game: Game, target) -> None:
         """打开属性编辑器"""
         inputMenu = InputMenu(Vector2(game.screen.get_width()/2, game.screen.get_height()/2), game, target)
 
@@ -1770,17 +1770,17 @@ class ControlOption:
 
         game.openEditor(inputMenu)
 
-    def copy(self, game: Game, target):
+    def copy(self, game: Game, target) -> None:
         """复制目标"""
         target.copy(game)
 
-    def delete(self, game: Game, target: Element):
+    def delete(self, game: Game, target: Element) -> None:
         """删除目标"""
         for type in game.elements.keys():
             if target in game.elements[type]:
                 game.elements[type].remove(target)
 
-    def follow(self, game: Game, target: Element):
+    def follow(self, game: Game, target: Element) -> None:
         """视角跟随目标"""
 
         for element in game.elements["all"]:
@@ -1788,7 +1788,7 @@ class ControlOption:
 
         target.isFollowing = not target.isFollowing
 
-    def addVelocity(self, game: Game, target: Element):
+    def addVelocity(self, game: Game, target: Element) -> None:
         """添加速度"""
         tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], game.elementMenu)
         isAdding = True
@@ -1877,13 +1877,13 @@ class ControlOption:
         
         game.isPaused = False
 
-    def clearVelocity(self, game: Game, target: Element):
+    def clearVelocity(self, game: Game, target: Element) -> None:
         """清除速度"""
         target.displayedVelocity = target.velocity
         target.displayedVelocityFactor = 1
         target.velocity = Vector2(0, 0)
 
-    def addForce(self, game: Game, target: Element):
+    def addForce(self, game: Game, target: Element) -> None:
         """添加力"""
         tempOption = Option(Vector2(0, 0), Vector2(0,0), "temp", [], game.elementMenu)
         isAdding = True
@@ -1971,21 +1971,21 @@ class ControlOption:
         
         game.isPaused = False
 
-    def clearForce(self, game: Game, target: Element):
+    def clearForce(self, game: Game, target: Element) -> None:
         """清除所有外力"""
         target.displayedAcceleration = target.acceleration
         target.displayedAccelerationFactor = 1
         target.artificialForces.clear()
 
-    def isMouseOn(self):
+    def isMouseOn(self) -> bool:
         """判断鼠标是否在控件上"""
         return self.isPosOn(Vector2(pygame.mouse.get_pos()))
 
-    def isPosOn(self, pos: Vector2):
+    def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在控件上"""
         return self.x < pos.x < self.x + self.width and self.y < pos.y < self.y + self.height
 
-    def draw(self, game: Game):
+    def draw(self, game: Game) -> None:
         """绘制控件"""
         pygame.draw.rect(game.screen, self.color, (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
         text = game.translation[self.name]
@@ -1994,7 +1994,7 @@ class ControlOption:
 
 class ElementController:
     """元素控制器类"""
-    def __init__(self, element: Element, position: Vector2):
+    def __init__(self, element: Element, position: Vector2) -> None:
         self.x = position.x
         self.y = position.y
         self.optionWidth = 300
@@ -2003,7 +2003,7 @@ class ElementController:
         self.controlOptionsList = []
         self.controlOptions = []
 
-    def control(self, game: Game):
+    def control(self, game: Game) -> None:
         """控制元素"""
         for option in self.controlOptions:
             if option.isMouseOn():
@@ -2013,15 +2013,15 @@ class ElementController:
                 self.element.highLighted = False
                 break
 
-    def isMouseOn(self):
+    def isMouseOn(self) -> bool:
         """判断鼠标是否在控制器上"""
         return self.isPosOn(Vector2(pygame.mouse.get_pos()))
 
-    def isPosOn(self, pos: Vector2):
+    def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在控制器上"""
         return self.x < pos.x < self.x + self.optionWidth and self.y < pos.y < self.y + self.optionHeight * len(self.controlOptionsList)
 
-    def update(self, game: Game):
+    def update(self, game: Game) -> None:
         """更新控制器"""
         options = game.elementMenu.optionsList
 
@@ -2051,7 +2051,7 @@ class ElementController:
 
             currentY += self.optionHeight + 5  # 更新 y 坐标，增加当前 ControlOption 的高度和间距
 
-    def draw(self, game: Game):
+    def draw(self, game: Game) -> None:
         """绘制控制器"""
         for option in self.controlOptions:
             option.draw(game)

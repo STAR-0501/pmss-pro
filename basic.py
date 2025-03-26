@@ -566,7 +566,7 @@ class Ball(Element):
 
         self.highLighted = False
 
-    def reboundByWall(self, wall: Self):
+    def reboundByWall(self, wall: Self) -> Vector2:
         """处理与墙体的碰撞反弹"""
         direction = self.position - wall.position
         self.position += direction * 0.1
