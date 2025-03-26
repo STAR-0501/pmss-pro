@@ -68,6 +68,7 @@ class Game:
         self.background = "lightgrey"
         self.settingsButton = SettingsButton(0, 0, 50, 50)
         self.fpsSaver = []
+        self.tempFrames = 0
 
         self.groundElements = {
             "all": [],
@@ -122,13 +123,13 @@ class Game:
             elementOption.highLighted = False
 
         # 创建一个新的字典，用于存储可序列化的属性
-        # serializableDict = {
-        #     "gameName" : f"{int(time.time())}备份"
-        # }
-        
-        serializableDict = {               #做预设用的
-            "gameName" : f"自由落体模拟实验"
+        serializableDict = {
+            "gameName" : f"{int(time.time())}备份"
         }
+        
+        # serializableDict = {               #做预设用的
+        #     "gameName" : f"自由落体模拟实验"
+        # }
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
@@ -640,7 +641,7 @@ class Game:
         else:
             fpsTextColor = "darkgreen"
             
-        fpsText = self.fontSmall.render(f"fps = {self.fpsAverage:.0f} / {self.fpsMinimum:.0f}", True, fpsTextColor)
+        fpsText = self.fontSmall.render(f"fps = {self.fpsAverage:.0f} / {self.fpsMinimum:.0f} ", True, fpsTextColor)
         fpsTextRect =  fpsText.get_rect()
         fpsTextRect.x = self.screen.get_width() - fpsText.get_width()
         fpsTextRect.y = 0
@@ -661,35 +662,35 @@ class Game:
             else:
                 objectCountTextColor = "black"
 
-        objectCountText = self.fontSmall.render(f"物体数量 = {len(self.elements["all"])}", True, objectCountTextColor)
+        objectCountText = self.fontSmall.render(f"物体数量 = {len(self.elements["all"])} ", True, objectCountTextColor)
         objectCountTextRect =  objectCountText.get_rect()
         objectCountTextRect.x = self.screen.get_width() - objectCountText.get_width()
         objectCountTextRect.y = fpsText.get_height()
         self.screen.blit(objectCountText, objectCountTextRect)
 
-        mousePosText = self.fontSmall.render(f"鼠标位置 = ({int(self.screenToReal(pygame.mouse.get_pos()[0]/10, self.x))},{-int(self.screenToReal(pygame.mouse.get_pos()[1]/10, self.y))})", True, "black")
+        mousePosText = self.fontSmall.render(f"鼠标位置 = ( {int(self.screenToReal(pygame.mouse.get_pos()[0]/10, self.x))}, {-int(self.screenToReal(pygame.mouse.get_pos()[1]/10, self.y))} ) ", True, "black")
         mousePosTextRect =  mousePosText.get_rect()
         mousePosTextRect.x = self.screen.get_width() - mousePosText.get_width()
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
         self.screen.blit(mousePosText, mousePosTextRect)
 
-        ratioText = self.fontSmall.render(f"缩放比例 = {self.ratio:.1f}x", True, "black")
+        ratioText = self.fontSmall.render(f"缩放比例 = {self.ratio:.1f}x ", True, "black")
         ratioTextRect =  ratioText.get_rect()
         ratioTextRect.x = self.screen.get_width() - ratioText.get_width()        
         ratioTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height()
         self.screen.blit(ratioText, ratioTextRect)
 
-        speedText = self.fontSmall.render(f"倍速 = {self.speed:.1f}x", True, "black") 
+        speedText = self.fontSmall.render(f"倍速 = {self.speed:.1f}x ", True, "black") 
         speedTextRect =  speedText.get_rect()
         speedTextRect.x = self.screen.get_width() - speedText.get_width()
         speedTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height() + ratioText.get_height()
         self.screen.blit(speedText, speedTextRect)
 
-        pauseText = self.fontSmall.render(f"已暂停", True, "red")
+        pauseText = self.fontSmall.render(f"已暂停 ", True, "red")
         pauseTextRect =  pauseText.get_rect()
         pauseTextRect.x = self.screen.get_width() - pauseText.get_width()
         pauseTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height() + ratioText.get_height() + speedText.get_height()
-        if self.isPaused:
+        if self.isPaused and self.tempFrames == 0:
             self.screen.blit(pauseText, pauseTextRect)
 
     def updateElements(self):
@@ -711,7 +712,7 @@ class Game:
         dt = self.currentTime - self.lastTime
         for element1 in self.elements["all"]:
             element1.draw(self)
-            if not self.isPaused:
+            if not self.isPaused or self.tempFrames > 0:
                 element1.update(dt * self.speed)
 
         for ball1 in self.elements["ball"]:
@@ -868,6 +869,8 @@ class Game:
         self.updateScreen()
         self.updateElements()
         self.updateMenu()
+        if self.tempFrames > 0:
+            self.tempFrames -= 1
 
     def findNearestHeavyBall(self, ball : Ball) -> Ball | None:
         """寻找距离指定球体最近的重量大于指定球体的球体"""
@@ -1494,7 +1497,19 @@ class Option:
     def elementEdit(self, game : Game, attrs : list):
         """打开编辑元素属性框"""
         inputMenu = InputMenu(Vector2(game.screen.get_width()/2, game.screen.get_height()/2), game, self)
-        inputMenu.options = self.attrs_
+        
+        # 从元素实例获取实时属性值
+        updated_attrs = []
+        for attr in self.attrs_:
+
+            # 创建属性字典的深拷贝
+            newAttr = copy.deepcopy(attr)
+
+            # 用当前元素的实际属性值更新
+            newAttr["value"] = str(self.attrs[attr["type"]]) 
+            updated_attrs.append(newAttr)
+        
+        inputMenu.options = updated_attrs  # 使用更新后的属性列表
         game.openEditor(inputMenu)
 
     def setAttr(self, name, value):
@@ -1682,7 +1697,7 @@ class InputMenu(Element):
         self.position = position
         self.width = game.screen.get_width()/3
         self.height = 0
-        self.x = position.x - self.width/2 
+        self.x = position.x - self.width/2
         self.y = position.y - self.height/2
         self.commitFunction = ""
         self.font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.verticalSpacing/6))
@@ -1692,7 +1707,8 @@ class InputMenu(Element):
 
     def update(self, game: Game):
         """更新输入菜单布局"""
-        game.isPaused = False
+        # game.isPaused = False
+        game.tempFrames = 1
         l = len(self.options)
         self.height = 0
         self.inputBoxes.clear()
