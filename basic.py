@@ -46,8 +46,6 @@ def colorSuitable(color1 : tuple[int, int, int] | str, color2 : tuple[int, int, 
     """计算合适颜色"""
     return colorOpposite(colorMiddle(color1, color2))
 
-# 计算
-
 class Vector2:
     """二维向量类，提供基本向量运算和几何操作方法"""
     def __init__(self, x : float | tuple[float, float], y : float = None) -> None:
