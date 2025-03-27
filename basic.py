@@ -348,6 +348,7 @@ class Ball(Element):
         self.gravitation = gravitation
         self.type = "ball"
         self.isFollowing = False
+        self.isShowingInfo = False
         self.attrs = []
         self.updateAttrsList()
 
@@ -422,7 +423,7 @@ class Ball(Element):
         AB = line.end - line.start
         AP = self.position - line.start
         t = AP.dot(AB) / AB.dot(AB)
-    
+
         if line.isLine:  # 直线无限延长
             closestPoint = line.start + AB * t
 

@@ -58,7 +58,7 @@ class Game:
         self.x = self.screen.get_width()/2 / self.ratio
         self.y = self.screen.get_height() / self.ratio
         self.lastX = self.x
-        self.lastY = 1e+7
+        self.lastY = 2e+7
         self.elementMenu : Menu = None
         self.exampleMenu : Menu = None
         self.currentTime = time.time()
@@ -69,7 +69,7 @@ class Game:
         self.upMove = 0
         self.speed = 1
         self.circularVelocityFactor = 1
-        self.floor = Wall([Vector2(0,-10), Vector2(self.screen.get_width(), -10), Vector2(self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200,200,200), True)
+        self.floor = Wall([Vector2(0, -10), Vector2(self.screen.get_width(), -10), Vector2(self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200, 200, 200), True)
         self.isFloorIllegal = False
         self.background = "lightgrey"
         self.settingsButton = SettingsButton(0, 0, 50, 50)
@@ -77,12 +77,12 @@ class Game:
         self.tempFrames = 0
 
         self.groundElements = {
-            "all": [],
+            "all": [], 
             "controlling": []
         }
 
         self.celestialElements = {
-            "all": [],
+            "all": [], 
             "controlling": []
         }
 
@@ -139,7 +139,7 @@ class Game:
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
-            if attr != "screen":
+            if attr != "screen" and attr != "fpsSaver" and attr != "icon":
                 try:
                     # 尝试序列化对象，如果成功则添加到 serializableDict 中
                     pickle.dumps(value)
@@ -627,16 +627,51 @@ class Game:
             examples = []
             for dirpath, dirnames, filenames in os.walk("savefile/default"):
                 for file in filenames:
-                    example = {
-                    "name": os.path.basename(dirpath),
-                    "type": "example",
-                    "attrs": [{
-                        "type": "path", 
-                        "value": "default/"+file
-                    }]
-                    }
-                    examples.append(example)
+
+                    try:
+                        tempFile = open(os.path.join(dirpath, file), "rb")
+                        data = pickle.load(tempFile)
+                        tempFile.close()
+
+                        example = {
+                            "name": data["gameName"], 
+                            "type": "example", 
+                            "attrs": [
+                                {
+                                    "type": "path", 
+                                    "value": "default/"+file
+                                }, 
+                                {
+                                    "type": "icon", 
+                                    "value": data["icon"]
+                                }
+                            ]
+                        }
+
+                        examples.append(example)
+
+                    except KeyError:
+                        tempFile = open(os.path.join(dirpath, file), "rb")
+                        data = pickle.load(tempFile)
+                        tempFile.close()
+
+                        example = {
+                            "name": os.path.basename(dirpath), 
+                            "type": "example", 
+                            "attrs": [
+                                {
+                                "type": "path", 
+                                "value": "default/"+file
+                                }
+                            ]
+                        }
+
+                        examples.append(example)
+                        continue
+
             self.exampleMenu = Menu(ZERO, examples)
+            
+
         self.exampleMenu.draw(game=self)
 
         if self.speed != 0:
@@ -701,17 +736,37 @@ class Game:
         if self.isPaused and self.tempFrames == 0:
             self.screen.blit(pauseText, pauseTextRect)
 
-    def updateElements(self) -> None:
+        x, y = pygame.mouse.get_pos()
+        for option in self.exampleMenu.options:
+            if option.isMouseOn():
+                option.highLighted = True
+                nameText = self.fontSmall.render(option.name, True, (0, 0, 0))
+                nameTextRect = nameText.get_rect(center=(x + nameText.get_width(), y))
+                self.screen.blit(nameText, nameTextRect)
+            else:
+                option.highLighted = False
+
+        for option in self.elementMenu.options:
+            if option.isMouseOn():
+                option.highLighted = True
+                nameText = self.fontSmall.render(option.name, True, (0, 0, 0))
+                nameTextRect = nameText.get_rect(center=(x - nameText.get_width(), y))
+                self.screen.blit(nameText, nameTextRect)
+            else:
+                if not option.selected:
+                    option.highLighted = False
+
+    def updateElements(self):
         """更新所有物理元素状态"""
         for element in self.groundElements["all"]:
-            if element.position.y <= -1e+6:
+            if element.position.y <= -1.5e+7:
                 self.groundElements["all"].remove(element)
                 self.groundElements[element.type].remove(element)
                 self.celestialElements["all"].append(element)
                 self.celestialElements[element.type].append(element)
 
         for element in self.celestialElements["all"]:
-            if element.position.y >= -1e+6:
+            if element.position.y >= -1.5e+7:
                 self.groundElements["all"].append(element)
                 self.groundElements[element.type].append(element)
                 self.celestialElements["all"].remove(element)
@@ -754,7 +809,7 @@ class Game:
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
                 ballPos = ball1.position
-                tempOption = Option(ZERO, Vector2(0,0), "temp", [], self.elementMenu)
+                tempOption = Option(ZERO, Vector2(0, 0), "temp", [], self.elementMenu)
 
                 acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
                 accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5 * 2
@@ -769,6 +824,42 @@ class Game:
                 velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
                 velocityTipsText = self.fontBig.render(f"速度：{abs(velocity)/10:.1f} m/s", True, "blue")
+                velocityTipsTextRect =  velocityTipsText.get_rect()
+                velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
+                self.screen.blit(velocityTipsText, velocityTipsTextRect)
+
+            if ball1.isShowingInfo:
+
+                try:
+                    self.elements["controlling"].remove(ball1)
+                except ValueError:
+                    ...
+
+                ball1.highLighted = True
+
+                ballPos = ball1.position
+                massTipsText = self.fontSmall.render(f"质量：{ball1.mass:.1f}", True, "darkgreen")
+                massTipsTextRect =  massTipsText.get_rect()
+                massTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
+                massTipsTextRect.y = self.realToScreen(ballPos.y, self.y) + massTipsText.get_height()
+                self.screen.blit(massTipsText, massTipsTextRect)
+
+                tempOption = Option(Vector2(0, 0), Vector2(0, 0), "temp", [], self.elementMenu)
+
+                acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
+                accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5
+                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
+                accelerationTipsText = self.fontSmall.render(f"加速度：{abs(acceleration)/10:.1f} m/s²", True, "red")
+                accelerationTipsTextRect =  accelerationTipsText.get_rect()
+                accelerationTipsTextRect.x = self.realToScreen(accelerationPosition.x, self.x)
+                accelerationTipsTextRect.y = self.realToScreen(accelerationPosition.y, self.y)
+                self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
+
+                velocity = ball1.velocity + (ball1.displayedVelocity - ball1.velocity) * ball1.displayedVelocityFactor
+                velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5
+                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
+                velocityTipsText = self.fontSmall.render(f"速度：{abs(velocity)/10:.1f} m/s", True, "blue")
                 velocityTipsTextRect =  velocityTipsText.get_rect()
                 velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
                 velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
@@ -841,7 +932,7 @@ class Game:
                         ball.reboundByLine(line)
 
         if not self.isCelestialBodyMode:
-            self.floor.position.x = self.screenToReal(self.screen.get_width()/2,self.x)
+            self.floor.position.x = self.screenToReal(self.screen.get_width()/2, self.x)
             self.floor.update(deltaTime)
             self.floor.draw(self)
 
@@ -852,7 +943,7 @@ class Game:
                 element1.highLighted = True
 
                 try:
-                    element1.velocity = Vector2(0,0)
+                    element1.velocity = Vector2(0, 0)
                 except Exception as e:
                     ...
 
@@ -863,9 +954,11 @@ class Game:
                         break
 
                 if allowToPlace:
-                    element1.position.x = self.screenToReal(pos[0],self.x)
-                    element1.position.y = self.screenToReal(pos[1],self.y)
+                    element1.position.x = self.screenToReal(pos[0], self.x)
+                    element1.position.y = self.screenToReal(pos[1], self.y)
+
                 element1.update(deltaTime)
+
         self.updateFPS()
 
     def updateFPS(self) -> None:
@@ -927,7 +1020,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height())/2 < 1e+6:
+        if self.y - self.screenToReal(self.screen.get_height())/2 < 1.5e+7:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -975,7 +1068,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height())/2 >= 1e+6:
+        if self.y - self.screenToReal(self.screen.get_height())/2 >= 1.5e+7:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -1009,6 +1102,7 @@ class Menu:
         self.options = []
         for i in range(len(self.optionsList)):
             option = Option(Vector2(self.x+self.width*1/10, self.y+self.width*1/10+i*self.width*9/10), Vector2(self.width*8/10, self.width*8/10), self.optionsList[i]["type"], self.optionsList[i]["attrs"], self)
+            option.name = self.optionsList[i]["name"]
             self.options.append(option)
 
     def isMouseOn(self) -> bool:
@@ -1022,7 +1116,7 @@ class Menu:
 
     def draw(self, game : Game) -> None:
         """绘制菜单界面"""
-        pygame.draw.rect(game.screen, (220, 220, 220), (self.x, self.y, self.width, self.height),border_radius=int(self.width*15/100))
+        pygame.draw.rect(game.screen, (220, 220, 220), (self.x, self.y, self.width, self.height), border_radius=int(self.width*15/100))
         for option in self.options:
             option.draw(game)
 
@@ -1035,9 +1129,11 @@ class Option:
         self.height = size.y
         self.type = type
         self.pos = pos
+        self.name = ""
         self.creationPoints = []
         self.isAbsorption = False
         self.attrs = {}
+        self.selected = False
         self.highLighted = False
         self.attrs_ = attrs_
         for attr in self.attrs_:
@@ -1058,12 +1154,12 @@ class Option:
 
         # 计算箭头的两个端点
         arrowPoint1 = (
-            endPos[0] - arrowLength * math.cos(angle - arrowAngle),
+            endPos[0] - arrowLength * math.cos(angle - arrowAngle), 
             endPos[1] - arrowLength * math.sin(angle - arrowAngle)
         )
 
         arrowPoint2 = (
-            endPos[0] - arrowLength * math.cos(angle + arrowAngle),
+            endPos[0] - arrowLength * math.cos(angle + arrowAngle), 
             endPos[1] - arrowLength * math.sin(angle + arrowAngle)
         )
 
@@ -1090,6 +1186,7 @@ class Option:
         color = self.attrs["color"]
         mass = float(self.attrs["mass"])
         ball = None
+        self.selected = True
         self.highLighted = True
         coordinator = Coordinator(0, 0, 200, game)
         self.additionVelocity = ZERO
@@ -1192,8 +1289,17 @@ class Option:
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
 
+                    for option in game.elementMenu.options:
+                        if option.isMouseOn():
+                            game.isElementCreating = False
+                            self.highLighted = False
+                            self.selected = False
+                            option.createElement(game, Vector2(mousePosition[0], mousePosition[1]))
+                            break
+
                     if self.isMouseOn():
                         self.highLighted = False
+                        self.selected = False
                         game.isElementCreating = False
                         break
 
@@ -1215,16 +1321,10 @@ class Option:
                             if option.isMouseOn():
                                 game.isElementCreating = False
                                 self.highLighted = False
+                                self.selected = False
                                 method = eval(f"option.{option.type}Create")
                                 method(game)
                                 break
-
-                    for option in game.elementMenu.options:
-                        if option.isMouseOn():
-                            game.isElementCreating = False
-                            self.highLighted = False
-                            option.createElement(game, Vector2(mousePosition[0], mousePosition[1]))
-                            break
 
                 if event.type == pygame.MOUSEWHEEL and not game.isDragging:
                     
@@ -1318,6 +1418,7 @@ class Option:
                     if event.key == pygame.K_ESCAPE:
                         game.isElementCreating = False
                         self.highLighted = False
+                        self.selected = False
                         break
 
                     if event.key == pygame.K_p:
@@ -1349,6 +1450,7 @@ class Option:
         """创建墙体"""
         game.isElementCreating = True
         self.highLighted = True
+        self.selected = True
         clickNum = 0
         coordinator = Coordinator(0, 0, 0, game)
 
@@ -1430,6 +1532,7 @@ class Option:
 
                         if self.isMouseOn():
                             self.highLighted = False
+                            self.selected = False
                             game.isElementCreating = False
                             break
 
@@ -1437,6 +1540,7 @@ class Option:
                             if option.isMouseOn():
                                 game.isElementCreating = False
                                 self.highLighted = False
+                                self.selected = False
                                 method = eval(f"option.{option.type}Create")
                                 method(game)
                                 break
@@ -1490,6 +1594,7 @@ class Option:
                     if event.key == pygame.K_ESCAPE:
                         game.isElementCreating = False
                         self.highLighted = False
+                        self.selected = False
                         break
 
                     if event.key == pygame.K_p:
@@ -1559,9 +1664,9 @@ class Option:
     def draw(self, game : Game) -> None:
         """绘制选项界面"""
         if self.highLighted:
-            pygame.draw.rect(game.screen, "yellow", (self.x-3, self.y-3, self.width+6, self.height+6),border_radius=int(self.width*15/100))
+            pygame.draw.rect(game.screen, "yellow", (self.x-3, self.y-3, self.width+6, self.height+6), border_radius=int(self.width*15/100))
         
-        pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height),border_radius=int(self.width*15/100))
+        pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*15/100))
         
         if self.type == "ball":
             pygame.draw.circle(game.screen, self.attrs["color"], (self.x+self.width/2, self.y+self.height/2), self.width/3)
@@ -1569,7 +1674,28 @@ class Option:
         if self.type == "wall":
             pygame.draw.rect(game.screen, self.attrs["color"], (self.x+self.width/10, self.y+self.height/10, self.width*8/10, self.height*8/10))
 
-    def createElement(self, game: Game, pos: Vector2) -> None:
+        if self.type == "example":
+
+            try:
+                icon = pygame.image.load(self.attrs["icon"]).convert_alpha()
+
+                # 调整图片大小以适应给定的宽度和高度
+                scaled_icon = pygame.transform.scale(icon, (self.width, self.height))
+
+                # 计算图片的中心位置
+                icon_x = self.x + self.width / 2 - scaled_icon.get_width() / 2
+                icon_y = self.y + self.height / 2 - scaled_icon.get_height() / 2
+
+                # 绘制调整大小后的图片
+                game.screen.blit(scaled_icon, (icon_x, icon_y))
+
+            except KeyError:
+                ...
+
+            except FileNotFoundError:
+                ...
+            
+    def createElement(self, game: Game, pos: Vector2):
         """创建元素对象"""
         x = pos.x
         y = pos.y
@@ -1827,15 +1953,21 @@ class ControlOption:
 
     def follow(self, game: Game, target: Element) -> None:
         """视角跟随目标"""
+        target.isShowingInfo = False
+        target.isFollowing = not target.isFollowing
 
         for element in game.elements["all"]:
-            element.isFollowing = False
+            if element is not target:
+                element.isFollowing = False
 
-        target.isFollowing = not target.isFollowing
+    def showInfo(self, game: Game, target: Element):
+        """显示目标信息"""
+        target.isFollowing = False
+        target.isShowingInfo = not target.isShowingInfo
 
     def addVelocity(self, game: Game, target: Element) -> None:
         """添加速度"""
-        tempOption = Option(ZERO, Vector2(0,0), "temp", [], game.elementMenu)
+        tempOption = Option(ZERO, Vector2(0, 0), "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
@@ -1930,7 +2062,7 @@ class ControlOption:
 
     def addForce(self, game: Game, target: Element) -> None:
         """添加力"""
-        tempOption = Option(ZERO, Vector2(0,0), "temp", [], game.elementMenu)
+        tempOption = Option(ZERO, Vector2(0, 0), "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
@@ -2084,11 +2216,11 @@ class ElementController:
         for option in self.controlOptionsList:
 
             controlOption = ControlOption(
-                    option["type"],
-                    self.x + 30,  # x 坐标保持不变
-                    currentY,  # 使用当前 y 坐标
-                    self.optionWidth,
-                    self.optionHeight,
+                    option["type"], 
+                    self.x + 30, # x 坐标保持不变
+                    currentY, # 使用当前 y 坐标
+                    self.optionWidth, 
+                    self.optionHeight, 
                     "white"  # 颜色默认白色
                 )
 
