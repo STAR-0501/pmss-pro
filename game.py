@@ -1016,7 +1016,6 @@ class Game:
         self.updateMenu()
         if self.tempFrames > 0:
             self.tempFrames -= 1
-        print()
 
     def findMaximumGravitationBall(self, ball : Ball) -> Ball | None:
         """寻找给予指定球最大引力的球"""

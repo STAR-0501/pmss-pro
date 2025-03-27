@@ -739,7 +739,7 @@ class Ball(Element):
         # 计算速度大小
         velocity = direction * (ball.mass / distance * 1e+5) ** 0.5
 
-        return velocity * factor * 2 ** 0.5 / 2 + ball.velocity
+        return velocity * factor + ball.velocity
 
     def merge(self, other: Self, game) -> Self:
         """处理球与球之间的天体合并"""
