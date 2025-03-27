@@ -23,8 +23,8 @@ class AI:
             
         with open("config/aiWords.json", "r", encoding="utf-8") as f:
             words = json.load(f)
-            for k,v in words.items():
-                self.messages.append({"role": "system", "content": v})
+            for key,value in words.items():
+                self.messages.append({"role": "system", "content": value})
 
         print("AI初始化完成！")
 

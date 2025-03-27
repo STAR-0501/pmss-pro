@@ -528,20 +528,20 @@ class Game:
         while self.isEditing:
             inputMenu.draw(self)
             pygame.display.update()
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     self.exit()
-                elif e.type == pygame.ACTIVEEVENT:
+                elif event.type == pygame.ACTIVEEVENT:
 
-                    if e.gain == 0 and e.state == 2:
+                    if event.gain == 0 and event.state == 2:
                         setCapsLock(False)
 
-                    elif e.gain == 1 and e.state == 1:
+                    elif event.gain == 1 and event.state == 1:
                         setCapsLock(True)
 
-                if e.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
 
-                    if e.key == pygame.K_z and self.isCtrlPressing:
+                    if event.key == pygame.K_z and self.isCtrlPressing:
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
                         for option in self.elementMenu.options:
@@ -549,10 +549,10 @@ class Game:
                                 self.elements[option.type].remove(lastElement)
                                 break
 
-                    if e.key == pygame.K_m or e.key == pygame.K_ESCAPE or e.key == pygame.K_RETURN:
+                    if event.key == pygame.K_m or event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                         self.isEditing = False
 
-                inputMenu.updateBoxes(e, self)
+                inputMenu.updateBoxes(event, self)
         self.updateFPS()
 
     def screenMove(self, event) -> None:
@@ -831,11 +831,6 @@ class Game:
 
             if ball1.isShowingInfo:
 
-                try:
-                    self.elements["controlling"].remove(ball1)
-                except ValueError:
-                    ...
-
                 ball1.highLighted = True
 
                 ballPos = ball1.position
@@ -1090,12 +1085,12 @@ class Game:
 
 class Menu:
     def __init__(self, pos : Vector2, optionsList = []) -> None:
-        w, h = pygame.display.get_surface().get_size()
-        self.width = w*3/100
-        self.height = h*80/100
+        width, height = pygame.display.get_surface().get_size()
+        self.width = width*3/100
+        self.height = height*80/100
 
         self.x = pos.x
-        self.y = pos.y + (h - self.height)/2
+        self.y = pos.y + (height - self.height)/2
 
         self.optionsList = optionsList
 
@@ -1880,11 +1875,11 @@ class InputMenu(Element):
         """更新输入菜单布局"""
         # game.isPaused = False
         game.tempFrames = 1
-        l = len(self.options)
+        length = len(self.options)
         self.height = 0
         self.inputBoxes.clear()
 
-        for i in range(l):
+        for i in range(length):
             option = self.options[i]
             # 计算每个输入框的y坐标
             y = self.y + 10 + i * self.verticalSpacing 
@@ -1907,14 +1902,14 @@ class InputMenu(Element):
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
 
         # 绘制所有输入框和选项文本
-        l = len(self.options)
+        length = len(self.options)
 
-        for i in range(l):
-            v = self.options[i]["type"]
+        for i in range(length):
+            optionType = self.options[i]["type"]
             inputBox = self.inputBoxes[i]
 
             # 绘制选项文本
-            optionText = self.font.render(game.translation[v], True, (0, 0, 0))
+            optionText = self.font.render(game.translation[optionType], True, (0, 0, 0))
             game.screen.blit(optionText, (self.x , inputBox.rect.y))
 
             # 绘制输入框

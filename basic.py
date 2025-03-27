@@ -13,8 +13,8 @@ def colorStringToTuple(color: str) -> tuple[int, int, int]:
     if not color.startswith('#'):
 
         try:
-            c = pygame.Color(color.lower())
-            return (c.r, c.g, c.b)
+            color_ = pygame.Color(color.lower())
+            return (color_.r, color_.g, color_.b)
         
         except ValueError:
             # 如果颜色名称无效，返回默认黑色
@@ -186,7 +186,7 @@ class CollisionLine:
 
 class Element:
     """游戏元素基类，定义通用接口"""
-    def __init__(self, position : Vector2, velocity : Vector2, mass : float, color : pygame.Color) -> None:
+    def __init__(self, position : Vector2, color : pygame.Color) -> None:
         self.position = position
         self.highLighted = False
         self.type = "element"
@@ -262,12 +262,12 @@ class Coordinator():
         self.minDegree = 360
 
         for direction in self.direction:
-            d = (self.direction.index(direction) * 90) % 360
+            distance = (self.direction.index(direction) * 90) % 360
             # 计算最小差值，考虑角度的周期性
-            delta = min(abs(d - self.degree), 360 - abs(d - self.degree))
+            delta = min(abs(distance - self.degree), 360 - abs(distance - self.degree))
 
             if delta < self.minDegree:
-                minDirectionDegree = d
+                minDirectionDegree = distance
                 self.minDegree = delta
                 self.minDirection = direction
 
@@ -306,8 +306,8 @@ class Coordinator():
             minDirectionUnit = self.minDirection.normalize()
 
             # 保持 nowDirection 的长度，但方向与 minDirection 一致
-            n = self.position + minDirectionUnit * abs(nowDirection)
-            option.creationPoints[1] = n
+            point = self.position + minDirectionUnit * abs(nowDirection)
+            option.creationPoints[1] = point
             option.isAbsorption = True
 
         else:
@@ -422,14 +422,14 @@ class Ball(Element):
 
         AB = line.end - line.start
         AP = self.position - line.start
-        t = AP.dot(AB) / AB.dot(AB)
+        projectionRatio = AP.dot(AB) / AB.dot(AB)
 
         if line.isLine:  # 直线无限延长
-            closestPoint = line.start + AB * t
+            closestPoint = line.start + AB * projectionRatio
 
         else:  # 普通线段
-            tClamped = max(0, min(t, 1))
-            closestPoint = line.start + AB * tClamped
+            projectionRatioClamped = max(0, min(projectionRatio, 1))
+            closestPoint = line.start + AB * projectionRatioClamped
 
         distance = self.position.distance(closestPoint)
         return distance <= self.radius
@@ -525,16 +525,16 @@ class Ball(Element):
 
         # 确保颜色是tuple格式
         if isinstance(self.color, str):
-            c = colorStringToTuple(self.color)
+            color = colorStringToTuple(self.color)
         else:
-            c = self.color
+            color = self.color
 
-        numCircles = 20  # 固定20个同心圆
+        circleNumber = 20  # 固定20个同心圆
 
         # 绘制渐变效果
-        for n in range(numCircles):
+        for number in range(circleNumber):
             # 计算当前半径比例（从1.0到0.0）
-            ratio = n / (numCircles - 1)  # 修正比例计算
+            ratio = number / (circleNumber - 1)  # 修正比例计算
 
             # 当前实际半径
             currentRadius = self.radius * (1 - ratio)
@@ -542,9 +542,9 @@ class Ball(Element):
             # 颜色混合计算（外部保持原色，内部变浅）
             # 混合比例：外部（ratio=0）保持原色，内部（ratio=1）变浅50%
             mixRatio = ratio  # 使用ratio来控制混合比例
-            r = int(c[0] + (255 - c[0]) * mixRatio * 0.5)
-            g = int(c[1] + (255 - c[1]) * mixRatio * 0.5)
-            b = int(c[2] + (255 - c[2]) * mixRatio * 0.5)
+            red = int(color[0] + (255 - color[0]) * mixRatio * 0.5)
+            green = int(color[1] + (255 - color[1]) * mixRatio * 0.5)
+            blue = int(color[2] + (255 - color[2]) * mixRatio * 0.5)
 
             # 透明度控制（外部不透明，内部半透明）
             alpha = int(255 * (1 - ratio * 0.5))  # 保持最低50%透明度
@@ -561,7 +561,7 @@ class Ball(Element):
             tempSurface = pygame.Surface((drawRadius*2, drawRadius*2), pygame.SRCALPHA)
 
             pygame.draw.circle(
-                tempSurface, (r, g, b, alpha), 
+                tempSurface, (red, green, blue, alpha), 
                 (drawRadius, drawRadius), drawRadius, 0
             )
             
@@ -594,27 +594,27 @@ class Ball(Element):
         self.displayedVelocityFactor = 1
 
         AP = self.position - line.start
-        t = AP.dot(AB) / lineLength
+        projectionRatio = AP.dot(AB) / lineLength
 
         # 计算最近点和法线
         if line.isLine:  # 直线的情况
-            closest = line.start + AB * t
+            closest = line.start + AB * projectionRatio
             edgeNormal = Vector2(-AB.y, AB.x).normalize()
             # 根据球的位置确定法线方向
             normal = edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal
 
         else:  # 线段的情况
 
-            if t < 0:
+            if projectionRatio < 0:
                 closest = line.start
                 normal = (self.position - closest).normalize()
 
-            elif t > 1:
+            elif projectionRatio > 1:
                 closest = line.end
                 normal = (self.position - closest).normalize()
 
             else:
-                closest = line.start + AB * t
+                closest = line.start + AB * projectionRatio
                 edgeNormal = Vector2(-AB.y, AB.x).normalize()
                 normal = edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal
 
@@ -896,23 +896,23 @@ class Wall(Element):
             expand = 1  # 向外扩展
 
             highLightList = []
-            for v in self.vertexes:
+            for vertex in self.vertexes:
 
                 # 获取中心到顶点的方向向量
-                direction = (v - center)
+                direction = (vertex - center)
 
                 # 归一化后扩展
                 if abs(direction) > 0:
                     direction.normalize()
                     
                     # 保持原始顶点顺序，沿方向向外扩展
-                    highLightList.append(v + direction * expand)
+                    highLightList.append(vertex + direction * expand)
                 else:
-                    highLightList.append(v.copy())
+                    highLightList.append(vertex.copy())
 
             pygame.draw.polygon(game.screen, (255, 255, 0), [(game.realToScreen(hightLight.x, game.x), game.realToScreen(hightLight.y, game.y)) for hightLight in highLightList], 0)
 
-        pygame.draw.polygon(game.screen, self.color, [(game.realToScreen(v.x, game.x), game.realToScreen(v.y, game.y)) for v in self.vertexes], 0)
+        pygame.draw.polygon(game.screen, self.color, [(game.realToScreen(vertex.x, game.x), game.realToScreen(vertex.y, game.y)) for vertex in self.vertexes], 0)
         self.highLighted = False
 
 class WallPosition:
