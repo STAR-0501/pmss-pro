@@ -165,6 +165,7 @@ class Game:
         # 保存当前的 screen 属性
         currentScreen = getattr(self, "screen", None)
         currentExampleMenu = getattr(self, "exampleMenu", None)
+        currentElementMenu = getattr(self, "elementMenu", None)
 
         try:
 
@@ -186,6 +187,17 @@ class Game:
 
                 if currentExampleMenu is not None:
                     self.exampleMenu = currentExampleMenu
+
+                if currentElementMenu is not None:
+                    self.elementMenu.x = currentElementMenu.x
+                    self.elementMenu.y = currentElementMenu.y
+                    self.elementMenu.width = currentElementMenu.width
+                    self.elementMenu.height = currentElementMenu.height
+                    for i in range(len(currentElementMenu.options)):
+                        self.elementMenu.options[i].x = currentElementMenu.options[i].x
+                        self.elementMenu.options[i].y = currentElementMenu.options[i].y
+                        self.elementMenu.options[i].width = currentElementMenu.options[i].width
+                        self.elementMenu.options[i].height = currentElementMenu.options[i].height
                 
                 # 恢复坐标系统相关参数
                 self.x = serializableDict.get("x", self.screen.get_width()/2 / self.ratio)
@@ -694,6 +706,7 @@ class Game:
             
 
         self.exampleMenu.draw(game=self)
+
 
         if self.speed != 0:
             if self.fpsAverage / abs(self.speed) ** 0.5 < 60 or self.fpsMinimum / abs(self.speed) ** 0.5 < 30:
