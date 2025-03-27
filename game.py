@@ -975,8 +975,8 @@ class Game:
         if self.tempFrames > 0:
             self.tempFrames -= 1
 
-    def findNearestHeavyBall(self, ball : Ball) -> Ball | None:
-        """寻找距离指定球体最近的重量大于指定球体的球体"""
+    def findMaximumGravitationBall(self, ball : Ball) -> Ball | None:
+        """寻找给予指定球最大引力的球"""
         if ball is None:
             return
         
@@ -1192,11 +1192,12 @@ class Option:
             mousePosition = pygame.mouse.get_pos()
             game.update()
 
-            nearestHeavyBall = copy.deepcopy(game.findNearestHeavyBall(ball))
-            if nearestHeavyBall is not None:
-                nearestHeavyBall.velocity = ZERO
+            maximumGravitationBall = game.findMaximumGravitationBall(ball)
+            if maximumGravitationBall is not None:
+                maximumGravitationBallCopy = copy.deepcopy(maximumGravitationBall)
+                maximumGravitationBallCopy.velocity = ZERO
 
-            if game.isCelestialBodyMode and game.isCircularVelocityGetting and nearestHeavyBall is not None:
+            if game.isCelestialBodyMode and game.isCircularVelocityGetting and maximumGravitationBall is not None:
 
                 if 0 <= game.circularVelocityFactor <= 1:
                     circularVelocityFactorColor = colorMiddle("green", "yellow", game.circularVelocityFactor)
@@ -1207,8 +1208,8 @@ class Option:
                 else:
                     circularVelocityFactorColor = "red"
 
-                pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(nearestHeavyBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(nearestHeavyBall.position)), 3)
-                velocity = ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(maximumGravitationBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(maximumGravitationBall.position)), 3)
+                velocity = ball.getCircularVelocity(maximumGravitationBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
                 self.drawArrow(game, mousePosition, game.realToScreen(ball.position + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2, Vector2(game.x, game.y)).toTuple(), circularVelocityFactorColor)
                 
                 if game.circularVelocityFactor != 1:
@@ -1301,12 +1302,13 @@ class Option:
                     elif not game.elementMenu.isMouseOn() or game.isDragging:
                         game.isDragging = False
                         ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(mousePosition[0], game.x) - ball.position.x, game.screenToReal(mousePosition[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
-                        nearestHeavyBall = copy.deepcopy(game.findNearestHeavyBall(ball))
-                        if nearestHeavyBall is not None:
-                            nearestHeavyBall.velocity = ZERO
+                        maximumGravitationBall = game.findMaximumGravitationBall(ball)
+                        if maximumGravitationBall is not None:
+                            maximumGravitationBallCopy = copy.deepcopy(maximumGravitationBall)
+                            maximumGravitationBallCopy.velocity = ZERO
 
-                        if nearestHeavyBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
-                            ball.velocity = ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                        if maximumGravitationBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
+                            ball.velocity = ball.getCircularVelocity(maximumGravitationBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
 
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
