@@ -1,7 +1,8 @@
 from basic import *
 from game import *
 from ai import *
-import pygame, threading
+import pygame
+import threading
 
 def executor(userInput, ai : AI):
     assistantMessage = ai.chat(userInput)

@@ -216,9 +216,9 @@ class Element:
 
 class Coordinator():
     """坐标系辅助类，处理坐标转换和角度显示"""
-    def __init__(self, x : float, y : float, w : float, game) -> None:
+    def __init__(self, x : float, y : float, width : float, game) -> None:
         self.position = Vector2(x, y)
-        self.w = w
+        self.width = width
         self.degree = 0
         self.minDegree = 0
         self.minDirection = Vector2(0, 0)
@@ -237,10 +237,10 @@ class Coordinator():
         """更新坐标系方向向量"""
 
         self.direction = [
-            Vector2(game.screenToReal(self.w), game.screenToReal(0)), 
-            Vector2(game.screenToReal(0), game.screenToReal(-self.w)), 
-            Vector2(game.screenToReal(-self.w), game.screenToReal(0)), 
-            Vector2(game.screenToReal(0), game.screenToReal(self.w))
+            Vector2(game.screenToReal(self.width), game.screenToReal(0)), 
+            Vector2(game.screenToReal(0), game.screenToReal(-self.width)), 
+            Vector2(game.screenToReal(-self.width), game.screenToReal(0)), 
+            Vector2(game.screenToReal(0), game.screenToReal(self.width))
         ]
 
         return self
@@ -271,8 +271,8 @@ class Coordinator():
                 self.minDegree = delta
                 self.minDirection = direction
 
-        if game.realToScreen(abs(nowDirection)) >= self.w:
-            radius = game.screenToReal(self.w)
+        if game.realToScreen(abs(nowDirection)) >= self.width:
+            radius = game.screenToReal(self.width)
 
         else:
             radius = abs(nowDirection)
@@ -299,7 +299,7 @@ class Coordinator():
             startAngle, endAngle, 2
         )
 
-        if self.minDegree <= 1.5 and self.minDegree != 0 and self.w > 10:
+        if self.minDegree <= 1.5 and self.minDegree != 0 and self.width > 10:
             self.minDegree = 0
 
             # 计算单位方向向量

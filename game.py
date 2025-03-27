@@ -617,18 +617,18 @@ class Game:
 
     def updateMenu(self) -> None:
         """更新菜单界面"""
-        w, h = self.screen.get_size()
+        width, height = self.screen.get_size()
         if self.elementMenu == None:
-            with open("config/elementOptions.json", "r", encoding="utf-8") as f:
-                self.elementMenu = Menu(Vector2(w*97/100, 0), json.load(f))
+            with open("config/elementOptions.json", "r", encoding="utf-8") as filenames:
+                self.elementMenu = Menu(Vector2(width*97/100, 0), json.load(filenames))
         self.elementMenu.draw(game=self)
 
         if self.exampleMenu == None:
             examples = []
-            for s,d,f in os.walk("savefile/default"):
-                for file in f:
+            for dirpath, dirnames, filenames in os.walk("savefile/default"):
+                for file in filenames:
                     example = {
-                    "name": os.path.basename(s),
+                    "name": os.path.basename(dirpath),
                     "type": "example",
                     "attrs": [{
                         "type": "path", 
@@ -782,13 +782,17 @@ class Game:
 
                         if ball1.isCollidedByBall(ball2):
                             if self.isCelestialBodyMode:
+
                                 newBall = ball1.merge(ball2, self)
+
                                 if ball1.isFollowing or ball2.isFollowing:
                                     newBall.isFollowing = True
+
                                 if (ball1 in self.elements["controlling"] and ball1.mass >= ball2.mass) or (ball2 in self.elements["controlling"] and ball2.mass >= ball1.mass):
                                     self.elements["controlling"].clear()
                                     self.elements["controlling"].append(newBall)
                                     newBall.highLighted = True
+
                                 self.elements["all"].remove(ball1)
                                 self.elements["ball"].remove(ball1)
                                 self.elements["all"].remove(ball2)
@@ -816,10 +820,13 @@ class Game:
                     ball1.reboundByWall(self.floor)
 
             for option in self.environmentOptions:
+
                 if option["type"] == "gravity":
                     ball1.gravity = float(option["value"])
+
                 if option["type"] == "airResistance":
                     ball1.airResistance = float(option["value"])
+
                 if option["type"] == "collisionFactor":
                     ball1.collisionFactor = float(option["value"])
 
@@ -893,10 +900,13 @@ class Game:
             # if ball2.mass > ball.mass and ball.position.distance(ball2.position) < minDistance:
             #     result = ball2
             #     minDistance = ball.position.distance(ball2.position)
+
             distance = ball.position.distance(ball2.position)
+
             if G * ball.mass * ball2.mass / (distance ** 2 + 1e-6) > maxGravitation:
                 result = ball2
                 maxGravitation = G * ball.mass * ball2.mass / (distance ** 2 + 1e-6)
+
         return result
 
     def CelestialBodyMode(self) -> None:
@@ -1239,6 +1249,7 @@ class Option:
 
                         if event.y == -1:
                             game.circularVelocityFactor -= 0.1
+
                             if game.circularVelocityFactor < 0:
                                 game.circularVelocityFactor = 0
 
@@ -1366,7 +1377,7 @@ class Option:
                 pygame.display.update()
 
             if clickNum%4 == 1:
-                coordinator.w = 200
+                coordinator.width = 200
                 coordinator.update(game)
                 coordinator.draw(game, self)
 
@@ -1379,7 +1390,7 @@ class Option:
 
             if clickNum%4 == 0:
                 coordinator.position = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))  
-                coordinator.w = 10
+                coordinator.width = 10
                 coordinator.update(game)
                 coordinator.draw(game, self)
                 pygame.display.update()
@@ -1656,11 +1667,13 @@ class InputBox:
                             self.text = self.text[:-1]
 
                         if event.unicode.isdigit() or event.unicode == "." or event.unicode == "-":
+
                             try:
                                 self.text += event.unicode
 
                                 if float(self.text) < self.min:
                                     self.text = str(self.min)
+
                                 elif float(self.text) > self.max:
                                     self.text = str(self.max)
 
@@ -1668,16 +1681,23 @@ class InputBox:
                                 self.text = self.text[:-1]
 
                     else:
+
                         if event.key == pygame.K_BACKSPACE:
                             self.text = self.text[:-1]
+
                         if event.unicode.isalnum() or event.unicode == "#":
                             self.text += event.unicode
+
                         self.isColorError = False
+
                         try:
+
                             if len(self.text) != 0 and self.text[0] == "#":
                                 self.text = self.text[0:7]
+
                             pygame.Color(self.text)
                             self.attrUpdate(self.target)
+
                         except ValueError:
                             self.isColorError = True
                         
