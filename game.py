@@ -615,7 +615,8 @@ class Game:
                     self.upMove = -1
 
             if event.key == pygame.K_LEFT:
-                self.speed -= 0.1
+                if self.speed > 0.1:
+                    self.speed -= 0.1
 
             if event.key == pygame.K_RIGHT:
                 self.speed += 0.1
