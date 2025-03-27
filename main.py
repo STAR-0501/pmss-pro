@@ -3,6 +3,7 @@ from game import *
 from ai import *
 import pygame
 import threading
+import re
 
 def ballsToString(balls : list[Element]) -> str:
     """balls列表转字符串"""
@@ -144,15 +145,23 @@ def AIThreadMethod(game : Game) -> None:
     """AI线程方法"""
     ai = AI(game)
     while True:
-        point1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
-        point2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.x, game.y))
-        text = ai.chat(message=input("用户：") + "\n" + "屏幕对角坐标：" + str(point1.toTuple()) + " " + str(point2.toTuple()) + "\n" + ballsToString(game.elements["ball"]) + "\n" + wallsToString(game.elements["wall"]))
-        result = re.findall("<.*>", text)
-        for i in result:
-            try:
-                command(i[1:-1].replace("\n", ""), game)
-            except Exception as e:
-                print("执行命令出错：", e, end="\n\n")
+        try:
+            game.isChatting = False
+            point1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
+            point2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.x, game.y))
+            
+            message = input("用户：")
+            game.isChatting = True
+            text = ai.chat(message=message + "\n" + "屏幕对角坐标：" + str(point1.toTuple()) + " " + str(point2.toTuple()) + "\n" + ballsToString(game.elements["ball"]) + "\n" + wallsToString(game.elements["wall"]))
+            result = re.findall("<.*>", text)
+
+            for i in result:
+                try:
+                    command(i[1:-1].replace("\n", ""), game)
+                except Exception as e:
+                    print("执行命令出错：", e, end="\n\n")
+        except EOFError:
+            break
 
 if __name__ == '__main__': 
     game = Game()
@@ -163,5 +172,11 @@ if __name__ == '__main__':
     AIThread.start()
     
     while True: 
-        game.update()
-        pygame.display.update()
+        try:
+            game.update()
+            pygame.display.update()
+        except KeyboardInterrupt:
+            if game.isChatting:
+                game.isChatting = False
+            else:
+                game.exit()
