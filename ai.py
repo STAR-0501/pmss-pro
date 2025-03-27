@@ -1,6 +1,6 @@
 from basic import *
 from openai import OpenAI
-import re
+import time
 
 key = open("config/siliconFlowAPI.txt", "r", encoding="utf-8").read()
 
@@ -55,6 +55,8 @@ class AI:
     
     def chat(self, message : str) -> str:
         """AI与用户进行对话，并返回AI的回复"""
+
+        startTime = time.time()
         
         print("\n系统：", end="", flush=True)
 
@@ -77,21 +79,39 @@ class AI:
         # 逐步接收并处理响应
         try:
             for chunk in response:
+
                 if not chunk.choices:
                     continue
+
                 if chunk.choices[0].delta.content:
                     tempText = chunk.choices[0].delta.content
                     print(tempText, end="", flush=True)
                     text += tempText
+                    
                 if chunk.choices[0].delta.reasoning_content:
                     tempText = chunk.choices[0].delta.reasoning_content
                     print(tempText, end="", flush=True)
                     text += tempText
-            print("\n")
+                
+                if not self.game.isChatting:
+                    print("\n用户取消对话", end="", flush=True)
+                    break
 
+            # 尝试从最后一个chunk获取Token数
+            if chunk and hasattr(chunk, 'usage') and chunk.usage:
+                total_tokens = chunk.usage.total_tokens
+            else:
+                total_tokens = "无法获取"  # 备选方案
+            
+            print(f"\n\n对话用时：{time.time() - startTime:.3f} 秒")
+            print(f"Token：{total_tokens}\n")
+
+            if not self.game.isChatting:
+                return ""
+            
         except KeyboardInterrupt:
-            print("\n用户取消对话")
-            return text
+            print("\n用户取消对话", end="", flush=True)
+            return ""
         
         return text
     

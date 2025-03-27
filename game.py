@@ -42,10 +42,11 @@ class Game:
         self.isDragging = False
         self.isCelestialBodyMode = False
         self.isModeChangingNaturally = False
+        self.isChatting = False
         self.icon = ""
 
         self.screen = pygame.display.set_mode(flags=pygame.NOFRAME)
-        print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}")
+        print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
         pygame.display.set_caption("Physics Motion Simulation System Beta")
         icon = pygame.image.load("static/icon.png").convert_alpha()
         pygame.display.set_icon(icon)
@@ -115,11 +116,12 @@ class Game:
 
     def exit(self) -> None:
         """退出游戏并取消大写锁定"""
-        setCapsLock(False)
-        self.saveGame("autosave")
-        print("\n游戏退出")
-        pygame.quit()
-        sys.exit()
+        if not self.isChatting:
+            setCapsLock(False)
+            self.saveGame("autosave")
+            print("\n游戏退出")
+            pygame.quit()
+            sys.exit()
 
     def test(self) -> None:
         """测试方法（预留）"""
