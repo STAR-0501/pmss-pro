@@ -129,17 +129,18 @@ class Game:
             elementOption.highLighted = False
 
         # 创建一个新的字典，用于存储可序列化的属性
-        serializableDict = {
-            "gameName" : f"{int(time.time())}备份"
-        }
-        
-        # serializableDict = {               #做预设用的
-        #     "gameName" : f"自由落体模拟实验"
+        # serializableDict = {
+        #     "gameName" : f"{int(time.time())}备份"
         # }
+        
+        serializableDict = {               #做预设用的
+            "gameName" : f"自由落体模拟实验",
+            "icon" : "static/freeFall.png"
+        }
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
-            if attr != "screen" and attr != "fpsSaver" and attr != "icon":
+            if attr != "screen" and attr != "fpsSaver" and attr != "icon" and attr != "gameName":
                 try:
                     # 尝试序列化对象，如果成功则添加到 serializableDict 中
                     pickle.dumps(value)
@@ -161,6 +162,7 @@ class Game:
         """加载游戏数据"""
         # 保存当前的 screen 属性
         currentScreen = getattr(self, "screen", None)
+        currentExampleMenu = getattr(self, "exampleMenu", None)
 
         try:
 
@@ -179,6 +181,9 @@ class Game:
                 # 恢复 screen 属性
                 if currentScreen is not None:
                     self.screen = currentScreen
+
+                if currentExampleMenu is not None:
+                    self.exampleMenu = currentExampleMenu
                 
                 # 恢复坐标系统相关参数
                 self.x = serializableDict.get("x", self.screen.get_width()/2 / self.ratio)
@@ -831,11 +836,6 @@ class Game:
 
             if ball1.isShowingInfo:
 
-                try:
-                    self.elements["controlling"].remove(ball1)
-                except ValueError:
-                    ...
-
                 ball1.highLighted = True
 
                 ballPos = ball1.position
@@ -1289,19 +1289,22 @@ class Option:
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
 
-                    for option in game.elementMenu.options:
-                        if option.isMouseOn():
-                            game.isElementCreating = False
-                            self.highLighted = False
-                            self.selected = False
-                            option.createElement(game, Vector2(mousePosition[0], mousePosition[1]))
-                            break
+                    
 
                     if self.isMouseOn():
                         self.highLighted = False
                         self.selected = False
                         game.isElementCreating = False
                         break
+
+                    elif game.elementMenu.isMouseOn():
+                        for option in game.elementMenu.options:
+                            if option.isMouseOn() and not option.selected:
+                                game.isElementCreating = False
+                                self.highLighted = False
+                                self.selected = False
+                                option.createElement(game, Vector2(mousePosition[0], mousePosition[1]))
+                                break
 
                     elif not game.elementMenu.isMouseOn() or game.isDragging:
                         game.isDragging = False
