@@ -121,6 +121,7 @@ class Game:
 
     def test(self) -> None:
         """测试方法（预留）"""
+        self.y = 1.5e+7
         ...
 
     def saveGame(self, filename="autosave") -> None:
@@ -134,11 +135,11 @@ class Game:
         # }
         
         serializableDict = {               #做预设用的
-            "gameName" : f"篮球",
-            "icon" : "static/basketball.png"
+            "gameName" : f"彩蛋",
+            "icon" : "static/easterEgg.png"
         }
 
-        # freeFall flatToss idealBevel basketball
+        # freeFall flatToss idealBevel basketball  easterEgg
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
