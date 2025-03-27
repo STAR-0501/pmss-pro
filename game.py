@@ -365,9 +365,14 @@ class Game:
 
                                     if event.type == pygame.KEYDOWN:
                                         
-                                        if event.key == pygame.K_z and self.isCtrlPressing:
+                                        if event.key == pygame.K_z and self.isCtrlPressing and len(self.elements["all"]) > 0:
                                             lastElement = self.elements["all"][-1]
                                             self.elements["all"].remove(lastElement)
+
+                                            for ball in self.elements["ball"]:
+                                                ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                                                ball.displayedAccelerationFactor = 1
+
                                             for option in self.elementMenu.options:
                                                 if option.type == lastElement.type:
                                                     self.elements[option.type].remove(lastElement)
@@ -452,14 +457,18 @@ class Game:
 
             if event.type == pygame.KEYDOWN:
 
-                if event.key == pygame.K_z and self.isCtrlPressing:
-                    if len(self.elements["all"]) > 0:
-                        lastElement = self.elements["all"][-1]
-                        self.elements["all"].remove(lastElement)
-                        for option in self.elementMenu.options:
-                            if option.type == lastElement.type:
-                                self.elements[option.type].remove(lastElement)
-                                break
+                if event.key == pygame.K_z and self.isCtrlPressing and len(self.elements["all"]) > 0:
+                    lastElement = self.elements["all"][-1]
+                    self.elements["all"].remove(lastElement)
+                    
+                    for ball in self.elements["ball"]:
+                        ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                        ball.displayedAccelerationFactor = 1
+
+                    for option in self.elementMenu.options:
+                        if option.type == lastElement.type:
+                            self.elements[option.type].remove(lastElement)
+                            break
 
                 if event.key == pygame.K_SPACE:
                     self.isPaused = not self.isPaused
@@ -548,9 +557,14 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
 
-                    if event.key == pygame.K_z and self.isCtrlPressing:
+                    if event.key == pygame.K_z and self.isCtrlPressing and len(self.elements["all"]) > 0:
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
+                        
+                        for ball in self.elements["ball"]:
+                            ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                            ball.displayedAccelerationFactor = 1
+
                         for option in self.elementMenu.options:
                             if option.type == lastElement.type:
                                 self.elements[option.type].remove(lastElement)
@@ -892,6 +906,10 @@ class Game:
                                 self.elements["ball"].remove(ball2)
                                 self.elements["all"].append(newBall)
                                 self.elements["ball"].append(newBall)
+
+                                for ball in self.elements["ball"]:
+                                    ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                                    ball.displayedAccelerationFactor = 1
                             else:
                                 ball1.reboundByBall(ball2)
 
@@ -1216,7 +1234,7 @@ class Option:
                     circularVelocityFactorColor = "red"
 
                 pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(maximumGravitationBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(maximumGravitationBall.position)), 3)
-                velocity = ball.getCircularVelocity(maximumGravitationBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                velocity = ball.getCircularVelocity(maximumGravitationBallCopy, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
                 self.drawArrow(game, mousePosition, game.realToScreen(ball.position + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2, Vector2(game.x, game.y)).toTuple(), circularVelocityFactorColor)
                 
                 if game.circularVelocityFactor != 1:
@@ -1292,8 +1310,6 @@ class Option:
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
 
-                    
-
                     if self.isMouseOn():
                         self.highLighted = False
                         self.selected = False
@@ -1322,6 +1338,10 @@ class Option:
 
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
+
+                        for ball in game.elements["ball"]:
+                            ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                            ball.displayedAccelerationFactor = 1
 
                     else:
                         for option in game.elementMenu.options:
@@ -1380,9 +1400,13 @@ class Option:
 
                 if event.type == pygame.KEYDOWN:
 
-                    if event.key == pygame.K_z and game.isCtrlPressing:
+                    if event.key == pygame.K_z and game.isCtrlPressing and len(self.elements["all"]) > 0:
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
+                        
+                        for ball in self.elements["ball"]:
+                            ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                            ball.displayedAccelerationFactor = 1
 
                         for option in game.elementMenu.options:
                             if option.type == lastElement.type:
@@ -1564,9 +1588,14 @@ class Option:
                         setCapsLock(True)
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_z and game.isCtrlPressing:
+                    if event.key == pygame.K_z and game.isCtrlPressing and len(self.elements["all"]) > 0:
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
+                        
+                        for ball in self.elements["ball"]:
+                            ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+                            ball.displayedAccelerationFactor = 1
+
                         for option in game.elementMenu.options:
                             if option.type == lastElement.type:
                                 game.elements[option.type].remove(lastElement)
@@ -1957,6 +1986,10 @@ class ControlOption:
         for type in game.elements.keys():
             if target in game.elements[type]:
                 game.elements[type].remove(target)
+        
+        for ball in game.elements["ball"]:
+            ball.displayedAcceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
+            ball.displayedAccelerationFactor = 1
 
     def follow(self, game: Game, target: Element) -> None:
         """视角跟随目标"""
