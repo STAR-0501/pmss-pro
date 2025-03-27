@@ -472,23 +472,23 @@ class Ball(Element):
         self.attrs = [
 
             {
-                "type": "mass",
-                "value": self.mass,
-                "min": 0.1,
+                "type": "mass", 
+                "value": self.mass, 
+                "min": 0.1, 
                 "max": 32767
-            },
+            }, 
 
             {
-                "type": "radius",
-                "value": self.radius,
-                "min": 1,
+                "type": "radius", 
+                "value": self.radius, 
+                "min": 1, 
                 "max": 1024
-            },
+            }, 
             
             {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
+                "type": "color", 
+                "value": self.color, 
+                "min": "#000000", 
                 "max": "#FFFFFF"
             }
         ]
@@ -551,7 +551,7 @@ class Ball(Element):
 
             # 转换坐标和尺寸
             pos = (
-                game.realToScreen(self.position.x, game.x),
+                game.realToScreen(self.position.x, game.x), 
                 game.realToScreen(self.position.y, game.y)
             )
 
@@ -713,7 +713,7 @@ class Ball(Element):
         distance = max(abs(deltaPos), minDistance)
 
         # 计算引力方向（保证单位向量稳定性）
-        direction = deltaPos.normalize() if distance > 0 else Vector2(0,0)
+        direction = deltaPos.normalize() if distance > 0 else Vector2(0, 0)
 
         # 完整万有引力公式（含距离缩放）
         forceMagnitude = G * self.mass * other.mass / (distance ** 2 + 1e-6)
@@ -773,14 +773,14 @@ class Wall(Element):
         self.isLine = isLine
 
         self.position = Vector2(
-            (vertexes[0].x + vertexes[1].x + vertexes[2].x + vertexes[3].x) / 4,
+            (vertexes[0].x + vertexes[1].x + vertexes[2].x + vertexes[3].x) / 4, 
             (vertexes[0].y + vertexes[1].y + vertexes[2].y + vertexes[3].y) / 4
         )
         
         self.originalPosition = self.position.copy()
         
         self.lines = [
-            CollisionLine(vertexes[0], vertexes[1], isLine), CollisionLine(vertexes[1], vertexes[2], isLine),
+            CollisionLine(vertexes[0], vertexes[1], isLine), CollisionLine(vertexes[1], vertexes[2], isLine), 
             CollisionLine(vertexes[2], vertexes[3], isLine), CollisionLine(vertexes[3], vertexes[0], isLine)
         ]
         
@@ -826,9 +826,9 @@ class Wall(Element):
         """更新属性列表"""
         self.attrs = [
             {
-                "type": "color",
-                "value": self.color,
-                "min": "#000000",
+                "type": "color", 
+                "value": self.color, 
+                "min": "#000000", 
                 "max": "#FFFFFF"
             }
         ]
@@ -841,7 +841,7 @@ class Wall(Element):
             self.vertexes[i] += offset
 
         self.lines = [
-            CollisionLine(self.vertexes[0], self.vertexes[1], self.isLine), CollisionLine(self.vertexes[1], self.vertexes[2]),
+            CollisionLine(self.vertexes[0], self.vertexes[1], self.isLine), CollisionLine(self.vertexes[1], self.vertexes[2]), 
             CollisionLine(self.vertexes[2], self.vertexes[3]), CollisionLine(self.vertexes[3], self.vertexes[0])
         ]
         
