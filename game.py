@@ -135,9 +135,10 @@ class Game:
         #     "gameName" : f"{int(time.time())}备份"
         # }
         
-        serializableDict = {               #做预设用的
-            "gameName" : f"篮球",
-            "icon" : "static/basketball.png"
+        # 用于制作预设
+        serializableDict = {
+            "gameName" : f"太阳系",
+            "icon" : "static/solarSystem.png"
         }
 
         # freeFall flatToss idealBevel basketball
@@ -195,6 +196,7 @@ class Game:
                     self.elementMenu.y = currentElementMenu.y
                     self.elementMenu.width = currentElementMenu.width
                     self.elementMenu.height = currentElementMenu.height
+                    
                     for i in range(len(currentElementMenu.options)):
                         self.elementMenu.options[i].x = currentElementMenu.options[i].x
                         self.elementMenu.options[i].y = currentElementMenu.options[i].y

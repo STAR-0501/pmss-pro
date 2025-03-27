@@ -1,77 +1,31 @@
-import openai 
-import json
+from game import *
+from basic import *
+from openai import OpenAI
 
-class AI:
-    def __init__(self, game):
-        self.game = game
-        self.key = "sk-c41d82fe4a0b4e97b5c1d8bacff3790e"
-        self.baseUrl = "https://api.deepseek.com"
-        self.modal = "deepseek-chat"
-        # self.modal = "deepseek-reasoner"  # 使用R1模型
-        self.client = openai.OpenAI(api_key=self.key, base_url=self.baseUrl)
-        self.messages = []
+def command(text : str, game : Game):
+    commands = text.split()
+    if len(commands) == 0:
+        return
 
-        with open("game.py", "r", encoding="utf-8") as f:
-            words = f.read()
-            self.gameCode = {"role": "system", "content": words}
-            self.messages.append(self.gameCode)
+client = OpenAI(
+    base_url='https://api.siliconflow.cn/v1',
+    api_key='sk-kceztlqyxifrxdqwfqwnmmlrbgpvjhrrtdqezhttlqmjnoxn'
+)
 
-        with open("basic.py", "r", encoding="utf-8") as f:
-            words = f.read()
-            self.basicCode = {"role": "system", "content": words}
-            self.messages.append(self.basicCode)
-            
-        with open("config/aiWords.json", "r", encoding="utf-8") as f:
-            words = json.load(f)
-            for key,value in words.items():
-                self.messages.append({"role": "system", "content": value})
+# 发送带有流式输出的请求
+response = client.chat.completions.create(
+    model="Pro/deepseek-ai/DeepSeek-V3",
+    messages=[
+        {"role": "user", "content": "你好"}
+    ],
+    stream=True  # 启用流式输出
+)
 
-        print("AI初始化完成！")
-
-    def generate_text(self, prompt):
-        """进行简单文本生成，根据给定的提示生成文本。"""
-        response = self.client.chat.completions.create(
-            model=self.modal,
-            messages=[{"role": "user", "content": prompt}],
-            stream=True
-        )
-        return response.choices[0].message.content
-
-    def chat(self, userInput):
-        """进行多轮对话。将用户输入与历史对话一起发送。"""
-        # 添加用户输入到历史对话
-        self.messages.append({"role": "user", "content": userInput})
-
-        # 发送整个对话历史给 DeepSeek，获取模型回应
-        response = self.client.chat.completions.create(
-            model="deepseek-chat",
-            messages=self.messages,
-            stream=True
-        )
-
-        # 初始化一个空字符串来存储模型的回应
-        assistant_message = ""
-        
-        # 迭代流式响应，逐步获取数据
-        for chunk in response:
-            if chunk.choices and chunk.choices[0].delta.content:
-                assistant_message += chunk.choices[0].delta.content
-
-        # 将模型回应添加到历史对话
-        self.messages.append({"role": "assistant", "content": assistant_message})
-
-        return assistant_message
-
-    def clear_memory(self):
-        """清空历史对话记忆。"""
-        self.messages = []
-
-if __name__ == '__main__':
-    game = "game"
-    ai = AI(game)
-    while True:
-        userInput = input("我：")
-        if userInput == "exit":
-            break
-        assistantMessage = ai.chat(userInput)
-        eval(assistantMessage)
+# 逐步接收并处理响应
+for chunk in response:
+    if not chunk.choices:
+        continue
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+    if chunk.choices[0].delta.reasoning_content:
+        print(chunk.choices[0].delta.reasoning_content, end="", flush=True)
