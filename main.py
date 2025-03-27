@@ -140,7 +140,7 @@ def command(text : str, game) -> None:
             """mode 1"""
             game.CelestialBodyMode()
 
-def AIThreadMethod(game : Game):
+def AIThreadMethod(game : Game) -> None:
     """AI线程方法"""
     ai = AI(game)
     while True:
