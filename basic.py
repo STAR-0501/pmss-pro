@@ -806,7 +806,7 @@ class Wall(Element):
         while isMoving:
             newWall.position = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
             newWall.draw(game)
-
+            newWall.update(0.5)
             game.update()
             pygame.display.update()
             for event in pygame.event.get():
@@ -846,6 +846,7 @@ class Wall(Element):
         ]
         
         self.originalPosition = self.position.copy()
+        self.updateAttrsList()
 
         return self
 
