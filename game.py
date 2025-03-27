@@ -45,7 +45,7 @@ class Game:
         self.icon = ""
 
         self.screen = pygame.display.set_mode(flags=pygame.NOFRAME)
-        print(f"屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}")
+        print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}")
         pygame.display.set_caption("Physics Motion Simulation System Beta")
         icon = pygame.image.load("static/icon.png").convert_alpha()
         pygame.display.set_icon(icon)
@@ -117,7 +117,7 @@ class Game:
         """退出游戏并取消大写锁定"""
         setCapsLock(False)
         self.saveGame("autosave")
-        print("游戏退出")
+        print("\n游戏退出")
         pygame.quit()
         sys.exit()
 
@@ -136,11 +136,11 @@ class Game:
         }
         
         # serializableDict = {               #做预设用的
-        #     "gameName" : f"彩蛋",
-        #     "icon" : "static/easterEgg.png"
+        #     "gameName" : f"自由落体实验",
+        #     "icon" : "static/freeFall.png"
         # }
 
-        # freeFall flatToss idealBevel basketball  easterEgg
+        # freeFall flatToss idealBevel basketball easterEgg
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
@@ -175,7 +175,7 @@ class Game:
             if filename == "" and os.path.exists("savefile/autosave.pkl"):
                 filename = "autosave"
 
-            print(f"正在加载游戏数据：{filename}.pkl")
+            print(f"\n正在加载游戏数据：{filename}.pkl")
 
             with open(f"savefile/{filename}.pkl", "rb") as f:
                 # 加载序列化的字典
@@ -217,7 +217,7 @@ class Game:
                             
                 self.lastTime = time.time()
                 self.currentTime = time.time()
-                print("游戏数据加载成功")
+                print("\n游戏数据加载成功")
                 f.close()
 
         except FileNotFoundError:
