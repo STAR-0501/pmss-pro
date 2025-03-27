@@ -131,17 +131,16 @@ class Game:
             elementOption.highLighted = False
 
         # 创建一个新的字典，用于存储可序列化的属性
-        # serializableDict = {
-        #     "gameName" : f"{int(time.time())}备份"
-        # }
-        
-        # 用于制作预设
         serializableDict = {
-            "gameName" : f"太阳系",
-            "icon" : "static/solarSystem.png"
+            "gameName" : f"{int(time.time())}备份"
         }
+        
+        # serializableDict = {               #做预设用的
+        #     "gameName" : f"彩蛋",
+        #     "icon" : "static/easterEgg.png"
+        # }
 
-        # freeFall flatToss idealBevel basketball
+        # freeFall flatToss idealBevel basketball  easterEgg
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
@@ -169,6 +168,7 @@ class Game:
         currentScreen = getattr(self, "screen", None)
         currentExampleMenu = getattr(self, "exampleMenu", None)
         currentElementMenu = getattr(self, "elementMenu", None)
+        currentFloor = getattr(self, "floor", None)
 
         try:
 
@@ -203,6 +203,9 @@ class Game:
                         self.elementMenu.options[i].width = currentElementMenu.options[i].width
                         self.elementMenu.options[i].height = currentElementMenu.options[i].height
                 
+                if currentFloor is not None:
+                    self.floor = currentFloor
+
                 # 恢复坐标系统相关参数
                 self.x = serializableDict.get("x", self.screen.get_width()/2 / self.ratio)
                 self.y = serializableDict.get("y", self.screen.get_height() / self.ratio)
