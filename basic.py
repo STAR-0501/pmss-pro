@@ -221,7 +221,7 @@ class Coordinator():
         self.width = width
         self.degree = 0
         self.minDegree = 0
-        self.minDirection = Vector2(0, 0)
+        self.minDirection = ZERO
         self.direction = []
         self.update(game)
 
@@ -334,12 +334,12 @@ class Ball(Element):
         self.color = color
         self.mass = mass
         self.velocity = velocity
-        self.displayedVelocity = Vector2(0, 0)
+        self.displayedVelocity = ZERO
         self.displayedVelocityFactor = 0
         self.naturalForces = []
         self.artificialForces = artificialForces
-        self.acceleration = Vector2(0, 0)
-        self.displayedAcceleration = Vector2(0, 0)
+        self.acceleration = ZERO
+        self.displayedAcceleration = ZERO
         self.displayedAccelerationFactor = 0
         self.gravity = gravity
         self.highLighted = False
@@ -385,7 +385,7 @@ class Ball(Element):
         while isMoving:
             newBall.position = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
 
-            newBall.velocity = Vector2(0, 0)
+            newBall.velocity = ZERO
             newBall.forces = []
             newBall.draw(game)
 
@@ -713,7 +713,7 @@ class Ball(Element):
         distance = max(abs(deltaPos), minDistance)
 
         # 计算引力方向（保证单位向量稳定性）
-        direction = deltaPos.normalize() if distance > 0 else Vector2(0, 0)
+        direction = deltaPos.normalize() if distance > 0 else ZERO
 
         # 完整万有引力公式（含距离缩放）
         forceMagnitude = G * self.mass * other.mass / (distance ** 2 + 1e-6)
@@ -722,7 +722,7 @@ class Ball(Element):
         # 应用作用力时考虑质量分配
         self.force(force, isNatural=True)
         other.force(-force, isNatural=True)
-
+        
         return force
 
     def getCircularVelocity(self, ball : Self, factor : float = 1) -> Vector2:
@@ -731,7 +731,7 @@ class Ball(Element):
         distance = self.position.distance(ball.position)
 
         if distance == 0:
-            return Vector2(0, 0)
+            return ZERO
         
         # 计算速度方向
         direction = (ball.position - self.position).vertical().normalize()
@@ -753,15 +753,15 @@ class Ball(Element):
 
         newBall = Ball(totalPosition, totalRadius, totalColor, totalMass, totalVelocity, totalForce, gravitation=game.isCelestialBodyMode)
 
-        if self.highLighted:
+        if self.isFollowing or other.isFollowing:
+            newBall.isFollowing = True
             newBall.highLighted = True
-            newBall.displayedAcceleration = self.displayedAcceleration.copy()
-            newBall.displayedVelocity = self.displayedVelocity.copy()
 
-        elif other.highLighted:
-            newBall.highLighted = True
-            newBall.displayedAcceleration = other.displayedAcceleration.copy()
-            newBall.displayedVelocity = other.displayedVelocity.copy()
+        elif self.isShowingInfo or other.isShowingInfo:
+            newBall.isShowingInfo = True
+        
+        newBall.displayedAcceleration = self.displayedAcceleration + other.displayedAcceleration
+        newBall.displayedVelocity = self.displayedVelocity + other.displayedVelocity
 
         return newBall
 

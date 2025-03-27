@@ -26,6 +26,7 @@ def setCapsLock(state=True) -> None:
 class Game:
     """物理运动模拟系统主游戏类"""
     def __init__(self) -> None:
+        os.environ["SDL_WINDOWS_DPI_AWARENESS"] = "permonitorv2"
         pygame.init()
         self.isPaused = False
         self.isElementCreating = False
@@ -43,7 +44,8 @@ class Game:
         self.isModeChangingNaturally = False
         self.icon = ""
 
-        self.screen = pygame.display.set_mode()
+        self.screen = pygame.display.set_mode(flags=pygame.NOFRAME)
+        print(f"屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}")
         pygame.display.set_caption("Physics Motion Simulation System Beta")
         icon = pygame.image.load("static/icon.png").convert_alpha()
         pygame.display.set_icon(icon)
@@ -807,22 +809,22 @@ class Game:
                 self.celestialElements[element.type].remove(element)    
 
         deltaTime = self.currentTime - self.lastTime
-        for element1 in self.elements["all"]:
-            element1.draw(self)
+        for element in self.elements["all"]:
+            element.draw(self)
             if not self.isPaused or self.tempFrames > 0:
-                element1.update(deltaTime * self.speed)
+                element.update(deltaTime * self.speed)
 
-        for ball1 in self.elements["ball"]:
+        for ball in self.elements["ball"]:
 
-            if ball1.isFollowing:
+            if ball.isFollowing:
 
                 try:
-                    self.elements["controlling"].remove(ball1)
+                    self.elements["controlling"].remove(ball)
                 except ValueError:
                     ...
 
-                ball1.highLighted = True
-                ball1.follow(self)
+                ball.highLighted = True
+                ball.follow(self)
 
                 followingTipsText = self.fontBig.render(f"视角跟随中", True, "blue")
                 followingTipsTextRect =  followingTipsText.get_rect()
@@ -830,22 +832,22 @@ class Game:
                 followingTipsTextRect.y = self.screen.get_height()/50
                 self.screen.blit(followingTipsText, followingTipsTextRect)
 
-                massTipsText = self.fontBig.render(f"质量：{ball1.mass: .1f}", True, "darkgreen")
+                massTipsText = self.fontBig.render(f"质量：{ball.mass: .1f}", True, "darkgreen")
                 massTipsTextRect =  massTipsText.get_rect()
                 massTipsTextRect.x = self.screen.get_width()/2
                 massTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height()
                 self.screen.blit(massTipsText, massTipsTextRect)
 
-                radiusTipsText = self.fontBig.render(f"半径：{ball1.radius: .1f}", True, "darkgreen")
+                radiusTipsText = self.fontBig.render(f"半径：{ball.radius: .1f}", True, "darkgreen")
                 radiusTipsTextRect =  radiusTipsText.get_rect()
                 radiusTipsTextRect.x = self.screen.get_width()/2
                 radiusTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height() + massTipsText.get_height()
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
-                ballPos = ball1.position
-                tempOption = Option(ZERO, Vector2(0, 0), "temp", [], self.elementMenu)
+                ballPos = ball.position
+                tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
 
-                acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
+                acceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
                 accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
                 accelerationTipsText = self.fontBig.render(f"加速度：{abs(acceleration)/10: .1f} m/s²", True, "red")
@@ -854,7 +856,7 @@ class Game:
                 accelerationTipsTextRect.y = self.realToScreen(accelerationPosition.y, self.y)
                 self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
 
-                velocity = ball1.velocity + (ball1.displayedVelocity - ball1.velocity) * ball1.displayedVelocityFactor
+                velocity = ball.velocity + (ball.displayedVelocity - ball.velocity) * ball.displayedVelocityFactor
                 velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
                 velocityTipsText = self.fontBig.render(f"速度：{abs(velocity)/10: .1f} m/s", True, "blue")
@@ -863,20 +865,20 @@ class Game:
                 velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
                 self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
-            if ball1.isShowingInfo:
+            if ball.isShowingInfo:
 
-                ball1.highLighted = True
+                ball.highLighted = True
 
-                ballPos = ball1.position
-                massTipsText = self.fontSmall.render(f"质量：{ball1.mass: .1f}", True, "darkgreen")
+                ballPos = ball.position
+                massTipsText = self.fontSmall.render(f"质量：{ball.mass: .1f}", True, "darkgreen")
                 massTipsTextRect =  massTipsText.get_rect()
                 massTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
                 massTipsTextRect.y = self.realToScreen(ballPos.y, self.y) + massTipsText.get_height()
                 self.screen.blit(massTipsText, massTipsTextRect)
 
-                tempOption = Option(Vector2(0, 0), Vector2(0, 0), "temp", [], self.elementMenu)
+                tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
 
-                acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
+                acceleration = ball.acceleration + (ball.displayedAcceleration - ball.acceleration) * ball.displayedAccelerationFactor
                 accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
                 accelerationTipsText = self.fontSmall.render(f"加速度：{abs(acceleration)/10: .1f} m/s²", True, "red")
@@ -885,7 +887,7 @@ class Game:
                 accelerationTipsTextRect.y = self.realToScreen(accelerationPosition.y, self.y)
                 self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
 
-                velocity = ball1.velocity + (ball1.displayedVelocity - ball1.velocity) * ball1.displayedVelocityFactor
+                velocity = ball.velocity + (ball.displayedVelocity - ball.velocity) * ball.displayedVelocityFactor
                 velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
                 velocityTipsText = self.fontSmall.render(f"速度：{abs(velocity)/10: .1f} m/s", True, "blue")
@@ -894,8 +896,10 @@ class Game:
                 velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
                 self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
-            ball1.resetForce(True)
+        for ball in self.elements["ball"]:
+            ball.resetForce(True)
 
+        for ball1 in self.elements["ball"]:
             try:
                 for ball2 in self.elements["ball"]:
                     if ball1 != ball2:
@@ -970,27 +974,27 @@ class Game:
             self.floor.draw(self)
 
         if self.isMoving and not self.isElementCreating:
-            for element1 in self.elements["controlling"]:
+            for element in self.elements["controlling"]:
 
                 pos = pygame.mouse.get_pos()
-                element1.highLighted = True
+                element.highLighted = True
 
                 try:
-                    element1.velocity = Vector2(0, 0)
+                    element.velocity = ZERO
                 except Exception as e:
                     ...
 
                 allowToPlace = True
                 for element2 in self.elements["all"]:
-                    if element2.isMouseOn(self) and element2!= element1:
+                    if element2.isMouseOn(self) and element2!= element:
                         allowToPlace = False
                         break
 
                 if allowToPlace:
-                    element1.position.x = self.screenToReal(pos[0], self.x)
-                    element1.position.y = self.screenToReal(pos[1], self.y)
+                    element.position.x = self.screenToReal(pos[0], self.x)
+                    element.position.y = self.screenToReal(pos[1], self.y)
 
-                element1.update(deltaTime)
+                element.update(deltaTime)
 
         self.updateFPS()
 
@@ -1012,6 +1016,7 @@ class Game:
         self.updateMenu()
         if self.tempFrames > 0:
             self.tempFrames -= 1
+        print()
 
     def findMaximumGravitationBall(self, ball : Ball) -> Ball | None:
         """寻找给予指定球最大引力的球"""
@@ -2020,7 +2025,7 @@ class ControlOption:
 
     def addVelocity(self, game: Game, target: Element) -> None:
         """添加速度"""
-        tempOption = Option(ZERO, Vector2(0, 0), "temp", [], game.elementMenu)
+        tempOption = Option(ZERO, ZERO, "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
@@ -2115,7 +2120,7 @@ class ControlOption:
 
     def addForce(self, game: Game, target: Element) -> None:
         """添加力"""
-        tempOption = Option(ZERO, Vector2(0, 0), "temp", [], game.elementMenu)
+        tempOption = Option(ZERO, ZERO, "temp", [], game.elementMenu)
         isAdding = True
         target.highLighted = True
         game.update()
