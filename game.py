@@ -134,9 +134,11 @@ class Game:
         # }
         
         serializableDict = {               #做预设用的
-            "gameName" : f"自由落体模拟实验",
-            "icon" : "static/freeFall.png"
+            "gameName" : f"篮球",
+            "icon" : "static/basketball.png"
         }
+
+        # freeFall flatToss idealBevel basketball
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
@@ -533,20 +535,20 @@ class Game:
         while self.isEditing:
             inputMenu.draw(self)
             pygame.display.update()
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     self.exit()
-                elif e.type == pygame.ACTIVEEVENT:
+                elif event.type == pygame.ACTIVEEVENT:
 
-                    if e.gain == 0 and e.state == 2:
+                    if event.gain == 0 and event.state == 2:
                         setCapsLock(False)
 
-                    elif e.gain == 1 and e.state == 1:
+                    elif event.gain == 1 and event.state == 1:
                         setCapsLock(True)
 
-                if e.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
 
-                    if e.key == pygame.K_z and self.isCtrlPressing:
+                    if event.key == pygame.K_z and self.isCtrlPressing:
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
                         for option in self.elementMenu.options:
@@ -554,10 +556,10 @@ class Game:
                                 self.elements[option.type].remove(lastElement)
                                 break
 
-                    if e.key == pygame.K_m or e.key == pygame.K_ESCAPE or e.key == pygame.K_RETURN:
+                    if event.key == pygame.K_m or event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                         self.isEditing = False
 
-                inputMenu.updateBoxes(e, self)
+                inputMenu.updateBoxes(event, self)
         self.updateFPS()
 
     def screenMove(self, event) -> None:
@@ -980,8 +982,8 @@ class Game:
         if self.tempFrames > 0:
             self.tempFrames -= 1
 
-    def findNearestHeavyBall(self, ball : Ball) -> Ball | None:
-        """寻找距离指定球体最近的重量大于指定球体的球体"""
+    def findMaximumGravitationBall(self, ball : Ball) -> Ball | None:
+        """寻找给予指定球最大引力的球"""
         if ball is None:
             return
         
@@ -1090,12 +1092,12 @@ class Game:
 
 class Menu:
     def __init__(self, pos : Vector2, optionsList = []) -> None:
-        w, h = pygame.display.get_surface().get_size()
-        self.width = w*3/100
-        self.height = h*80/100
+        width, height = pygame.display.get_surface().get_size()
+        self.width = width*3/100
+        self.height = height*80/100
 
         self.x = pos.x
-        self.y = pos.y + (h - self.height)/2
+        self.y = pos.y + (height - self.height)/2
 
         self.optionsList = optionsList
 
@@ -1197,11 +1199,12 @@ class Option:
             mousePosition = pygame.mouse.get_pos()
             game.update()
 
-            nearestHeavyBall = copy.deepcopy(game.findNearestHeavyBall(ball))
-            if nearestHeavyBall is not None:
-                nearestHeavyBall.velocity = ZERO
+            maximumGravitationBall = game.findMaximumGravitationBall(ball)
+            if maximumGravitationBall is not None:
+                maximumGravitationBallCopy = copy.deepcopy(maximumGravitationBall)
+                maximumGravitationBallCopy.velocity = ZERO
 
-            if game.isCelestialBodyMode and game.isCircularVelocityGetting and nearestHeavyBall is not None:
+            if game.isCelestialBodyMode and game.isCircularVelocityGetting and maximumGravitationBall is not None:
 
                 if 0 <= game.circularVelocityFactor <= 1:
                     circularVelocityFactorColor = colorMiddle("green", "yellow", game.circularVelocityFactor)
@@ -1212,8 +1215,8 @@ class Option:
                 else:
                     circularVelocityFactorColor = "red"
 
-                pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(nearestHeavyBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(nearestHeavyBall.position)), 3)
-                velocity = ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(maximumGravitationBall.position, Vector2(game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(maximumGravitationBall.position)), 3)
+                velocity = ball.getCircularVelocity(maximumGravitationBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
                 self.drawArrow(game, mousePosition, game.realToScreen(ball.position + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2, Vector2(game.x, game.y)).toTuple(), circularVelocityFactorColor)
                 
                 if game.circularVelocityFactor != 1:
@@ -1309,12 +1312,13 @@ class Option:
                     elif not game.elementMenu.isMouseOn() or game.isDragging:
                         game.isDragging = False
                         ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(mousePosition[0], game.x) - ball.position.x, game.screenToReal(mousePosition[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
-                        nearestHeavyBall = copy.deepcopy(game.findNearestHeavyBall(ball))
-                        if nearestHeavyBall is not None:
-                            nearestHeavyBall.velocity = ZERO
+                        maximumGravitationBall = game.findMaximumGravitationBall(ball)
+                        if maximumGravitationBall is not None:
+                            maximumGravitationBallCopy = copy.deepcopy(maximumGravitationBall)
+                            maximumGravitationBallCopy.velocity = ZERO
 
-                        if nearestHeavyBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
-                            ball.velocity = ball.getCircularVelocity(nearestHeavyBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                        if maximumGravitationBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
+                            ball.velocity = ball.getCircularVelocity(maximumGravitationBall, game.circularVelocityFactor * (1 if game.isCircularVelocityDirectionAnticlockwise else -1))
 
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
@@ -1883,11 +1887,11 @@ class InputMenu(Element):
         """更新输入菜单布局"""
         # game.isPaused = False
         game.tempFrames = 1
-        l = len(self.options)
+        length = len(self.options)
         self.height = 0
         self.inputBoxes.clear()
 
-        for i in range(l):
+        for i in range(length):
             option = self.options[i]
             # 计算每个输入框的y坐标
             y = self.y + 10 + i * self.verticalSpacing 
@@ -1910,14 +1914,14 @@ class InputMenu(Element):
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
 
         # 绘制所有输入框和选项文本
-        l = len(self.options)
+        length = len(self.options)
 
-        for i in range(l):
-            v = self.options[i]["type"]
+        for i in range(length):
+            optionType = self.options[i]["type"]
             inputBox = self.inputBoxes[i]
 
             # 绘制选项文本
-            optionText = self.font.render(game.translation[v], True, (0, 0, 0))
+            optionText = self.font.render(game.translation[optionType], True, (0, 0, 0))
             game.screen.blit(optionText, (self.x , inputBox.rect.y))
 
             # 绘制输入框
