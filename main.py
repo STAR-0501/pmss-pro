@@ -4,7 +4,7 @@ from ai import *
 import pygame
 import threading
 
-def executor(userInput, ai : AI):
+def executor(userInput, ai : AI): 
     assistantMessage = ai.chat(userInput)
     print("AI: ", end="")
     assistantMessage = assistantMessage.replace("```python", "")
@@ -12,18 +12,18 @@ def executor(userInput, ai : AI):
     exec(assistantMessage)
     
 
-def aiThread(game : Game):
+def aiThread(game : Game): 
     ai = AI(game)
-    while True:
+    while True: 
         userInput = input("")
         newExecutor = threading.Thread(target=executor, args=(userInput, ai, ))
         newExecutor.daemon = True
         newExecutor.start()
         newExecutor.join(timeout=60)
-        if newExecutor.is_alive():
+        if newExecutor.is_alive(): 
             print("AI: 操作超时")
         
-if __name__ == '__main__':
+if __name__ == '__main__': 
     game = Game()
     
     # 创建并启动AI线程
@@ -31,6 +31,6 @@ if __name__ == '__main__':
     elementsThread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     elementsThread.start()
     
-    while True:
+    while True: 
         game.update()
         pygame.display.update()

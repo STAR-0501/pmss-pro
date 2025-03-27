@@ -338,7 +338,7 @@ class Game:
                             self.update()
                             pygame.display.update()
                             elementController = ElementController(element, Vector2(self.mousePos))
-                            while self.isElementControlling:   
+                            while self.isElementControlling:
                                 self.updateFPS()
                                 elementController.update(self)
                                 elementController.draw(self)
@@ -684,7 +684,7 @@ class Game:
         else:
             fpsTextColor = "darkgreen"
             
-        fpsText = self.fontSmall.render(f"fps = {self.fpsAverage:.0f} / {self.fpsMinimum:.0f} ", True, fpsTextColor)
+        fpsText = self.fontSmall.render(f"fps = {self.fpsAverage: .0f} / {self.fpsMinimum: .0f} ", True, fpsTextColor)
         fpsTextRect =  fpsText.get_rect()
         fpsTextRect.x = self.screen.get_width() - fpsText.get_width()
         fpsTextRect.y = 0
@@ -717,13 +717,13 @@ class Game:
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
         self.screen.blit(mousePosText, mousePosTextRect)
 
-        ratioText = self.fontSmall.render(f"缩放比例 = {self.ratio:.1f}x ", True, "black")
+        ratioText = self.fontSmall.render(f"缩放比例 = {self.ratio: .1f}x ", True, "black")
         ratioTextRect =  ratioText.get_rect()
         ratioTextRect.x = self.screen.get_width() - ratioText.get_width()        
         ratioTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height()
         self.screen.blit(ratioText, ratioTextRect)
 
-        speedText = self.fontSmall.render(f"倍速 = {self.speed:.1f}x ", True, "black") 
+        speedText = self.fontSmall.render(f"倍速 = {self.speed: .1f}x ", True, "black") 
         speedTextRect =  speedText.get_rect()
         speedTextRect.x = self.screen.get_width() - speedText.get_width()
         speedTextRect.y = fpsText.get_height() + objectCountText.get_height() + mousePosText.get_height() + ratioText.get_height()
@@ -796,13 +796,13 @@ class Game:
                 followingTipsTextRect.y = self.screen.get_height()/50
                 self.screen.blit(followingTipsText, followingTipsTextRect)
 
-                massTipsText = self.fontBig.render(f"质量：{ball1.mass:.1f}", True, "darkgreen")
+                massTipsText = self.fontBig.render(f"质量：{ball1.mass: .1f}", True, "darkgreen")
                 massTipsTextRect =  massTipsText.get_rect()
                 massTipsTextRect.x = self.screen.get_width()/2
                 massTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height()
                 self.screen.blit(massTipsText, massTipsTextRect)
 
-                radiusTipsText = self.fontBig.render(f"半径：{ball1.radius:.1f}", True, "darkgreen")
+                radiusTipsText = self.fontBig.render(f"半径：{ball1.radius: .1f}", True, "darkgreen")
                 radiusTipsTextRect =  radiusTipsText.get_rect()
                 radiusTipsTextRect.x = self.screen.get_width()/2
                 radiusTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height() + massTipsText.get_height()
@@ -814,7 +814,7 @@ class Game:
                 acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
                 accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
-                accelerationTipsText = self.fontBig.render(f"加速度：{abs(acceleration)/10:.1f} m/s²", True, "red")
+                accelerationTipsText = self.fontBig.render(f"加速度：{abs(acceleration)/10: .1f} m/s²", True, "red")
                 accelerationTipsTextRect =  accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(accelerationPosition.x, self.x)
                 accelerationTipsTextRect.y = self.realToScreen(accelerationPosition.y, self.y)
@@ -823,7 +823,7 @@ class Game:
                 velocity = ball1.velocity + (ball1.displayedVelocity - ball1.velocity) * ball1.displayedVelocityFactor
                 velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
-                velocityTipsText = self.fontBig.render(f"速度：{abs(velocity)/10:.1f} m/s", True, "blue")
+                velocityTipsText = self.fontBig.render(f"速度：{abs(velocity)/10: .1f} m/s", True, "blue")
                 velocityTipsTextRect =  velocityTipsText.get_rect()
                 velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
                 velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
@@ -839,7 +839,7 @@ class Game:
                 ball1.highLighted = True
 
                 ballPos = ball1.position
-                massTipsText = self.fontSmall.render(f"质量：{ball1.mass:.1f}", True, "darkgreen")
+                massTipsText = self.fontSmall.render(f"质量：{ball1.mass: .1f}", True, "darkgreen")
                 massTipsTextRect =  massTipsText.get_rect()
                 massTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
                 massTipsTextRect.y = self.realToScreen(ballPos.y, self.y) + massTipsText.get_height()
@@ -850,7 +850,7 @@ class Game:
                 acceleration = ball1.acceleration + (ball1.displayedAcceleration - ball1.acceleration) * ball1.displayedAccelerationFactor
                 accelerationPosition = ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
-                accelerationTipsText = self.fontSmall.render(f"加速度：{abs(acceleration)/10:.1f} m/s²", True, "red")
+                accelerationTipsText = self.fontSmall.render(f"加速度：{abs(acceleration)/10: .1f} m/s²", True, "red")
                 accelerationTipsTextRect =  accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(accelerationPosition.x, self.x)
                 accelerationTipsTextRect.y = self.realToScreen(accelerationPosition.y, self.y)
@@ -859,7 +859,7 @@ class Game:
                 velocity = ball1.velocity + (ball1.displayedVelocity - ball1.velocity) * ball1.displayedVelocityFactor
                 velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
-                velocityTipsText = self.fontSmall.render(f"速度：{abs(velocity)/10:.1f} m/s", True, "blue")
+                velocityTipsText = self.fontSmall.render(f"速度：{abs(velocity)/10: .1f} m/s", True, "blue")
                 velocityTipsTextRect =  velocityTipsText.get_rect()
                 velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
                 velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
@@ -899,7 +899,7 @@ class Game:
             except ValueError as e:
                 ...
 
-            for wall in self.elements["wall"]: 
+            for wall in self.elements["wall"]:
                 if wall.isPosOn(self, ball1.position):
                     ball1.reboundByWall(wall)
 
@@ -1110,7 +1110,7 @@ class Menu:
         pos = Vector2(pygame.mouse.get_pos())
         return self.isPosOn(pos)
 
-    def isPosOn(self, pos:Vector2) -> bool:
+    def isPosOn(self, pos: Vector2) -> bool:
         """判断指定位置是否在菜单区域"""
         return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height  
 
@@ -1217,7 +1217,7 @@ class Option:
                 self.drawArrow(game, mousePosition, game.realToScreen(ball.position + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2, Vector2(game.x, game.y)).toTuple(), circularVelocityFactorColor)
                 
                 if game.circularVelocityFactor != 1:
-                    circularVelocityFactorText = game.fontSmall.render(f"{game.circularVelocityFactor:.1f}x", True, circularVelocityFactorColor)
+                    circularVelocityFactorText = game.fontSmall.render(f"{game.circularVelocityFactor: .1f}x", True, circularVelocityFactorColor)
                     circularVelocityFactorRect =  circularVelocityFactorText.get_rect()
                     circularVelocityFactorRect.x = pygame.mouse.get_pos()[0] + game.fontSmall.get_height()
                     circularVelocityFactorRect.y = pygame.mouse.get_pos()[1] - game.fontSmall.get_height() - game.realToScreen(ball.radius)
@@ -1655,7 +1655,7 @@ class Option:
 
     def setAttr(self, name, value) -> None:
         """设置元素属性"""
-        for atr in self.attrs_:     
+        for atr in self.attrs_:
            if atr["type"] == name:
                 atr["value"] = value
 
@@ -1790,7 +1790,7 @@ class InputBox:
                     if self.option["type"] != "color":
 
                         if event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[:-1]
+                            self.text = self.text[: -1]
 
                         if event.unicode.isdigit() or event.unicode == "." or event.unicode == "-":
 
@@ -1803,13 +1803,13 @@ class InputBox:
                                 elif float(self.text) > self.max:
                                     self.text = str(self.max)
 
-                            except ValueError: 
-                                self.text = self.text[:-1]
+                            except ValueError:
+                                self.text = self.text[: -1]
 
                     else:
 
                         if event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[:-1]
+                            self.text = self.text[: -1]
 
                         if event.unicode.isalnum() or event.unicode == "#":
                             self.text += event.unicode
@@ -1819,7 +1819,7 @@ class InputBox:
                         try:
 
                             if len(self.text) != 0 and self.text[0] == "#":
-                                self.text = self.text[0:7]
+                                self.text = self.text[0: 7]
 
                             pygame.Color(self.text)
                             self.attrUpdate(self.target)

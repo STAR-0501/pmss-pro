@@ -21,7 +21,7 @@ def colorStringToTuple(color: str) -> tuple[int, int, int]:
             return (0, 0, 0)
 
     # 处理十六进制字符串格式
-    return tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+    return tuple(int(color[i: i+2], 16) for i in (1, 3, 5))
 
 def colorTupleToString(color : tuple[int, int, int]) -> str:
     """RGB元组转颜色字符串"""
@@ -277,7 +277,7 @@ class Coordinator():
         else:
             radius = abs(nowDirection)
 
-        if self.degree > minDirectionDegree: 
+        if self.degree > minDirectionDegree:
             startAngle = math.radians(minDirectionDegree)
             endAngle = math.radians(self.degree)
 
@@ -887,7 +887,7 @@ class Wall(Element):
 
     def draw(self, game) -> None:
         """绘制带高亮效果的墙体"""
-        if self.highLighted: 
+        if self.highLighted:
 
             # 计算中心点
             center = self.position
