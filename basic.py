@@ -58,21 +58,27 @@ class Vector2:
             self.y = y
 
     def __add__(self, other : Self) -> Self:
+        """向量加法"""
         return Vector2(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other : Self) -> Self:
+        """向量减法"""
         return Vector2(self.x - other.x, self.y - other.y)
 
     def __mul__(self, number : float) -> Self:
+        """向量数乘"""
         return Vector2(self.x * number, self.y * number)
 
     def __truediv__(self, number : float) -> Self:
+        """向量数除"""
         return Vector2(self.x / number, self.y / number)
 
     def __neg__(self) -> Self:
+        """向量取反"""
         return Vector2(-self.x, -self.y)
 
     def __abs__(self) -> float:
+        """向量长度"""
         return (self.x**2 + self.y**2)**0.5
 
     def magnitude(self) -> float:
