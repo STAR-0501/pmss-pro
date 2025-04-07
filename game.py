@@ -45,10 +45,17 @@ class Game:
         self.isChatting = False
         self.icon = ""
 
-        self.screen = pygame.display.set_mode(flags=pygame.NOFRAME)
+        try:
+            with open("config/screenSize.txt", "r", encoding="utf-8") as f:
+                self.screenSize = [int(i.replace(" ", "")) for i in f.read().split("x")]
+                
+        except Exception:
+            self.screenSize = [0, 0]
+
+        self.screen = pygame.display.set_mode(size=(self.screenSize[0], self.screenSize[1]), flags=pygame.FULLSCREEN)
         print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
         pygame.display.set_caption("Physics Motion Simulation System Beta")
-        icon = pygame.image.load("static/icon.png").convert_alpha()
+        icon = pygame.image.load("static/python.png").convert_alpha()
         pygame.display.set_icon(icon)
 
         self.mousePos = (0, 0)   # 鼠标屏幕坐标，而非真实坐标

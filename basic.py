@@ -641,7 +641,7 @@ class Ball(Element):
             self.velocity += normal * (velocityNormalAfterRebound * ((self.collisionFactor * line.collisionFactor if not timeIsReversed else 1/self.collisionFactor/line.collisionFactor) - 1))
 
             # 调整速度大小
-            self.velocity = self.velocity.copy().normalize() * abs(abs(self.velocity) ** 2 - 2 * 98.1 * cosine * (penetration)) ** 0.5
+            self.velocity = self.velocity.copy().normalize() * abs(abs(self.velocity) ** 2 - 2 * 98.1 * (1 - cosine ** 2) ** 0.5 * penetration) ** 0.5
 
         return self.velocity
 
