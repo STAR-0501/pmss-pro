@@ -153,6 +153,7 @@ def AIThreadMethod(game : Game) -> None:
             message = input("用户：")
             game.isChatting = True
             text = ai.chat(message=message + "\n" + "屏幕对角坐标：" + str(point1.toTuple()) + " " + str(point2.toTuple()) + "\n" + ballsToString(game.elements["ball"]) + "\n" + wallsToString(game.elements["wall"]))
+            text = text.split("$")[1]
             result = re.findall("<.*>", text)
 
             for i in result:
