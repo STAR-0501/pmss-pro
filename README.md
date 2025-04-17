@@ -3,6 +3,8 @@
 ![软件界面示例](static/cover.png)
 
 一个专为物理教学设计的数字实验平台，支持从微观粒子到天体运动的全方位物理现象模拟。通过直观的交互界面和参数调节功能，帮助师生轻松验证物理理论，提升教学趣味性。
+  
+[下载最新版](https://github.com/STAR-0501/PMSS-Pro/archive/refs/tags/beta-release-1.0.zip)
 [食用指南](http://localhost:4000/2025/04/17/PMSS-Pro/PMSS%E9%A3%9F%E7%94%A8%E6%8C%87%E5%8D%97/)
 
 ## 🌟 核心功能
