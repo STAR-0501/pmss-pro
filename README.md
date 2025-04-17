@@ -7,7 +7,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/STAR-0501/PMSS-Pro?style=for-the-badge)](https://github.com/STAR-0501/PMSS-Pro/releases/latest)
   
 
-![食用指南](https://img.shields.io/badge/食用指南-用户手册-blue?style=for-the-badge)
+![食用指南](https://blog-riyi.pages.dev/2025/04/17/PMSS-Pro/PMSS%E9%A3%9F%E7%94%A8%E6%8C%87%E5%8D%97/)
 
 ## 🌟 核心功能
 
