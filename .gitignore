@@ -1,3 +1,5 @@
+git rm --cached __pycache__/ai.cpython-313.pyc
 git rm --cached __pycache__/basic.cpython-313.pyc
 git rm --cached __pycache__/game.cpython-313.pyc
 git rm --cached savefile/autosave.pkl
+git rm --cached savefile/manualsave.pkl
