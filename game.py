@@ -145,8 +145,8 @@ class Game:
         }
         
         # serializableDict = {               #做预设用的
-        #     "gameName" : f"太阳系模拟",
-        #     "icon" : "static/solarSystem.png"
+        #     "gameName" : f"彩蛋",
+        #     "icon" : "static/easterEgg.png"
         # }
 
         # freeFall flatToss idealBevel basketball easterEgg
