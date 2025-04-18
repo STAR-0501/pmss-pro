@@ -14,7 +14,7 @@ def ballsToString(balls : list[Element]) -> str:
 
 def wallsToString(walls : list[Element]) -> str:
     """walls列表转字符串"""
-    text = ""
+    text = ""   
     for i in range(len(walls)):
         text += f"wallIndex={i} x1={walls[i].vertexes[0].x} y1={walls[i].vertexes[0].y} x2={walls[i].vertexes[1].x} y2={walls[i].vertexes[1].y} x3={walls[i].vertexes[2].x} y3={walls[i].vertexes[2].y} x4={walls[i].vertexes[3].x} y4={walls[i].vertexes[3].y} color={walls[i].color} \n"
     return text
