@@ -42,6 +42,7 @@ git clone https://github.com/STAR-0501/PMSS-Pro.git
 cd PMSS-Pro
 pip install -r requirements.txt
 python main.py
+```
 🕹️ 基础操作指南
 常用快捷键
 按键	功能
@@ -86,6 +87,6 @@ AI教学助手：集成DeepSeek模型，提供智能操作引导
 
 🌌 探索永无止境——从伽利略的自由落体到霍金的黑洞理论，让每个物理猜想都能在此验证！
 如有问题请联系：riyi@starbot.top
-```
+
 
 ---
