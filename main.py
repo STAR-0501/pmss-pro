@@ -47,6 +47,9 @@ def command(text : str, game) -> bool:
             wall = Wall([Vector2(float(commands[2]), float(commands[3])), Vector2(float(commands[4]), float(commands[5])), Vector2(float(commands[6]), float(commands[7])), Vector2(float(commands[8]), float(commands[9]))], commands[10])
             game.elements["all"].append(wall)
             game.elements["wall"].append(wall)
+        
+        else:
+                return False
 
     elif commands[0] == "set":
         
@@ -86,6 +89,9 @@ def command(text : str, game) -> bool:
                     """set ball [ballIndex] gravitation [value]"""
                     game.elements["ball"][int(commands[2])].gravitation = bool(commands[4])
 
+                else:
+                    return False
+
         elif commands[1] == "wall":
             
             if commands[3] == "color":
@@ -96,25 +102,31 @@ def command(text : str, game) -> bool:
                 """set wall [wallIndex] position [x] [y]"""
                 game.elements["wall"][int(commands[2])].position = Vector2(float(commands[4]), float(commands[5]))
             
+            else:
+                return False
+            
         elif commands[1] == "environment":
 
             if commands[2] == "gravity":
                 """set environment gravity [value]"""
                 for option in game.environmentOptions:
                     if option["type"] == "gravity":
-                        option["value"] = commands[4]
+                        option["value"] = commands[3]
             
             elif commands[2] == "airResistance":
                 """set environment airResistance [value]"""
                 for option in game.environmentOptions:
                     if option["type"] == "airResistance":
-                        option["value"] = commands[4]
+                        option["value"] = commands[3]
 
             elif commands[2] == "collisionFactor":
                 """set environment collisionFactor [value]"""
                 for option in game.environmentOptions:
                     if option["type"] == "collisionFactor":
-                        option["value"] = commands[4]
+                        option["value"] = commands[3]
+            
+            else:
+                return False
 
     elif commands[0] == "clear":
         if commands[1] == "ball":
@@ -126,6 +138,9 @@ def command(text : str, game) -> bool:
             elif commands[3] == "force":
                 game.elements["ball"][int(commands[2])].artificialForces.clear()
 
+            else:
+                return False
+
     elif commands[0] == "add":
         if commands[1] == "ball":
             "add ball [ballIndex] [velocity | force] [x] [y]"
@@ -135,6 +150,9 @@ def command(text : str, game) -> bool:
 
             elif commands[3] == "force":
                 game.elements["ball"][int(commands[2])].artificialForces.append(Vector2(float(commands[4]), float(commands[5])))
+
+            else:
+                return False
 
     elif commands[0] == "delete" or commands[0] == "remove":
 
@@ -160,6 +178,12 @@ def command(text : str, game) -> bool:
 
             elif element.type == "wall":
                 game.elements["wall"].remove(element)
+
+            else:
+                return False
+        
+        else:
+            return False
     
     elif commands[0] == "mode":
 
@@ -170,6 +194,9 @@ def command(text : str, game) -> bool:
         elif commands[1] == "1":
             """mode 1"""
             game.CelestialBodyMode()
+        
+        else:
+            return False
 
     else:
         return False
@@ -199,9 +226,9 @@ def AIThreadMethod(game : Game) -> None:
             for i in result:
                 try:
                     if not command(i[1:-1].replace("\n", ""), game):
-                        print("执行命令出错。", end="\n\n")
+                        print("执行命令出错：未知命令", end="\n\n")
                 except Exception as e:
-                    print("执行命令出错：", e, end="\n\n")
+                    print(f"执行命令出错：{e}", end="\n\n")
         except EOFError:
             break
 
