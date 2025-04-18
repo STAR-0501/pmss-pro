@@ -4,7 +4,7 @@
 
 一个专为物理教学设计的数字实验平台，支持从微观粒子到天体运动的全方位物理现象模拟。通过直观的交互界面和参数调节功能，帮助师生轻松验证物理理论，提升教学趣味性。
   
-[![Latest Release](https://img.shields.io/github/v/release/STAR-0501/PMSS-Pro?style=for-the-badge)](https://github.com/STAR-0501/PMSS-Pro/releases/latest) [![食用指南](https://img.shields.io/badge/食用指南-用户手册-blue?style=for-the-badge)](https://blog-riyi.pages.dev/2025/04/17/PMSS-Pro/PMSS%E9%A3%9F%E7%94%A8%E6%8C%87%E5%8D%97/) [![联系我们](https://img.shields.io/badge/联系我们-意见反馈-green?style=for-the-badge)](https://starbot.top)
+[![Latest Release](https://img.shields.io/github/v/release/STAR-0501/PMSS-Pro?style=for-the-badge)](https://github.com/STAR-0501/PMSS-Pro/releases/latest) [![食用指南](https://img.shields.io/badge/食用指南-用户手册-blue?style=for-the-badge)](https://blog-riyi.pages.dev/2025/04/16/PMSS-Pro/help) [![联系我们](https://img.shields.io/badge/联系我们-意见反馈-green?style=for-the-badge)](https://starbot.top)
 
 ## 🌟 核心功能
 
