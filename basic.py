@@ -696,14 +696,22 @@ class Ball(Element):
         self.velocity = tangent * velocityTangent1 + normal * newVelocityNormal1
         ball.velocity = tangent * velocityTangent2 + normal * newVelocityNormal2
 
-        # 位置修正
+        # 位置修正 !!! 这里的位置修正有问题，需要修正
         overlap = (minDistance - actualDistance)
         if overlap > 0:
             relativeVelocity = (originalVelocity1 - originalVelocity2).dot(normal)
             if relativeVelocity < 0:
                 collisionFactor = self.collisionFactor * ball.collisionFactor
-                # 修改分离量计算方式
-                separation = normal * (overlap * (1.001 / collisionFactor))  
+                
+                # 优化后的分离量计算
+                if collisionFactor > 1e-8:
+                    # 保持原有基于碰撞因子的修正
+                    separation = normal * (overlap * (1.001 / collisionFactor))
+                else:
+                    # 当碰撞系数为0时，仅分离实际重叠部分
+                    separation = normal * overlap * 1.001  # 小幅过调防止持续穿透
+                    
+                # 保持质量分配比例
                 self.position += separation * (m2 / totalMass)
                 ball.position -= separation * (m1 / totalMass)
 
@@ -770,6 +778,10 @@ class Ball(Element):
         newBall.displayedVelocity = self.displayedVelocity + other.displayedVelocity
 
         return newBall
+
+    def getPosition(self) -> Vector2:
+        """获取球的位置"""
+        return self.position
 
 class Wall(Element):
     """墙体类，处理多边形碰撞和显示"""
@@ -928,6 +940,10 @@ class WallPosition:
         self.wall = wall
         self.position = position
 
+    def getPosition(self) -> Vector2:
+        """获取墙体位置"""
+        return self.position + self.wall.position
+
 class Rope:
     """绳索类，处理绳索的显示和物理效果"""
     def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float, width: float, color) -> bool:
@@ -941,6 +957,17 @@ class Rope:
             return False
         
         return True
+
+    def isReachingLimit(self) -> bool:
+        """判断绳索是否到达极限长度"""
+        return self.length < abs(self.start.getPosition() - self.end.getPosition())
+    
+    def pullBall(self) -> bool:
+        """处理球与绳索的影响"""
+        if isinstance(self.start, Ball):
+            ...
+        elif isinstance(self.end, Ball):
+            ...
 
     def update(self, deltaTime) -> Self:
         """更新绳索位置"""
@@ -960,4 +987,4 @@ class Rope:
 
     def draw(self, game) -> None:
         """绘制绳索"""
-        pygame.draw.line(game.screen, self.color, (game.realToScreen(self.start.position.x, game.x), game.realToScreen(self.start.position.y, game.y)), (game.realToScreen(self.end.position.x, game.x), game.realToScreen(self.end.position.y, game.y)), self.width)
+        pygame.draw.line(game.screen, self.color, (game.realToScreen(self.start.getPosition().x, game.x), game.realToScreen(self.start.getPosition().y, game.y)), (game.realToScreen(self.end.getPosition().x, game.x), game.realToScreen(self.end.getPosition().y, game.y)), self.width)
