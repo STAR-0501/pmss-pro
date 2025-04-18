@@ -16,10 +16,10 @@ def wallsToString(walls : list[Element]) -> str:
     """walls列表转字符串"""
     text = ""   
     for i in range(len(walls)):
-        text += f"wallIndex={i} x1={walls[i].vertexes[0].x} y1={walls[i].vertexes[0].y} x2={walls[i].vertexes[1].x} y2={walls[i].vertexes[1].y} x3={walls[i].vertexes[2].x} y3={walls[i].vertexes[2].y} x4={walls[i].vertexes[3].x} y4={walls[i].vertexes[3].y} color={walls[i].color} \n"
+        text += f"wallIndex={i} position={walls[i].position.toTuple()} x1={walls[i].vertexes[0].x} y1={walls[i].vertexes[0].y} x2={walls[i].vertexes[1].x} y2={walls[i].vertexes[1].y} x3={walls[i].vertexes[2].x} y3={walls[i].vertexes[2].y} x4={walls[i].vertexes[3].x} y4={walls[i].vertexes[3].y} color={walls[i].color} \n"
     return text
 
-def command(text : str, game) -> None:
+def command(text : str, game) -> bool:
     """执行命令"""
     commands = text.split()
 
@@ -86,6 +86,36 @@ def command(text : str, game) -> None:
                     """set ball [ballIndex] gravitation [value]"""
                     game.elements["ball"][int(commands[2])].gravitation = bool(commands[4])
 
+        elif commands[1] == "wall":
+            
+            if commands[3] == "color":
+                """set wall [wallIndex] color [value]"""
+                game.elements["wall"][int(commands[2])].color = commands[4]
+
+            elif commands[3] == "position":
+                """set wall [wallIndex] position [x] [y]"""
+                game.elements["wall"][int(commands[2])].position = Vector2(float(commands[4]), float(commands[5]))
+            
+        elif commands[1] == "environment":
+
+            if commands[2] == "gravity":
+                """set environment gravity [value]"""
+                for option in game.environmentOptions:
+                    if option["type"] == "gravity":
+                        option["value"] = commands[4]
+            
+            elif commands[2] == "airResistance":
+                """set environment airResistance [value]"""
+                for option in game.environmentOptions:
+                    if option["type"] == "airResistance":
+                        option["value"] = commands[4]
+
+            elif commands[2] == "collisionFactor":
+                """set environment collisionFactor [value]"""
+                for option in game.environmentOptions:
+                    if option["type"] == "collisionFactor":
+                        option["value"] = commands[4]
+
     elif commands[0] == "clear":
         if commands[1] == "ball":
             """clear ball [ballIndex] [velocity | force]"""
@@ -141,6 +171,11 @@ def command(text : str, game) -> None:
             """mode 1"""
             game.CelestialBodyMode()
 
+    else:
+        return False
+    
+    return True
+
 def AIThreadMethod(game : Game) -> None:
     """AI线程方法"""
     ai = AI(game)
@@ -153,12 +188,18 @@ def AIThreadMethod(game : Game) -> None:
             message = input("用户：")
             game.isChatting = True
             text = ai.chat(message=message + "\n" + "屏幕对角坐标：" + str(point1.toTuple()) + " " + str(point2.toTuple()) + "\n" + ballsToString(game.elements["ball"]) + "\n" + wallsToString(game.elements["wall"]))
-            text = text.split("$")[1]
+            
+            try:
+                text = text.split("$")[1]
+            except IndexError:
+                ...
+
             result = re.findall("<.*>", text)
 
             for i in result:
                 try:
-                    command(i[1:-1].replace("\n", ""), game)
+                    if not command(i[1:-1].replace("\n", ""), game):
+                        print("执行命令出错。", end="\n\n")
                 except Exception as e:
                     print("执行命令出错：", e, end="\n\n")
         except EOFError:
