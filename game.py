@@ -720,10 +720,8 @@ class Game:
                         continue
 
             self.exampleMenu = Menu(ZERO, examples)
-            
 
         self.exampleMenu.draw(game=self)
-
 
         if self.speed != 0:
             if self.fpsAverage / abs(self.speed) ** 0.5 < 60 or self.fpsMinimum / abs(self.speed) ** 0.5 < 30:
