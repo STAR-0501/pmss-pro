@@ -31,12 +31,15 @@ class AI:
     9. set ball [ballIndex] gravity [value] 设置球的重力系数
     10. set ball [ballIndex] collisionFactor [value] 设置球的碰撞系数
     11. set ball [ballIndex] gravitation [value] 设置球的受引力影响状态
-    12. clear ball [ballIndex] [velocity | force] 清除球的速度或力
-    13. add ball [ballIndex] [velocity | force] [x] [y] 添加球的速度或力
-    14. delete ball [ballIndex] 删除球
-    15. delete wall [wallIndex] 删除墙
-    16. delete element [elementIndex] 删除元素
-    17. mode [0 | 1] 切换模式（0为地表模式，1为天体模式）
+    12. set wall [wallIndex] color [value] 设置墙的颜色
+    13. set wall [wallIndex] position [x] [y] 设置墙的位置，根据传入的“position=”参数，与四个顶点坐标无关
+    14. clear ball [ballIndex] [velocity | force] 清除球的速度或力
+    15. add ball [ballIndex] [velocity | force] [x] [y] 添加球的速度或力
+    16. delete ball [ballIndex] 删除球
+    17. delete wall [wallIndex] 删除墙
+    18. delete element [elementIndex] 删除元素
+    19. mode [0 | 1] 切换模式（0为地表模式，1为天体模式）
+    20. set environment [gravity | airResistance | collisionFactor] [value] 设置环境属性（gravity，airResistance，collisionFactor），gravity是重力系数，取值范围为0-1，0表示不受重力影响，1表示受正常重力影响；airResistance是空气阻力系数，取值范围为0-1，1表示不受空气阻力影响，0.4表示每秒阻力使速度减少为原来的0.4倍；collisionFactor是碰撞系数，取值范围为0-1，1表示碰撞后速度无损失，0.4表示碰撞后使速度减少为原来的0.4倍）
          
     注意事项：
     1. 创建墙的四个顶点坐标必须时顺时针或逆时针，且四个点围成一个封闭矩形
@@ -47,9 +50,9 @@ class AI:
     6. create wall 必须是一个矩形，只能输四个顶点坐标，绝对不能输入少或者输入多，否则会导致墙无法创建
     7. 执行命令必须按照输入格式，否则会导致命令无法执行，比如color必须输入在create ball的第四个参数中
     8. 执行多个删除命令时，必须从大的索引号开始删除，否则会导致索引号混乱
-    9. x轴正方向为向右，y轴正方向为向下
+    9. x轴正方向为向右，y轴正方向为向下，x轴负方向为向左，y轴负方向为向上
     10. 搭建跟天体有关的场景可能需要先转为天体模式，反之则需要先转为地表模式
-    11. 当你开始回答时输出$，且避免在其他地方输出$
+    11. 当你开始回答时输出“$ ”，且避免在其他地方输出$，一定要输出！！！
          """}
     ]
     
