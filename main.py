@@ -253,17 +253,21 @@ def AIThreadMethod(game : Game) -> None:
             
             try:
                 text = text.split("$")[1]
+
             except IndexError:
                 ...
 
             result = re.findall("<.*>", text)
 
             for i in result:
+
                 try:
                     if not command(i[1:-1].replace("\n", ""), game):
                         print("执行命令出错：未知命令", end="\n\n")
+
                 except Exception as e:
                     print(f"执行命令出错：{e}", end="\n\n")
+                    
         except EOFError:
             break
 
@@ -276,11 +280,15 @@ if __name__ == '__main__':
     AIThread.start()
     
     while True: 
+
         try:
             game.update()
             pygame.display.update()
+
         except KeyboardInterrupt:
+
             if game.isChatting:
                 game.isChatting = False
+
             else:
                 game.exit()
