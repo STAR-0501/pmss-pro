@@ -624,13 +624,13 @@ class Ball(Element):
                 edgeNormal = Vector2(-AB.y, AB.x).normalize()
                 normal = edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal
 
-        # 计算穿透深度
-        penetration = self.radius - self.position.distance(closest)
+        # 位置修正
+        overlap = self.radius - self.position.distance(closest)
 
-        if penetration > 0:
+        if overlap > 0:
             # 更精确的位置修正，穿透深度较大时增加能量损失
-            energyLossFactor = 1 + min(1, penetration / self.radius)
-            self.position += normal * (penetration * energyLossFactor)
+            energyLossFactor = 1 + min(1, overlap / self.radius)
+            self.position += normal * (overlap * energyLossFactor)
 
             # 速度反射（保留切线分量）
             velocityNormal = self.velocity.dot(normal)
@@ -641,20 +641,18 @@ class Ball(Element):
             self.velocity += normal * (velocityNormalAfterRebound * ((self.collisionFactor * line.collisionFactor if not timeIsReversed else 1/self.collisionFactor/line.collisionFactor) - 1))
 
             # 调整速度大小
-            self.velocity = self.velocity.copy().normalize() * abs(abs(self.velocity) ** 2 - 2 * 98.1 * (1 - cosine ** 2) ** 0.5 * penetration) ** 0.5
+            self.velocity = self.velocity.copy().normalize() * abs(abs(self.velocity) ** 2 - 2 * 98.1 * (1 - cosine ** 2) ** 0.5 * overlap) ** 0.5
 
         return self.velocity
 
     def reboundByBall(self, ball: Self) -> Vector2:
         """处理球与球之间的碰撞响应"""
-        # 获取双方质量
-        m1 = self.mass
-        m2 = ball.mass
-        totalMass = m1 + m2
+        # 获取总质量
+        totalMass = self.mass + ball.mass
 
         # 计算实际间距
-        delta = self.position - ball.position
-        actualDistance = abs(delta)
+        deltaPosition = self.position - ball.position
+        actualDistance = abs(deltaPosition)
         minDistance = self.radius + ball.radius
 
         # 处理零距离特殊情况
@@ -663,7 +661,7 @@ class Ball(Element):
             normal = Vector2(1, 0) if random() > 0.5 else Vector2(-1, 0)
             actualDistance = minDistance
         else:
-            normal = delta / actualDistance
+            normal = deltaPosition / actualDistance
 
         self.displayedVelocity = self.velocity + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor
         self.displayedVelocityFactor = 1
@@ -684,8 +682,8 @@ class Ball(Element):
         velocityTangent2 = originalVelocity2.dot(tangent)
 
         # 弹性碰撞公式
-        newVelocityNormal1 = ((m1 - m2)*velocityNormal1 + 2*m2*velocityNormal2) / totalMass
-        newVelocityNormal2 = (2*m1*velocityNormal1 + (m2 - m1)*velocityNormal2) / totalMass
+        newVelocityNormal1 = ((self.mass - ball.mass)*velocityNormal1 + 2*ball.mass*velocityNormal2) / totalMass
+        newVelocityNormal2 = (2*self.mass*velocityNormal1 + (ball.mass - self.mass)*velocityNormal2) / totalMass
 
         # 应用碰撞因子到法向分量
         collisionFactor = self.collisionFactor * ball.collisionFactor
@@ -712,8 +710,8 @@ class Ball(Element):
                     separation = normal * overlap * 1.001  # 小幅过调防止持续穿透
                     
                 # 保持质量分配比例
-                self.position += separation * (m2 / totalMass)
-                ball.position -= separation * (m1 / totalMass)
+                self.position += separation * (ball.mass / totalMass)
+                ball.position -= separation * (self.mass / totalMass)
 
         return self.velocity
 
@@ -964,10 +962,17 @@ class Rope:
     
     def pullBall(self) -> bool:
         """处理球与绳索的影响"""
-        if isinstance(self.start, Ball):
-            ...
-        elif isinstance(self.end, Ball):
-            ...
+        distance = self.start.getPosition().distance(self.end.getPosition())
+        overlap = distance - self.length
+
+        # 位置修正
+        if overlap > 0:
+
+            if isinstance(self.start, Ball):
+                ...
+
+            elif isinstance(self.end, Ball):
+                ...
 
     def update(self, deltaTime) -> Self:
         """更新绳索位置"""
