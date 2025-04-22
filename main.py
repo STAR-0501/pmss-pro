@@ -19,7 +19,7 @@ def wallsToString(walls : list[Element]) -> str:
         text += f"wallIndex={i} position={walls[i].position.toTuple()} x1={walls[i].vertexes[0].x} y1={walls[i].vertexes[0].y} x2={walls[i].vertexes[1].x} y2={walls[i].vertexes[1].y} x3={walls[i].vertexes[2].x} y3={walls[i].vertexes[2].y} x4={walls[i].vertexes[3].x} y4={walls[i].vertexes[3].y} color={walls[i].color} \n"
     return text
 
-def command(text : str, game) -> bool:
+def command(text : str, game : Game) -> bool:
     """执行命令"""
     commands = text.split()
 
@@ -189,10 +189,26 @@ def command(text : str, game) -> bool:
 
         if commands[1] == "0":
             """mode 0"""
+            for option in game.environmentOptions:
+
+                if option["type"] == "mode":
+                    option["value"] = "0"
+                    
+                if option["type"] == "gravity":
+                    option["value"] = "1"
+
             game.GroundSurfaceMode()
         
         elif commands[1] == "1":
             """mode 1"""
+            for option in game.environmentOptions:
+
+                if option["type"] == "mode":
+                    option["value"] = "1"
+                    
+                if option["type"] == "gravity":
+                    option["value"] = "0"
+                    
             game.CelestialBodyMode()
         
         else:
@@ -209,12 +225,31 @@ def AIThreadMethod(game : Game) -> None:
     while True:
         try:
             game.isChatting = False
-            point1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
-            point2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.x, game.y))
-            
+
+            if not game.isCelestialBodyMode:
+                groundPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
+                groundPoint2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.x, game.y))
+                celestialPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.lastX, game.lastY))
+                celestialPoint2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.lastX, game.lastY))
+
+            else:
+                groundPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.lastX, game.lastY))
+                groundPoint2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.lastX, game.lastY))
+                celestialPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
+                celestialPoint2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.x, game.y))
+
             message = input("用户：")
             game.isChatting = True
-            text = ai.chat(message=message + "\n" + "屏幕对角坐标：" + str(point1.toTuple()) + " " + str(point2.toTuple()) + "\n" + ballsToString(game.elements["ball"]) + "\n" + wallsToString(game.elements["wall"]))
+
+            text = ai.chat(
+                message=message + "\n" + "当前模式：" + ("天体模式" if game.isCelestialBodyMode else "地表模式") + "\n" + 
+
+                "地表模式屏幕对角坐标及元素属性：" + str(groundPoint1.toTuple()) + " " + str(groundPoint2.toTuple()) + "\n" + 
+                ballsToString(game.groundElements["ball"]) + "\n" + wallsToString(game.groundElements["wall"]) + "\n" + 
+
+                "天体模式屏幕对角坐标及元素属性：" + str(celestialPoint1.toTuple()) + " " + str(celestialPoint2.toTuple()) + "\n" + 
+                ballsToString(game.celestialElements["ball"]) + "\n" + wallsToString(game.celestialElements["wall"])
+            )
             
             try:
                 text = text.split("$")[1]

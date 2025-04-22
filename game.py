@@ -1492,16 +1492,17 @@ class Option:
                                     
                                 if option["type"] == "gravity":
                                     option["value"] = "1"
+
                             game.GroundSurfaceMode()
 
                         else:
                             for option in game.environmentOptions:
 
                                 if option["type"] == "mode":
-                                    option["value"] = "0"
+                                    option["value"] = "1"
 
                                 if option["type"] == "gravity":
-                                    option["value"] = "1"
+                                    option["value"] = "0"
 
                             game.CelestialBodyMode()
 
