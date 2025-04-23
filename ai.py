@@ -9,12 +9,12 @@ class AI:
     def __init__(self, game) -> None:
         self.game = game
         
-    client = OpenAI(
-        base_url='https://api.siliconflow.cn/v1',
+    client : OpenAI = OpenAI(
+        base_url='https://api.siliconflow.cn/v1', 
         api_key=key
     )
 
-    message = [
+    message : list[dict[str, str]] = [
         {"role": "system", "content": """
 你的名字是PMSS-Pro，一个机器人助手，基于Deepseek-V3/R1模型。
         
@@ -76,8 +76,8 @@ class AI:
 
         # 发送带有流式输出的请求
         response = self.client.chat.completions.create(
-            model="Pro/deepseek-ai/DeepSeek-V3" if not reasoner else "Pro/deepseek-ai/DeepSeek-R1",
-            messages=self.message,
+            model="Pro/deepseek-ai/DeepSeek-V3" if not reasoner else "Pro/deepseek-ai/DeepSeek-R1", 
+            messages=self.message, 
             stream=True  # 启用流式输出
         )
 

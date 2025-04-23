@@ -58,43 +58,55 @@ class Game:
         icon = pygame.image.load("static/python.png").convert_alpha()
         pygame.display.set_icon(icon)
 
-        self.mousePos = (0, 0)   # 鼠标屏幕坐标，而非真实坐标
-        self.fontSmall = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/125))
-        self.fontBig = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/75))
-        self.ratio = 5
-        self.lastRatio = self.ratio
-        self.minLimitRatio = 1
-        self.maxLimitRatio = 15
-        self.x = self.screen.get_width()/2 / self.ratio
-        self.y = self.screen.get_height() / self.ratio
-        self.lastX = self.x
-        self.lastY = 2e+7
+        self.mousePos : tuple[int, int] = (0, 0)   # 鼠标屏幕坐标，而非真实坐标
+        self.fontSmall : pygame.font.Font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/125))
+        self.fontBig : pygame.font.Font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/75))
+        self.ratio : int = 5
+        self.lastRatio : int = self.ratio
+        self.minLimitRatio : int = 1
+        self.maxLimitRatio : int = 15
+        self.x : int = self.screen.get_width()/2 / self.ratio
+        self.y : int = self.screen.get_height() / self.ratio
+        self.lastX : int = self.x
+        self.lastY : int = 2e+7
         self.elementMenu : Menu = None
         self.exampleMenu : Menu = None
-        self.currentTime = time.time()
-        self.lastTime = self.currentTime
-        self.fpsAverage = 0
-        self.fpsMinimum = 0
-        self.rightMove = 0
-        self.upMove = 0
-        self.speed = 1
-        self.circularVelocityFactor = 1
-        self.floor = Wall([Vector2(0, -10), Vector2(self.screen.get_width(), -10), Vector2(self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200, 200, 200), True)
-        self.isFloorIllegal = False
-        self.background = "lightgrey"
-        self.settingsButton = SettingsButton(0, 0, 50, 50)
-        self.fpsSaver = []
-        self.tempFrames = 0
+        self.currentTime : float = time.time()
+        self.lastTime : float = self.currentTime
+        self.fpsAverage : float = 0
+        self.fpsMinimum : float = 0
+        self.rightMove : int = 0
+        self.upMove : int = 0
+        self.speed : int = 1
+        self.circularVelocityFactor : float = 1
+        self.floor : Wall = Wall([Vector2(0, -10), Vector2(self.screen.get_width(), -10), Vector2(self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200, 200, 200), True)
+        self.isFloorIllegal : bool = False
+        self.background : str | pygame.Color = "lightgrey"
+        self.settingsButton : SettingsButton = SettingsButton(0, 0, 50, 50)
+        self.fpsSaver : list[float] = []
+        self.tempFrames : int = 0
+        self.optionsList : list[dict] = []
+        self.environmentOptions : list[dict] = []
+        self.elements : dict[str, list[Element | Ball | Wall | Rope]] = {}
 
-        self.groundElements = {
+        self.groundElements : dict[str, list[Element | Ball | Wall | Rope]] = {
             "all": [], 
+            "ball": [], 
+            "wall": [], 
+            "rope" : [], 
             "controlling": []
         }
 
-        self.celestialElements = {
+        self.celestialElements : dict[str, list[Element | Ball | Wall | Rope]] = {
             "all": [], 
+            "ball": [], 
+            "wall": [], 
+            "rope" : [], 
             "controlling": []
         }
+
+        self.translation : dict[str, str] = {}
+        self.inputMenu : InputMenu = None
 
         with open("config/elementOptions.json", "r", encoding="utf-8") as f:
             self.optionsList = json.load(f)
@@ -104,8 +116,6 @@ class Game:
             self.celestialElements[self.optionsList[i]["type"]] = []
 
         self.elements = self.groundElements
-
-        self.environmentOptions = []
 
         with open("config/environmentOptions.json", "r", encoding="utf-8") as f:
             self.environmentOptions = json.load(f)
@@ -143,9 +153,9 @@ class Game:
         serializableDict = {
             "gameName" : f"{int(time.time())}备份"
         }
-        
+
         # serializableDict = {               #做预设用的
-        #     "gameName" : f"彩蛋",
+        #     "gameName" : f"彩蛋", 
         #     "icon" : "static/easterEgg.png"
         # }
 
@@ -558,6 +568,12 @@ class Game:
                         element.highLighted = False
                         element.isFollowing = False
 
+                # 测试 !!!
+                if event.key == pygame.K_t:
+                    rope = Rope(self.elements["ball"][0], self.elements["ball"][1], self.elements["ball"][0].getPosition().distance(self.elements["ball"][1].getPosition()), 1, "red")
+                    self.elements["all"].append(rope)
+                    self.elements["rope"].append(rope)
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL:
                     self.isCtrlPressing = False
@@ -805,7 +821,7 @@ class Game:
                 if not option.selected:
                     option.highLighted = False
 
-    def updateElements(self):
+    def updateElements(self) -> None:
         """更新所有物理元素状态"""
         for element in self.groundElements["all"]:
             if element.position.y <= -1.5e+7:
@@ -1016,7 +1032,8 @@ class Game:
         self.lastTime = self.currentTime
         self.currentTime = time.time()
         self.fpsSaver.append(self.currentTime - self.lastTime)
-        self.fpsAverage = len(self.fpsSaver) / sum(self.fpsSaver)
+        if sum(self.fpsSaver) > 0:
+            self.fpsAverage = len(self.fpsSaver) / sum(self.fpsSaver)
         self.fpsMinimum = 1 / max(self.fpsSaver)
         if sum(self.fpsSaver) >= 1:
             del self.fpsSaver[0]
@@ -1762,7 +1779,7 @@ class Option:
             except FileNotFoundError:
                 ...
             
-    def createElement(self, game: Game, pos: Vector2):
+    def createElement(self, game: Game, pos: Vector2) -> None:
         """创建元素对象"""
         x = pos.x
         y = pos.y
@@ -2031,7 +2048,7 @@ class ControlOption:
             if element is not target:
                 element.isFollowing = False
 
-    def showInfo(self, game: Game, target: Element):
+    def showInfo(self, game: Game, target: Element) -> None:
         """显示目标信息"""
         target.isFollowing = False
         target.isShowingInfo = not target.isShowingInfo

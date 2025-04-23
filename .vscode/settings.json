@@ -29,6 +29,7 @@
         "Riyi",
         "SRCALPHA",
         "substeps",
-        "textvariable"
+        "textvariable",
+        "venv"
     ]
 }

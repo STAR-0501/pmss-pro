@@ -1,3 +1,4 @@
 __pycache__/
+.venv/
 savefile/autosave.pkl
 savefile/manualsave.pkl

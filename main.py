@@ -7,21 +7,21 @@ import re
 
 def ballsToString(balls : list[Element]) -> str:
     """balls列表转字符串"""
-    text = ""
+    text : str = ""
     for i in range(len(balls)):
         text += f"ballIndex={i} position={balls[i].position.toTuple()} radius={balls[i].radius} color={balls[i].color} mass={balls[i].mass} velocity={balls[i].velocity.toTuple()} acceleration={balls[i].acceleration.toTuple()} gravity={balls[i].gravity} collisionFactor={balls[i].collisionFactor} gravitation={balls[i].gravitation} \n"
     return text
 
 def wallsToString(walls : list[Element]) -> str:
     """walls列表转字符串"""
-    text = ""   
+    text : str = ""   
     for i in range(len(walls)):
         text += f"wallIndex={i} position={walls[i].position.toTuple()} x1={walls[i].vertexes[0].x} y1={walls[i].vertexes[0].y} x2={walls[i].vertexes[1].x} y2={walls[i].vertexes[1].y} x3={walls[i].vertexes[2].x} y3={walls[i].vertexes[2].y} x4={walls[i].vertexes[3].x} y4={walls[i].vertexes[3].y} color={walls[i].color} \n"
     return text
 
 def command(text : str, game : Game) -> bool:
     """执行命令"""
-    commands = text.split()
+    commands : list[str] = text.split()
 
     if len(commands) == 0:
         return
@@ -221,7 +221,8 @@ def command(text : str, game : Game) -> bool:
 
 def AIThreadMethod(game : Game) -> None:
     """AI线程方法"""
-    ai = AI(game)
+    ai : AI = AI(game)
+
     while True:
         try:
             game.isChatting = False
@@ -238,10 +239,10 @@ def AIThreadMethod(game : Game) -> None:
                 celestialPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
                 celestialPoint2 = game.screenToReal(Vector2(game.screen.get_width(), game.screen.get_height()), Vector2(game.x, game.y))
 
-            message = input("用户：")
+            message : str = input("用户：")
             game.isChatting = True
 
-            text = ai.chat(
+            text : str = ai.chat(
                 message=message + "\n" + "当前模式：" + ("天体模式" if game.isCelestialBodyMode else "地表模式") + "\n" + 
 
                 "地表模式屏幕对角坐标及元素属性：" + str(groundPoint1.toTuple()) + " " + str(groundPoint2.toTuple()) + "\n" + 
@@ -257,7 +258,7 @@ def AIThreadMethod(game : Game) -> None:
             except IndexError:
                 ...
 
-            result = re.findall("<.*>", text)
+            result : list = re.findall("<.*>", text)
 
             for i in result:
 
@@ -272,10 +273,10 @@ def AIThreadMethod(game : Game) -> None:
             break
 
 if __name__ == '__main__': 
-    game = Game()
+    game : Game = Game()
     
     # 创建并启动AI线程
-    AIThread = threading.Thread(target=AIThreadMethod, args=(game,))
+    AIThread : threading.Thread = threading.Thread(target=AIThreadMethod, args=(game,))
     AIThread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     AIThread.start()
     

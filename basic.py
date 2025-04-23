@@ -51,11 +51,12 @@ class Vector2:
     def __init__(self, x : float | tuple[float, float], y : float = None) -> None:
         
         if y is None:
-            self.x, self.y = x
+            self.x : float = x[0]
+            self.y : float = x[1]
 
         else:
-            self.x = x
-            self.y = y
+            self.x : float = x
+            self.y : float = y
 
     def __add__(self, other : Self) -> Self:
         """向量加法"""
@@ -154,12 +155,12 @@ def triangleArea(p1 : Vector2, p2 : Vector2, p3 : Vector2) -> float:
 class CollisionLine:
     """碰撞线段类，处理线段相交检测和显示"""
     def __init__(self, start : Vector2, end : Vector2, isLine : bool = False, collisionFactor : float = 1, display : bool = True) -> None:
-        self.start = start
-        self.end = end
-        self.vector = end - start
-        self.isLine = isLine
-        self.collisionFactor = collisionFactor
-        self.display = display
+        self.start : Vector2 = start
+        self.end : Vector2 = end
+        self.vector : Vector2 = end - start
+        self.isLine : bool = isLine
+        self.collisionFactor : float = collisionFactor
+        self.display : bool = display
 
     def isLineIntersect(self, other: Self) -> bool:
         """使用叉积法判断线段相交"""
@@ -193,10 +194,11 @@ class CollisionLine:
 class Element:
     """游戏元素基类，定义通用接口"""
     def __init__(self, position : Vector2, color : pygame.Color) -> None:
-        self.position = position
-        self.highLighted = False
-        self.type = "element"
-        self.attrs = []
+        self.position : Vector2 = position
+        self.color : str | pygame.Color = color
+        self.highLighted : bool = False
+        self.type : str = "element"
+        self.attrs : list[dict] = []
 
     def isMouseOn(self, game) -> bool:
         """检测鼠标是否在元素上"""
@@ -223,12 +225,12 @@ class Element:
 class Coordinator():
     """坐标系辅助类，处理坐标转换和角度显示"""
     def __init__(self, x : float, y : float, width : float, game) -> None:
-        self.position = Vector2(x, y)
-        self.width = width
-        self.degree = 0
-        self.minDegree = 0
-        self.minDirection = ZERO
-        self.direction = []
+        self.position : Vector2 = Vector2(x, y)
+        self.width : float = width
+        self.degree : float = 0
+        self.minDegree : float = 0
+        self.minDirection : Vector2 = ZERO
+        self.direction : list[Vector2] = []
         self.update(game)
 
     def draw(self, game, option, text="") -> None:
@@ -335,27 +337,27 @@ class Coordinator():
 class Ball(Element):
     """球体物理实体类，处理运动学计算和碰撞响应"""
     def __init__(self, position : Vector2, radius : float, color : pygame.Color, mass : float, velocity : Vector2, artificialForces : list[Vector2], gravity : float = 1, collisionFactor : float = 1, gravitation : bool = False) -> None:
-        self.position = position
-        self.radius = radius
-        self.color = color
-        self.mass = mass
-        self.velocity = velocity
-        self.displayedVelocity = ZERO
-        self.displayedVelocityFactor = 0
-        self.naturalForces = []
-        self.artificialForces = artificialForces
-        self.acceleration = ZERO
-        self.displayedAcceleration = ZERO
-        self.displayedAccelerationFactor = 0
-        self.gravity = gravity
-        self.highLighted = False
-        self.collisionFactor = collisionFactor
-        self.airResistance = 1
-        self.gravitation = gravitation
-        self.type = "ball"
-        self.isFollowing = False
-        self.isShowingInfo = False
-        self.attrs = []
+        self.position : Vector2 = position
+        self.radius : float = radius
+        self.color : str | pygame.Color = color
+        self.mass : float = mass
+        self.velocity : Vector2 = velocity
+        self.displayedVelocity : Vector2 = ZERO
+        self.displayedVelocityFactor : float = 0
+        self.naturalForces : list[Vector2] = []
+        self.artificialForces : list[Vector2] = artificialForces
+        self.acceleration : Vector2 = ZERO
+        self.displayedAcceleration : Vector2 = ZERO
+        self.displayedAccelerationFactor : float = 0
+        self.gravity : float = gravity
+        self.highLighted : bool = False
+        self.collisionFactor : float = collisionFactor
+        self.airResistance : float = 1
+        self.gravitation : bool = gravitation
+        self.type : str = "ball"
+        self.isFollowing : bool = False
+        self.isShowingInfo : bool = False
+        self.attrs : list[dict] = []
         self.updateAttrsList()
 
     def isPosOn(self, game, pos: Vector2) -> bool:  
@@ -647,7 +649,7 @@ class Ball(Element):
 
     def reboundByBall(self, ball: Self) -> Vector2:
         """处理球与球之间的碰撞响应"""
-        # 获取总质量
+        # 计算总质量
         totalMass = self.mass + ball.mass
 
         # 计算实际间距
@@ -690,7 +692,7 @@ class Ball(Element):
         newVelocityNormal1 *= collisionFactor
         newVelocityNormal2 *= collisionFactor
 
-        # 重建速度矢量（保持原始方向）
+        # 重建速度向量（保持原始方向）
         self.velocity = tangent * velocityTangent1 + normal * newVelocityNormal1
         ball.velocity = tangent * velocityTangent2 + normal * newVelocityNormal2
 
@@ -784,26 +786,26 @@ class Ball(Element):
 class Wall(Element):
     """墙体类，处理多边形碰撞和显示"""
     def __init__(self, vertexes: list[Vector2], color : pygame.Color, isLine : bool = False) -> None:
-        self.vertexes = vertexes
-        self.color = color
-        self.isLine = isLine
+        self.vertexes : list[Vector2] = vertexes
+        self.color : str | pygame.Color = color
+        self.isLine : bool = isLine
 
-        self.position = Vector2(
+        self.position : Vector2 = Vector2(
             (vertexes[0].x + vertexes[1].x + vertexes[2].x + vertexes[3].x) / 4, 
             (vertexes[0].y + vertexes[1].y + vertexes[2].y + vertexes[3].y) / 4
         )
         
-        self.originalPosition = self.position.copy()
+        self.originalPosition : Vector2 = self.position.copy()
         
-        self.lines = [
+        self.lines : list[CollisionLine] = [
             CollisionLine(vertexes[0], vertexes[1], isLine), CollisionLine(vertexes[1], vertexes[2], isLine), 
             CollisionLine(vertexes[2], vertexes[3], isLine), CollisionLine(vertexes[3], vertexes[0], isLine)
         ]
         
-        self.highLighted = False
-        self.type = "wall"
+        self.highLighted : bool = False
+        self.type : str = "wall"
 
-        self.attrs = []
+        self.attrs : list[dict] = []
         self.updateAttrsList()
 
     def setAttr(self, name, value) -> None:
@@ -935,26 +937,27 @@ class Wall(Element):
 class WallPosition:
     """墙体位置类，储存墙体上某一点的相对位置"""
     def __init__(self, wall: Wall, position: Vector2) -> None:
-        self.wall = wall
-        self.position = position
+        self.wall : Wall = wall
+        self.position : Vector2 = position
 
     def getPosition(self) -> Vector2:
         """获取墙体位置"""
         return self.position + self.wall.position
 
-class Rope:
+class Rope(Element):
     """绳索类，处理绳索的显示和物理效果"""
-    def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float, width: float, color) -> bool:
-        self.start = start
-        self.end = end
-        self.length = length
-        self.width = width
-        self.color = color
+    def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float, width: float, color : pygame.Color, collisionFactor : float = 1.0) -> None:
+        self.start : Ball | WallPosition = start
+        self.end : Ball | WallPosition = end
+        self.position : Vector2 = (start.getPosition() + end.getPosition()) / 2
+        self.length : float = length
+        self.width : float = width
+        self.color : str | pygame.Color = color
+        self.collisionFactor : float = collisionFactor
+        self.isLegal : bool = True
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
-            return False
-        
-        return True
+            self.isLegal = False
 
     def isReachingLimit(self) -> bool:
         """判断绳索是否到达极限长度"""
@@ -962,17 +965,57 @@ class Rope:
     
     def pullBall(self) -> bool:
         """处理球与绳索的影响"""
-        distance = self.start.getPosition().distance(self.end.getPosition())
-        overlap = distance - self.length
+        
+        actualDistance = self.start.getPosition().distance(self.end.getPosition())
+        deltaPosition = self.end.getPosition() - self.start.getPosition()
+        overlap = actualDistance - self.length
 
         # 位置修正
         if overlap > 0:
 
-            if isinstance(self.start, Ball):
+            if isinstance(self.start, Ball) and isinstance(self.end, Ball):
+
+                # 计算总质量
+                totalMass = self.start.mass + self.end.mass
+
+                # 计算速度单位向量
+                normal = deltaPosition / actualDistance
+                tangent = normal.vertical()
+
+                # 记录碰撞前速度用于位置修正
+                originalVelocity1 = self.start.velocity.copy()
+                originalVelocity2 = self.end.velocity.copy()
+
+                # 分解速度分量
+                velocityNormal1 = originalVelocity1.dot(normal)
+                velocityTangent1 = originalVelocity1.dot(tangent)
+                velocityNormal2 = originalVelocity2.dot(normal)
+                velocityTangent2 = originalVelocity2.dot(tangent)
+
+                # 弹性碰撞公式
+                newVelocityNormal1 = ((self.start.mass - self.end.mass)*velocityNormal1 + 2*self.end.mass*velocityNormal2) / totalMass
+                newVelocityNormal2 = (2*self.start.mass*velocityNormal1 + (self.end.mass - self.start.mass)*velocityNormal2) / totalMass
+
+                # 应用碰撞因子到法向分量
+                collisionFactor = self.collisionFactor
+                newVelocityNormal1 *= collisionFactor
+                newVelocityNormal2 *= collisionFactor
+
+                # 重建速度向量
+                self.start.velocity = tangent * velocityTangent1 + normal * newVelocityNormal1
+                self.end.velocity = tangent * velocityTangent2 + normal * newVelocityNormal2
+
+                # 位置修正
                 ...
 
-            elif isinstance(self.end, Ball):
+            elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
                 ...
+
+            elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
+                ...
+
+            else:
+                return False
 
     def update(self, deltaTime) -> Self:
         """更新绳索位置"""
