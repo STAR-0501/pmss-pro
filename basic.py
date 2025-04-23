@@ -6,7 +6,7 @@ import math
 
 G = 5e+4  # 添加引力常数调节参数
 
-def colorStringToTuple(color: str) -> tuple[int, int, int]:
+def colorStringToTuple(color : str) -> tuple[int, int, int]:
     """颜色字符串转RGB元组"""
 
     # 如果是颜色名称格式，先转换为pygame颜色对象获取RGB值
@@ -195,21 +195,25 @@ class Element:
     """游戏元素基类，定义通用接口"""
     def __init__(self, position : Vector2, color : pygame.Color) -> None:
         self.position : Vector2 = position
-        self.color : str | pygame.Color = color
+        self.color : pygame.Color = color
         self.highLighted : bool = False
         self.type : str = "element"
         self.attrs : list[dict] = []
+
+    def setAttr(self, key : str, value : str):
+        """设置属性"""
+        ...
 
     def isMouseOn(self, game) -> bool:
         """检测鼠标是否在元素上"""
         pos = Vector2(game.screenToReal(pygame.mouse.get_pos()[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
         return self.isPosOn(game, pos)
     
-    def isPosOn(self, game, pos) -> bool:
+    def isPosOn(self, game, pos : Vector2) -> bool:
         """检测坐标点是否在元素上"""
         ...
 
-    def update(self, deltaTime) -> Self:
+    def update(self, deltaTime : float) -> Self:
         """更新方法"""
         ...
         return self
@@ -233,7 +237,7 @@ class Coordinator():
         self.direction : list[Vector2] = []
         self.update(game)
 
-    def draw(self, game, option, text="") -> None:
+    def draw(self, game, option, text : str = "") -> None:
         """绘制坐标系指示器和角度信息"""
 
         for direction in self.direction:
@@ -257,7 +261,7 @@ class Coordinator():
         """检测鼠标是否在坐标系上"""
         return self.minDegree == 0
 
-    def showDegree(self, game, pos: Vector2, option, text) -> None:
+    def showDegree(self, game, pos: Vector2, option, text : str) -> None:
         """显示当前鼠标位置的角度信息"""
         minDirectionDegree = 0
         nowDirection = pos - self.position
@@ -339,7 +343,7 @@ class Ball(Element):
     def __init__(self, position : Vector2, radius : float, color : pygame.Color, mass : float, velocity : Vector2, artificialForces : list[Vector2], gravity : float = 1, collisionFactor : float = 1, gravitation : bool = False) -> None:
         self.position : Vector2 = position
         self.radius : float = radius
-        self.color : str | pygame.Color = color
+        self.color : pygame.Color = color
         self.mass : float = mass
         self.velocity : Vector2 = velocity
         self.displayedVelocity : Vector2 = ZERO
@@ -369,17 +373,17 @@ class Ball(Element):
         distance = self.position.distance(other.position)
         return distance <= self.radius + other.radius
 
-    def setAttr(self, name, value) -> None:
+    def setAttr(self, key : str, value : str) -> None:
         """设置属性值"""
         if value != "":
 
-            if name == "color":
+            if key == "color":
                 self.color = value
 
-            if name == "radius":
+            if key == "radius":
                 self.radius = float(value)
 
-            if name == "mass":
+            if key == "mass":
                 self.mass = float(value)
 
     def copy(self, game) -> None:
@@ -422,7 +426,7 @@ class Ball(Element):
         game.x -= offsetX
         game.y -= offsetY
 
-    def isCollidedByLine(self, line: CollisionLine) -> bool:
+    def isCollidedByLine(self, line : CollisionLine) -> bool:
         """检测球与线段的碰撞"""
         # 检查线段的起点和终点是否重合
         if line.start.distance(line.end) < 1e-5:
@@ -501,7 +505,7 @@ class Ball(Element):
             }
         ]
 
-    def update(self, deltaTime) -> Self:
+    def update(self, deltaTime : float) -> Self:
         """更新物理状态"""
         self.accelerate()
         substeps = 10  # 从4增加到10
@@ -584,7 +588,7 @@ class Ball(Element):
         self.velocity = self.velocity * 0
         return self.velocity
 
-    def reboundByLine(self, line: CollisionLine, timeIsReversed : bool = False) -> Vector2:
+    def reboundByLine(self, line : CollisionLine, timeIsReversed : bool = False) -> Vector2:
         """处理与线段的碰撞反弹逻辑"""
         AB = line.end - line.start
         lineLength = AB.dot(AB)
@@ -647,7 +651,7 @@ class Ball(Element):
 
         return self.velocity
 
-    def reboundByBall(self, ball: Self) -> Vector2:
+    def reboundByBall(self, ball : Self) -> Vector2:
         """处理球与球之间的碰撞响应"""
         # 计算总质量
         totalMass = self.mass + ball.mass
@@ -717,7 +721,7 @@ class Ball(Element):
 
         return self.velocity
 
-    def gravitate(self, other: Self) -> Vector2:
+    def gravitate(self, other : Self) -> Vector2:
         """处理球与球之间的引力"""
 
         minDistance = 1  # 防止距离过近导致力过大
@@ -755,7 +759,7 @@ class Ball(Element):
 
         return velocity * factor + ball.velocity
 
-    def merge(self, other: Self, game) -> Self:
+    def merge(self, other : Self, game) -> Self:
         """处理球与球之间的天体合并"""
 
         totalPosition = (self.position * self.mass + other.position * other.mass) / (self.mass + other.mass)
@@ -787,7 +791,7 @@ class Wall(Element):
     """墙体类，处理多边形碰撞和显示"""
     def __init__(self, vertexes: list[Vector2], color : pygame.Color, isLine : bool = False) -> None:
         self.vertexes : list[Vector2] = vertexes
-        self.color : str | pygame.Color = color
+        self.color : pygame.Color = color
         self.isLine : bool = isLine
 
         self.position : Vector2 = Vector2(
@@ -808,10 +812,10 @@ class Wall(Element):
         self.attrs : list[dict] = []
         self.updateAttrsList()
 
-    def setAttr(self, name, value) -> None:
+    def setAttr(self, key : str, value : str) -> None:
         """设置属性值"""
         if value != "":
-            if name == "color":
+            if key == "color":
                 self.color = value
 
     def copy(self, game) -> None:
@@ -851,7 +855,7 @@ class Wall(Element):
             }
         ]
 
-    def update(self, deltaTime) -> Self:
+    def update(self, deltaTime : float) -> Self:
         """更新墙体位置并维护碰撞线段"""
         # 计算位置
         offset = self.position - self.originalPosition
@@ -868,7 +872,7 @@ class Wall(Element):
 
         return self
 
-    def checkVertexCollision(self, ball) -> None:
+    def checkVertexCollision(self, ball : Ball) -> None:
         """检测球与墙体顶点的碰撞"""
         for vertex in self.vertexes:
             if ball.position.distance(vertex) <= ball.radius:
@@ -876,7 +880,7 @@ class Wall(Element):
                 normal = (ball.position - vertex).normalize()
                 self.handleVertexCollision(ball, vertex, normal)
 
-    def handleVertexCollision(self, ball, vertex, normal) -> None:
+    def handleVertexCollision(self, ball : Ball, vertex : Vector2, normal : Vector2) -> None:
         """处理顶点碰撞的响应"""
         # 计算穿透深度
         penetration = ball.radius - ball.position.distance(vertex)
@@ -952,7 +956,7 @@ class Rope(Element):
         self.position : Vector2 = (start.getPosition() + end.getPosition()) / 2
         self.length : float = length
         self.width : float = width
-        self.color : str | pygame.Color = color
+        self.color : pygame.Color = color
         self.collisionFactor : float = collisionFactor
         self.isLegal : bool = True
 
@@ -1017,7 +1021,7 @@ class Rope(Element):
             else:
                 return False
 
-    def update(self, deltaTime) -> Self:
+    def update(self, deltaTime : float) -> Self:
         """更新绳索位置"""
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
