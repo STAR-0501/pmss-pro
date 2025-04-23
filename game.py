@@ -2303,4 +2303,3 @@ class ElementController:
         """绘制控制器"""
         for option in self.controlOptions:
             option.draw(game)
-            
