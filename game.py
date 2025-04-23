@@ -93,7 +93,7 @@ class Game:
             "all": [], 
             "ball": [], 
             "wall": [], 
-            "rope" : [], 
+            "rope": [], 
             "controlling": []
         }
 
@@ -101,7 +101,7 @@ class Game:
             "all": [], 
             "ball": [], 
             "wall": [], 
-            "rope" : [], 
+            "rope": [], 
             "controlling": []
         }
 
@@ -1810,7 +1810,7 @@ class SettingsButton:
         # 调整图片大小
         self.icon : pygame.Surface = pygame.transform.scale(originalIcon, (self.width, self.height))
 
-    def draw(self, game: Game) -> None:
+    def draw(self, game : Game) -> None:
         """绘制设置按钮"""
         game.screen.blit(self.icon, (self.x, self.y))
 
@@ -1818,7 +1818,7 @@ class SettingsButton:
         """判断鼠标是否在按钮上"""
         return self.isPosOn(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
 
-    def isPosOn(self, pos: Vector2) -> bool:
+    def isPosOn(self, pos : Vector2) -> bool:
         """判断指定坐标是否在按钮上"""
         return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height
 
@@ -1986,7 +1986,7 @@ class InputMenu(Element):
         for box in self.inputBoxes:
             box.handleEvent(event, game)
 
-    def draw(self, game: Game) -> None:
+    def draw(self, game : Game) -> None:
         """绘制输入菜单"""
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y, self.width, self.height), border_radius=int(self.width*2/100))
 

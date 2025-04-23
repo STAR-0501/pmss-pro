@@ -162,10 +162,10 @@ class CollisionLine:
         self.collisionFactor : float = collisionFactor
         self.display : bool = display
 
-    def isLineIntersect(self, other: Self) -> bool:
+    def isLineIntersect(self, other : Self) -> bool:
         """使用叉积法判断线段相交"""
-        def crossProduct(v1: Vector2, v2: Vector2) -> float:
-            return v1.x * v2.y - v1.y * v2.x
+        def crossProduct(vector1 : Vector2, vector2 : Vector2) -> float:
+            return vector1.x * vector2.y - vector1.y * vector2.x
 
         # 判断线段AB和线段CD是否相交
         A, B = self.start, self.end
@@ -261,7 +261,7 @@ class Coordinator():
         """检测鼠标是否在坐标系上"""
         return self.minDegree == 0
 
-    def showDegree(self, game, pos: Vector2, option, text : str) -> None:
+    def showDegree(self, game, pos : Vector2, option, text : str) -> None:
         """显示当前鼠标位置的角度信息"""
         minDirectionDegree = 0
         nowDirection = pos - self.position
@@ -364,7 +364,7 @@ class Ball(Element):
         self.attrs : list[dict] = []
         self.updateAttrsList()
 
-    def isPosOn(self, game, pos: Vector2) -> bool:  
+    def isPosOn(self, game, pos : Vector2) -> bool:  
         """检测坐标点是否在球体范围内"""
         return (pos.x - self.position.x)**2 + (pos.y - self.position.y)**2 <= self.radius**2
 
@@ -581,7 +581,7 @@ class Ball(Element):
 
         self.highLighted = False
 
-    def reboundByWall(self, wall: Self) -> Vector2:
+    def reboundByWall(self, wall : Self) -> Vector2:
         """处理与墙体的碰撞反弹"""
         direction = self.position - wall.position
         self.position += direction * 0.1
@@ -789,7 +789,7 @@ class Ball(Element):
 
 class Wall(Element):
     """墙体类，处理多边形碰撞和显示"""
-    def __init__(self, vertexes: list[Vector2], color : pygame.Color, isLine : bool = False) -> None:
+    def __init__(self, vertexes : list[Vector2], color : pygame.Color, isLine : bool = False) -> None:
         self.vertexes : list[Vector2] = vertexes
         self.color : pygame.Color = color
         self.isLine : bool = isLine
@@ -840,7 +840,7 @@ class Wall(Element):
                     if event.button == 1:
                         isMoving = False
 
-    def getPosToPoint(self, point: Vector2) -> Vector2:
+    def getPosToPoint(self, point : Vector2) -> Vector2:
         """获取墙体到点的方向向量"""
         return self.position - point
 
@@ -891,7 +891,7 @@ class Wall(Element):
             velocityNormal = ball.velocity.dot(normal)
             ball.velocity -= normal * (2 * velocityNormal)
 
-    def isPosOn(self, game, pos: Vector2) -> bool:
+    def isPosOn(self, game, pos : Vector2) -> bool:
         """使用射线法判断点是否在多边形内部"""
         mx = pos.x
         my = pos.y
@@ -940,7 +940,7 @@ class Wall(Element):
 
 class WallPosition:
     """墙体位置类，储存墙体上某一点的相对位置"""
-    def __init__(self, wall: Wall, position: Vector2) -> None:
+    def __init__(self, wall : Wall, position : Vector2) -> None:
         self.wall : Wall = wall
         self.position : Vector2 = position
 
@@ -950,7 +950,7 @@ class WallPosition:
 
 class Rope(Element):
     """绳索类，处理绳索的显示和物理效果"""
-    def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float, width: float, color : pygame.Color, collisionFactor : float = 1.0) -> None:
+    def __init__(self, start : Ball | WallPosition, end : Ball | WallPosition, length : float, width : float, color : pygame.Color, collisionFactor : float = 1.0) -> None:
         self.start : Ball | WallPosition = start
         self.end : Ball | WallPosition = end
         self.position : Vector2 = (start.getPosition() + end.getPosition()) / 2
