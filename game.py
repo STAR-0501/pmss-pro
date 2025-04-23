@@ -570,7 +570,7 @@ class Game:
 
                 # 测试 !!!
                 if event.key == pygame.K_t:
-                    rope = Rope(self.elements["ball"][0], self.elements["ball"][1], self.elements["ball"][0].getPosition().distance(self.elements["ball"][1].getPosition()), 1, "red")
+                    rope = Rope(self.elements["ball"][-2], self.elements["ball"][-1], self.elements["ball"][-2].getPosition().distance(self.elements["ball"][-1].getPosition()), 1, "red")
                     self.elements["all"].append(rope)
                     self.elements["rope"].append(rope)
 

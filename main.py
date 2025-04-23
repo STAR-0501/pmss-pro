@@ -272,7 +272,7 @@ def AIThreadMethod(game : Game) -> None:
         except EOFError:
             break
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     game : Game = Game()
     
     # 创建并启动AI线程
@@ -280,7 +280,7 @@ if __name__ == '__main__':
     AIThread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     AIThread.start()
     
-    while True: 
+    while True:
 
         try:
             game.update()

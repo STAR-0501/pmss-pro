@@ -705,7 +705,6 @@ class Ball(Element):
         if overlap > 0:
             relativeVelocity = (originalVelocity1 - originalVelocity2).dot(normal)
             if relativeVelocity < 0:
-                collisionFactor = self.collisionFactor * ball.collisionFactor
                 
                 # 优化后的分离量计算
                 if collisionFactor > 1e-8:
@@ -1023,6 +1022,8 @@ class Rope(Element):
 
     def update(self, deltaTime : float) -> Self:
         """更新绳索位置"""
+        self.pullBall()
+
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
 
