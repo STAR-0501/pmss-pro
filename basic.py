@@ -700,23 +700,45 @@ class Ball(Element):
         self.velocity = tangent * velocityTangent1 + normal * newVelocityNormal1
         ball.velocity = tangent * velocityTangent2 + normal * newVelocityNormal2
 
-        # 位置修正 !!! 这里的位置修正有问题，需要修正
+        # 位置修正
         overlap = (minDistance - actualDistance)
         if overlap > 0:
-            relativeVelocity = (originalVelocity1 - originalVelocity2).dot(normal)
-            if relativeVelocity < 0:
+            # 无条件分离，防止穿透
+            separation = normal * (overlap * 1.05)  # 增加分离系数
+            
+            # 按质量比例分配分离量
+            self.position += separation * (ball.mass / totalMass)
+            ball.position -= separation * (self.mass / totalMass)
+            
+            # 防止碰撞系数小于1时粘连
+            min_sep_speed = 1.0  # 增大分离速度
+            rel_vel = (self.velocity - ball.velocity).dot(normal)
+            
+            # 当相对速度不足以分离时，添加额外分离速度
+            if rel_vel > -min_sep_speed:
+                # 强制分离速度，碰撞系数越小，分离因子越大
+                sepFactor = min(2.0, 2.0 - collisionFactor * 1.5)
                 
-                # 优化后的分离量计算
-                if collisionFactor > 1e-8:
-                    # 保持原有基于碰撞因子的修正
-                    separation = normal * (overlap * (1.001 / collisionFactor))
-                else:
-                    # 当碰撞系数为0时，仅分离实际重叠部分
-                    separation = normal * overlap * 1.001  # 小幅过调防止持续穿透
+                # 添加与重力方向相关的分离速度
+                gravity_dir = Vector2(0, 1)  # 重力方向
+                gravityComponent = normal.dot(gravity_dir)
+                
+                # 如果法线与重力方向有分量，增强该方向的分离
+                if abs(gravityComponent) > 0.01:
+                    # 根据重力方向调整分离力度
+                    gravityBoost = 1.0 * gravityComponent * (2.0 - collisionFactor)
                     
-                # 保持质量分配比例
-                self.position += separation * (ball.mass / totalMass)
-                ball.position -= separation * (self.mass / totalMass)
+                    # 对上下方向的球体施加不同的分离力
+                    if gravityComponent > 0:  # 下方球体需要更强的向上分离力
+                        self.velocity += normal * (min_sep_speed * sepFactor + gravityBoost) * (ball.mass / totalMass)
+                        ball.velocity -= normal * (min_sep_speed * sepFactor) * (self.mass / totalMass)
+                    else:  # 上方球体需要更强的向下分离力
+                        self.velocity += normal * (min_sep_speed * sepFactor) * (ball.mass / totalMass)
+                        ball.velocity -= normal * (min_sep_speed * sepFactor + abs(gravityBoost)) * (self.mass / totalMass)
+                else:
+                    # 水平方向的普通分离
+                    self.velocity += normal * min_sep_speed * sepFactor * (ball.mass / totalMass)
+                    ball.velocity -= normal * min_sep_speed * sepFactor * (self.mass / totalMass)
 
         return self.velocity
 
