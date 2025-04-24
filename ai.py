@@ -4,17 +4,19 @@ import time
 
 key = open("config/siliconFlowAPI.txt", "r", encoding="utf-8").read()
 
+
 class AI:
     """AI类，用于与用户进行对话，并根据用户的需求执行相应的命令"""
+
     def __init__(self, game) -> None:
         self.game = game
-        
-    client : OpenAI = OpenAI(
-        base_url='https://api.siliconflow.cn/v1', 
+
+    client: OpenAI = OpenAI(
+        base_url='https://api.siliconflow.cn/v1',
         api_key=key
     )
 
-    message : list[dict[str, str]] = [
+    message: list[dict[str, str]] = [
         {"role": "system", "content": """
 你的名字是PMSS-Pro，一个机器人助手，基于Deepseek-V3/R1模型。
         
@@ -57,12 +59,12 @@ class AI:
 13. 当用户没有什么指令需求时，可以不输出指令而是回答用户的问题
         """}
     ]
-    
-    def chat(self, message : str) -> str:
+
+    def chat(self, message: str) -> str:
         """AI与用户进行对话，并返回AI的回复"""
 
         startTime = time.time()
-        
+
         print("\n系统：", end="", flush=True)
 
         if message.startswith("~"):
@@ -76,8 +78,8 @@ class AI:
 
         # 发送带有流式输出的请求
         response = self.client.chat.completions.create(
-            model="Pro/deepseek-ai/DeepSeek-V3" if not reasoner else "Pro/deepseek-ai/DeepSeek-R1", 
-            messages=self.message, 
+            model="Pro/deepseek-ai/DeepSeek-V3" if not reasoner else "Pro/deepseek-ai/DeepSeek-R1",
+            messages=self.message,
             stream=True  # 启用流式输出
         )
 
@@ -92,12 +94,12 @@ class AI:
                     tempText = chunk.choices[0].delta.content
                     print(tempText, end="", flush=True)
                     text += tempText
-                    
+
                 if chunk.choices[0].delta.reasoning_content:
                     tempText = chunk.choices[0].delta.reasoning_content
                     print(tempText, end="", flush=True)
                     text += tempText
-                
+
                 if not self.game.isChatting:
                     print("\n用户取消对话", end="", flush=True)
                     break
@@ -107,16 +109,15 @@ class AI:
                 total_tokens = chunk.usage.total_tokens
             else:
                 total_tokens = "无法获取"  # 备选方案
-            
+
             print(f"\n\n对话用时：{time.time() - startTime:.3f} 秒")
             print(f"Token：{total_tokens}\n")
 
             if not self.game.isChatting:
                 return ""
-            
+
         except KeyboardInterrupt:
             print("\n用户取消对话", end="", flush=True)
             return ""
-        
+
         return text
-    
