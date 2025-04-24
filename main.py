@@ -10,7 +10,16 @@ def ballsToString(balls: list[Element]) -> str:
     """balls列表转字符串"""
     text: str = ""
     for i in range(len(balls)):
-        text += f"ballIndex={i} position={balls[i].position.toTuple()} radius={balls[i].radius} color={balls[i].color} mass={balls[i].mass} velocity={balls[i].velocity.toTuple()} acceleration={balls[i].acceleration.toTuple()} gravity={balls[i].gravity} collisionFactor={balls[i].collisionFactor} gravitation={balls[i].gravitation} \n"
+        text += f"ballIndex={i} position={
+            balls[i].position.toTuple()} radius={
+            balls[i].radius} color={
+            balls[i].color} mass={
+                balls[i].mass} velocity={
+                    balls[i].velocity.toTuple()} acceleration={
+                        balls[i].acceleration.toTuple()} gravity={
+                            balls[i].gravity} collisionFactor={
+                                balls[i].collisionFactor} gravitation={
+                                    balls[i].gravitation} \n"
     return text
 
 
@@ -18,7 +27,17 @@ def wallsToString(walls: list[Element]) -> str:
     """walls列表转字符串"""
     text: str = ""
     for i in range(len(walls)):
-        text += f"wallIndex={i} position={walls[i].position.toTuple()} x1={walls[i].vertexes[0].x} y1={walls[i].vertexes[0].y} x2={walls[i].vertexes[1].x} y2={walls[i].vertexes[1].y} x3={walls[i].vertexes[2].x} y3={walls[i].vertexes[2].y} x4={walls[i].vertexes[3].x} y4={walls[i].vertexes[3].y} color={walls[i].color} \n"
+        text += f"wallIndex={i} position={
+            walls[i].position.toTuple()} x1={
+            walls[i].vertexes[0].x} y1={
+            walls[i].vertexes[0].y} x2={
+                walls[i].vertexes[1].x} y2={
+                    walls[i].vertexes[1].y} x3={
+                        walls[i].vertexes[2].x} y3={
+                            walls[i].vertexes[2].y} x4={
+                                walls[i].vertexes[3].x} y4={
+                                    walls[i].vertexes[3].y} color={
+                                        walls[i].color} \n"
     return text
 
 

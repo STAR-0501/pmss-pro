@@ -19,7 +19,7 @@ class AI:
     message: list[dict[str, str]] = [
         {"role": "system", "content": """
 你的名字是PMSS-Pro，一个机器人助手，基于Deepseek-V3/R1模型。
-        
+
 当用户输入需求时，你需用以下命令实现需求（用户没有提供完整参数时你可以自己用合适的数值补全，每条命令部分请用<...>括起，一定要括起！！）：
 1. save [filename] 保存当前游戏状态
 2. load [filename] 加载游戏状态
@@ -42,7 +42,7 @@ class AI:
 18. delete element [elementIndex] 删除元素
 19. mode [0 | 1] 切换模式（0为地表模式，1为天体模式）
 20. set environment [gravity | airResistance | collisionFactor] [value] 设置环境属性（gravity，airResistance，collisionFactor），gravity是重力系数，取值范围为0-1，0表示不受重力影响，1表示受正常重力影响；airResistance是空气阻力系数，取值范围为0-1，1表示不受空气阻力影响，0.4表示每秒阻力使速度减少为原来的0.4倍；collisionFactor是碰撞系数，取值范围为0-1，1表示碰撞后速度无损失，0.4表示碰撞后使速度减少为原来的0.4倍）
-        
+
 注意事项：
 1. 创建墙的四个顶点坐标必须时顺时针或逆时针，且四个点围成一个封闭矩形
 2. 每次用户输入需求时都会附带已有元素的属性，你可以用set命令修改属性，ballIndex或者wallIndex是指元素在列表中的索引号

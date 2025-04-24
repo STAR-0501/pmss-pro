@@ -67,14 +67,14 @@ class Game:
 
         self.mousePos: tuple[int, int] = (0, 0)   # 鼠标屏幕坐标，而非真实坐标
         self.fontSmall: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/125))
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 125))
         self.fontBig: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width()/75))
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 75))
         self.ratio: int = 5
         self.lastRatio: int = self.ratio
         self.minLimitRatio: int = 1
         self.maxLimitRatio: int = 15
-        self.x: int = self.screen.get_width()/2 / self.ratio
+        self.x: int = self.screen.get_width() / 2 / self.ratio
         self.y: int = self.screen.get_height() / self.ratio
         self.lastX: int = self.x
         self.lastY: int = 2e+7
@@ -136,7 +136,7 @@ class Game:
             self.translation = json.load(f)
 
         self.inputMenu = InputMenu(
-            Vector2(self.screen.get_width()/2, self.screen.get_height()/2), self, self)
+            Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2), self, self)
         self.inputMenu.options = self.environmentOptions
         self.inputMenu.update(self)
 
@@ -238,7 +238,7 @@ class Game:
 
                 # 恢复坐标系统相关参数
                 self.x = serializableDict.get(
-                    "x", self.screen.get_width()/2 / self.ratio)
+                    "x", self.screen.get_width() / 2 / self.ratio)
                 self.y = serializableDict.get(
                     "y", self.screen.get_height() / self.ratio)
                 self.ratio = serializableDict.get("ratio", 5)
@@ -268,7 +268,8 @@ class Game:
                 option["value"] = value
                 break
 
-    def realToScreen(self, r: float | Vector2, x: float | Vector2 = None) -> float | Vector2:
+    def realToScreen(self, r: float | Vector2, x: float |
+                     Vector2 = None) -> float | Vector2:
         """实际坐标转屏幕坐标"""
         if x is None:
             if isinstance(r, Vector2):
@@ -278,7 +279,8 @@ class Game:
 
         return (r + x) * self.ratio
 
-    def screenToReal(self, r: float | Vector2, x: float | Vector2 = None) -> float | Vector2:
+    def screenToReal(self, r: float | Vector2, x: float |
+                     Vector2 = None) -> float | Vector2:
         """屏幕坐标转实际坐标"""
         if x is None:
             if isinstance(r, Vector2):
@@ -344,16 +346,16 @@ class Game:
                     else:
 
                         bx = self.screenToReal(
-                            self.screen.get_width()/2, self.x)
+                            self.screen.get_width() / 2, self.x)
                         by = self.screenToReal(
-                            self.screen.get_height()/2, self.y)
+                            self.screen.get_height() / 2, self.y)
 
                         self.ratio *= speed
 
                         nx = self.screenToReal(
-                            self.screen.get_width()/2, self.x)
+                            self.screen.get_width() / 2, self.x)
                         ny = self.screenToReal(
-                            self.screen.get_height()/2, self.y)
+                            self.screen.get_height() / 2, self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
@@ -379,16 +381,16 @@ class Game:
                     else:
 
                         bx = self.screenToReal(
-                            self.screen.get_width()/2, self.x)
+                            self.screen.get_width() / 2, self.x)
                         by = self.screenToReal(
-                            self.screen.get_height()/2, self.y)
+                            self.screen.get_height() / 2, self.y)
 
                         self.ratio /= speed
 
                         nx = self.screenToReal(
-                            self.screen.get_width()/2, self.x)
+                            self.screen.get_width() / 2, self.x)
                         ny = self.screenToReal(
-                            self.screen.get_height()/2, self.y)
+                            self.screen.get_height() / 2, self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
@@ -396,7 +398,8 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.mousePos = pygame.mouse.get_pos()
 
-                if event.button == 1 and not self.elementMenu.isMouseOn() and not self.isElementCreating and not self.isElementControlling and not self.isEditing:
+                if event.button == 1 and not self.elementMenu.isMouseOn(
+                ) and not self.isElementCreating and not self.isElementControlling and not self.isEditing:
                     self.isMoving = True
                     self.isScreenMoving = True
 
@@ -434,7 +437,8 @@ class Game:
 
                                     if event.type == pygame.KEYDOWN:
 
-                                        if event.key == pygame.K_z and self.isCtrlPressing and len(self.elements["all"]) > 0:
+                                        if event.key == pygame.K_z and self.isCtrlPressing and len(
+                                                self.elements["all"]) > 0:
                                             lastElement = self.elements["all"][-1]
                                             self.elements["all"].remove(
                                                 lastElement)
@@ -466,7 +470,7 @@ class Game:
                                             loadedTipText = self.fontSmall.render(
                                                 f"{self.gameName}加载成功", True, (0, 0, 0))
                                             loadedTipRect = loadedTipText.get_rect(
-                                                center=(self.screen.get_width()/2, self.screen.get_height()/2))
+                                                center=(self.screen.get_width() / 2, self.screen.get_height() / 2))
 
                                             self.update()
                                             self.screen.blit(
@@ -512,7 +516,8 @@ class Game:
                     self.x += self.screenToReal(pygame.mouse.get_pos()
                                                 [0] - self.mousePos[0])
 
-                    if not self.isFloorIllegal or self.screenToReal(pygame.mouse.get_pos()[1] - self.mousePos[1]) > 0:
+                    if not self.isFloorIllegal or self.screenToReal(
+                            pygame.mouse.get_pos()[1] - self.mousePos[1]) > 0:
                         self.y += self.screenToReal(pygame.mouse.get_pos()
                                                     [1] - self.mousePos[1])
 
@@ -537,7 +542,8 @@ class Game:
 
             if event.type == pygame.KEYDOWN:
 
-                if event.key == pygame.K_z and self.isCtrlPressing and len(self.elements["all"]) > 0:
+                if event.key == pygame.K_z and self.isCtrlPressing and len(
+                        self.elements["all"]) > 0:
                     lastElement = self.elements["all"][-1]
                     self.elements["all"].remove(lastElement)
 
@@ -580,7 +586,7 @@ class Game:
                     loadedTipText = self.fontSmall.render(
                         f"{self.gameName}加载成功", True, (0, 0, 0))
                     loadedTipRect = loadedTipText.get_rect(
-                        center=(self.screen.get_width()/2, self.screen.get_height()/2))
+                        center=(self.screen.get_width() / 2, self.screen.get_height() / 2))
 
                     self.update()
                     self.screen.blit(loadedTipText, loadedTipRect)
@@ -648,7 +654,8 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
 
-                    if event.key == pygame.K_z and self.isCtrlPressing and len(self.elements["all"]) > 0:
+                    if event.key == pygame.K_z and self.isCtrlPressing and len(
+                            self.elements["all"]) > 0:
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
 
@@ -722,7 +729,8 @@ class Game:
 
         self.x += self.rightMove
         self.y += self.upMove
-        if self.realToScreen(self.floor.vertexes[0].y, self.y) < self.screen.get_height()*2/3 and not self.isCelestialBodyMode:
+        if self.realToScreen(self.floor.vertexes[0].y, self.y) < self.screen.get_height(
+        ) * 2 / 3 and not self.isCelestialBodyMode:
             self.isFloorIllegal = True
         else:
             self.isFloorIllegal = False
@@ -733,13 +741,13 @@ class Game:
     def updateMenu(self) -> None:
         """更新菜单界面"""
         width, height = self.screen.get_size()
-        if self.elementMenu == None:
+        if self.elementMenu is None:
             with open("config/elementOptions.json", "r", encoding="utf-8") as filenames:
                 self.elementMenu = Menu(
-                    Vector2(width*97/100, 0), json.load(filenames))
+                    Vector2(width * 97 / 100, 0), json.load(filenames))
         self.elementMenu.draw(game=self)
 
-        if self.exampleMenu == None:
+        if self.exampleMenu is None:
             examples = []
             for dirpath, dirnames, filenames in os.walk("savefile/default"):
                 for file in filenames:
@@ -755,7 +763,7 @@ class Game:
                             "attrs": [
                                 {
                                     "type": "path",
-                                    "value": "default/"+file
+                                    "value": "default/" + file
                                 },
                                 {
                                     "type": "icon",
@@ -777,7 +785,7 @@ class Game:
                             "attrs": [
                                 {
                                     "type": "path",
-                                    "value": "default/"+file
+                                    "value": "default/" + file
                                 }
                             ]
                         }
@@ -790,7 +798,8 @@ class Game:
         self.exampleMenu.draw(game=self)
 
         if self.speed != 0:
-            if self.fpsAverage / abs(self.speed) ** 0.5 < 60 or self.fpsMinimum / abs(self.speed) ** 0.5 < 30:
+            if self.fpsAverage / \
+                    abs(self.speed) ** 0.5 < 60 or self.fpsMinimum / abs(self.speed) ** 0.5 < 30:
                 fpsTextColor = "red"
             elif self.fpsMinimum / abs(self.speed) ** 0.5 < 60:
                 fpsTextColor = "darkorange"
@@ -829,7 +838,7 @@ class Game:
         self.screen.blit(objectCountText, objectCountTextRect)
 
         mousePosText = self.fontSmall.render(
-            f"鼠标位置 = ( {int(self.screenToReal(pygame.mouse.get_pos()[0]/10, self.x))}, {-int(self.screenToReal(pygame.mouse.get_pos()[1]/10, self.y))} ) ", True, "black")
+            f"鼠标位置 = ( {int(self.screenToReal(pygame.mouse.get_pos()[0] / 10, self.x))}, {-int(self.screenToReal(pygame.mouse.get_pos()[1] / 10, self.y))} ) ", True, "black")
         mousePosTextRect = mousePosText.get_rect()
         mousePosTextRect.x = self.screen.get_width() - mousePosText.get_width()
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
@@ -917,23 +926,23 @@ class Game:
 
                 followingTipsText = self.fontBig.render(f"视角跟随中", True, "blue")
                 followingTipsTextRect = followingTipsText.get_rect()
-                followingTipsTextRect.x = self.screen.get_width()/2
-                followingTipsTextRect.y = self.screen.get_height()/50
+                followingTipsTextRect.x = self.screen.get_width() / 2
+                followingTipsTextRect.y = self.screen.get_height() / 50
                 self.screen.blit(followingTipsText, followingTipsTextRect)
 
                 massTipsText = self.fontBig.render(
                     f"质量：{ball.mass: .1f}", True, "darkgreen")
                 massTipsTextRect = massTipsText.get_rect()
-                massTipsTextRect.x = self.screen.get_width()/2
-                massTipsTextRect.y = self.screen.get_height()/50 + followingTipsText.get_height()
+                massTipsTextRect.x = self.screen.get_width() / 2
+                massTipsTextRect.y = self.screen.get_height() / 50 + followingTipsText.get_height()
                 self.screen.blit(massTipsText, massTipsTextRect)
 
                 radiusTipsText = self.fontBig.render(
                     f"半径：{ball.radius: .1f}", True, "darkgreen")
                 radiusTipsTextRect = radiusTipsText.get_rect()
-                radiusTipsTextRect.x = self.screen.get_width()/2
+                radiusTipsTextRect.x = self.screen.get_width() / 2
                 radiusTipsTextRect.y = self.screen.get_height(
-                )/50 + followingTipsText.get_height() + massTipsText.get_height()
+                ) / 50 + followingTipsText.get_height() + massTipsText.get_height()
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
                 ballPos = ball.position
@@ -947,7 +956,7 @@ class Game:
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
                     self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
                 accelerationTipsText = self.fontBig.render(
-                    f"加速度：{abs(acceleration)/10: .1f} m/s²", True, "red")
+                    f"加速度：{abs(acceleration) / 10: .1f} m/s²", True, "red")
                 accelerationTipsTextRect = accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(
                     accelerationPosition.x, self.x)
@@ -964,7 +973,7 @@ class Game:
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
                     self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
                 velocityTipsText = self.fontBig.render(
-                    f"速度：{abs(velocity)/10: .1f} m/s", True, "blue")
+                    f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue")
                 velocityTipsTextRect = velocityTipsText.get_rect()
                 velocityTipsTextRect.x = self.realToScreen(
                     velocityPosition.x, self.x)
@@ -995,7 +1004,7 @@ class Game:
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
                     self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
                 accelerationTipsText = self.fontSmall.render(
-                    f"加速度：{abs(acceleration)/10: .1f} m/s²", True, "red")
+                    f"加速度：{abs(acceleration) / 10: .1f} m/s²", True, "red")
                 accelerationTipsTextRect = accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(
                     accelerationPosition.x, self.x)
@@ -1011,7 +1020,7 @@ class Game:
                 tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
                     self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
                 velocityTipsText = self.fontSmall.render(
-                    f"速度：{abs(velocity)/10: .1f} m/s", True, "blue")
+                    f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue")
                 velocityTipsTextRect = velocityTipsText.get_rect()
                 velocityTipsTextRect.x = self.realToScreen(
                     velocityPosition.x, self.x)
@@ -1035,7 +1044,8 @@ class Game:
                                 if ball1.isFollowing or ball2.isFollowing:
                                     newBall.isFollowing = True
 
-                                if (ball1 in self.elements["controlling"] and ball1.mass >= ball2.mass) or (ball2 in self.elements["controlling"] and ball2.mass >= ball1.mass):
+                                if (ball1 in self.elements["controlling"] and ball1.mass >= ball2.mass) or (
+                                        ball2 in self.elements["controlling"] and ball2.mass >= ball1.mass):
                                     self.elements["controlling"].clear()
                                     self.elements["controlling"].append(
                                         newBall)
@@ -1091,12 +1101,13 @@ class Game:
         for wall in self.elements["wall"]:
             for line in wall.lines:
                 for ball in self.elements["ball"]:
-                    if ball.isCollidedByLine(line) and not wall.isPosOn(self, ball.position):
+                    if ball.isCollidedByLine(
+                            line) and not wall.isPosOn(self, ball.position):
                         ball.reboundByLine(line)
 
         if not self.isCelestialBodyMode:
             self.floor.position.x = self.screenToReal(
-                self.screen.get_width()/2, self.x)
+                self.screen.get_width() / 2, self.x)
             self.floor.update(deltaTime)
             self.floor.draw(self)
 
@@ -1132,7 +1143,7 @@ class Game:
         self.fpsSaver.append(self.currentTime - self.lastTime)
         if sum(self.fpsSaver) > 0:
             self.fpsAverage = len(self.fpsSaver) / sum(self.fpsSaver)
-        self.fpsMinimum = 1 / max(self.fpsSaver)
+            self.fpsMinimum = 1 / max(self.fpsSaver)
         if sum(self.fpsSaver) >= 1:
             del self.fpsSaver[0]
 
@@ -1161,7 +1172,8 @@ class Game:
 
             distance = ball.position.distance(ball2.position)
 
-            if G * ball.mass * ball2.mass / (distance ** 2 + 1e-6) > maxGravitation:
+            if G * ball.mass * ball2.mass / \
+                    (distance ** 2 + 1e-6) > maxGravitation:
                 result = ball2
                 maxGravitation = G * ball.mass * \
                     ball2.mass / (distance ** 2 + 1e-6)
@@ -1186,7 +1198,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height())/2 < 1.5e+7:
+        if self.y - self.screenToReal(self.screen.get_height()) / 2 < 1.5e+7:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -1234,7 +1246,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height())/2 >= 1.5e+7:
+        if self.y - self.screenToReal(self.screen.get_height()) / 2 >= 1.5e+7:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -1258,18 +1270,18 @@ class Game:
 class Menu:
     def __init__(self, pos: Vector2, optionsList: list = []) -> None:
         width, height = pygame.display.get_surface().get_size()
-        self.width: float = width*3/100
-        self.height: float = height*80/100
+        self.width: float = width * 3 / 100
+        self.height: float = height * 80 / 100
 
         self.x: float = pos.x
-        self.y: float = pos.y + (height - self.height)/2
+        self.y: float = pos.y + (height - self.height) / 2
 
         self.optionsList: list = optionsList
 
         self.options: list = []
         for i in range(len(self.optionsList)):
-            option = Option(Vector2(self.x+self.width*1/10, self.y+self.width*1/10+i*self.width*9/10), Vector2(
-                self.width*8/10, self.width*8/10), self.optionsList[i]["type"], self.optionsList[i]["attrs"], self)
+            option = Option(Vector2(self.x + self.width * 1 / 10, self.y + self.width * 1 / 10 + i * self.width * 9 / 10), Vector2(
+                self.width * 8 / 10, self.width * 8 / 10), self.optionsList[i]["type"], self.optionsList[i]["attrs"], self)
             option.name = self.optionsList[i]["name"]
             self.options.append(option)
 
@@ -1280,12 +1292,13 @@ class Menu:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定位置是否在菜单区域"""
-        return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height
+        return pos.x > self.x and pos.x < self.x + \
+            self.width and pos.y > self.y and pos.y < self.y + self.height
 
     def draw(self, game: Game) -> None:
         """绘制菜单界面"""
         pygame.draw.rect(game.screen, (220, 220, 220), (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width*15/100))
+                         self.width, self.height), border_radius=int(self.width * 15 / 100))
         for option in self.options:
             option.draw(game)
 
@@ -1293,7 +1306,8 @@ class Menu:
 class Option:
     """菜单选项类"""
 
-    def __init__(self, pos: Vector2, size: Vector2, type: str, attrs_: list, menu: Menu) -> None:
+    def __init__(self, pos: Vector2, size: Vector2,
+                 type: str, attrs_: list, menu: Menu) -> None:
         self.x: float = pos.x
         self.y: float = pos.y
         self.width: float = size.x
@@ -1310,7 +1324,8 @@ class Option:
         for attr in self.attrs_:
             self.attrs[attr["type"]] = attr["value"]
 
-    def drawArrow(self, game: Game, startPos: tuple[float, float], endPos: tuple[float, float], color: pygame.Color) -> None:
+    def drawArrow(self, game: Game, startPos: tuple[float, float],
+                  endPos: tuple[float, float], color: pygame.Color) -> None:
         """绘制箭头（坐标参数用tuple而不是Vector2）"""
         pygame.draw.line(game.screen, color, startPos, endPos, 3)
 
@@ -1345,7 +1360,8 @@ class Option:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定位置是否在选项区域"""
-        return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height
+        return pos.x > self.x and pos.x < self.x + \
+            self.width and pos.y > self.y and pos.y < self.y + self.height
 
     def ballCreate(self, game: Game) -> None:
         """创建球体"""
@@ -1579,7 +1595,8 @@ class Option:
 
                 if event.type == pygame.KEYDOWN:
 
-                    if event.key == pygame.K_z and game.isCtrlPressing and len(self.elements["all"]) > 0:
+                    if event.key == pygame.K_z and game.isCtrlPressing and len(
+                            self.elements["all"]) > 0:
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
 
@@ -1605,7 +1622,7 @@ class Option:
                         loadedTipText = game.fontSmall.render(
                             f"{game.gameName}加载成功", True, (0, 0, 0))
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
 
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
@@ -1782,7 +1799,8 @@ class Option:
                         setCapsLock(True)
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_z and game.isCtrlPressing and len(self.elements["all"]) > 0:
+                    if event.key == pygame.K_z and game.isCtrlPressing and len(
+                            self.elements["all"]) > 0:
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
 
@@ -1808,7 +1826,7 @@ class Option:
                         loadedTipText = game.fontSmall.render(
                             f"{game.gameName}加载成功", True, (0, 0, 0))
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
 
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
@@ -1862,7 +1880,7 @@ class Option:
         loadedTipText = game.fontSmall.render(
             f"{game.gameName}加载成功", True, (0, 0, 0))
         loadedTipRect = loadedTipText.get_rect(
-            center=(game.screen.get_width()/2, game.screen.get_height()/2))
+            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
 
         game.update()
         game.screen.blit(loadedTipText, loadedTipRect)
@@ -1874,7 +1892,7 @@ class Option:
     def elementEdit(self, game: Game, attrs: list) -> None:
         """打开编辑元素属性框"""
         inputMenu = InputMenu(
-            Vector2(game.screen.get_width()/2, game.screen.get_height()/2), game, self)
+            Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2), game, self)
 
         # 从元素实例获取实时属性值
         updated_attrs = []
@@ -1901,19 +1919,19 @@ class Option:
     def draw(self, game: Game) -> None:
         """绘制选项界面"""
         if self.highLighted:
-            pygame.draw.rect(game.screen, "yellow", (self.x-3, self.y-3,
-                             self.width+6, self.height+6), border_radius=int(self.width*15/100))
+            pygame.draw.rect(game.screen, "yellow", (self.x - 3, self.y - 3,
+                             self.width + 6, self.height + 6), border_radius=int(self.width * 15 / 100))
 
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width*15/100))
+                         self.width, self.height), border_radius=int(self.width * 15 / 100))
 
         if self.type == "ball":
             pygame.draw.circle(game.screen, self.attrs["color"], (
-                self.x+self.width/2, self.y+self.height/2), self.width/3)
+                self.x + self.width / 2, self.y + self.height / 2), self.width / 3)
 
         if self.type == "wall":
             pygame.draw.rect(game.screen, self.attrs["color"], (
-                self.x+self.width/10, self.y+self.height/10, self.width*8/10, self.height*8/10))
+                self.x + self.width / 10, self.y + self.height / 10, self.width * 8 / 10, self.height * 8 / 10))
 
         if self.type == "example":
 
@@ -1958,7 +1976,8 @@ class Option:
 class SettingsButton:
     """设置按钮控件类"""
 
-    def __init__(self, x: float, y: float, width: float, height: float) -> None:
+    def __init__(self, x: float, y: float, width: float,
+                 height: float) -> None:
         self.x: float = x
         self.y: float = y
         self.width: float = width
@@ -1977,18 +1996,21 @@ class SettingsButton:
 
     def isMouseOn(self) -> bool:
         """判断鼠标是否在按钮上"""
-        return self.isPosOn(Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
+        return self.isPosOn(Vector2(pygame.mouse.get_pos()[
+                            0], pygame.mouse.get_pos()[1]))
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在按钮上"""
-        return pos.x > self.x and pos.x < self.x + self.width and pos.y > self.y and pos.y < self.y + self.height
+        return pos.x > self.x and pos.x < self.x + \
+            self.width and pos.y > self.y and pos.y < self.y + self.height
 
 
 class InputBox:
     """输入框控件类"""
 
-    def __init__(self, x: float, y: float, width: float, height: float, option: Option, target: Element, text: str = "") -> None:
-        self.rect: pygame.Rect = pygame.Rect(x, y, width-100, height)
+    def __init__(self, x: float, y: float, width: float, height: float,
+                 option: Option, target: Element, text: str = "") -> None:
+        self.rect: pygame.Rect = pygame.Rect(x, y, width - 100, height)
         self.colorInactive: pygame.Color = pygame.Color("lightskyblue3")
         self.colorActive: pygame.Color = pygame.Color("dodgerblue2")
         self.color: pygame.Color = self.colorInactive
@@ -2119,13 +2141,13 @@ class InputMenu(Element):
         # 每个输入框的垂直间距
         self.verticalSpacing: float = 100
         self.position: Vector2 = position
-        self.width: float = game.screen.get_width()/3
+        self.width: float = game.screen.get_width() / 3
         self.height: float = 0
-        self.x: float = position.x - self.width/2
-        self.y: float = position.y - self.height/2
+        self.x: float = position.x - self.width / 2
+        self.y: float = position.y - self.height / 2
         self.commitFunction: str = ""
         self.font: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.verticalSpacing/6))
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.verticalSpacing / 6))
         self.options: list[Option] = []
         self.inputBoxes: list[InputBox] = []
         self.target: Element = target
@@ -2142,13 +2164,13 @@ class InputMenu(Element):
             option = self.options[i]
             # 计算每个输入框的y坐标
             y = self.y + 10 + i * self.verticalSpacing
-            inputBox = InputBox(self.x + self.width*3/10, y, self.width - self.width *
-                                3/10, self.verticalSpacing/3, option, self.target, str(option["value"]))
+            inputBox = InputBox(self.x + self.width * 3 / 10, y, self.width - self.width *
+                                3 / 10, self.verticalSpacing / 3, option, self.target, str(option["value"]))
             self.height += self.verticalSpacing  # 更新InputMenu的高度
             self.inputBoxes.append(inputBox)
 
-        self.x = self.position.x - self.width/2
-        self.y = self.position.y - self.height/2
+        self.x = self.position.x - self.width / 2
+        self.y = self.position.y - self.height / 2
         game.lastTime = game.currentTime
         game.currentTime = time.time()
 
@@ -2160,7 +2182,7 @@ class InputMenu(Element):
     def draw(self, game: Game) -> None:
         """绘制输入菜单"""
         pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width*2/100))
+                         self.width, self.height), border_radius=int(self.width * 2 / 100))
 
         # 绘制所有输入框和选项文本
         length = len(self.options)
@@ -2181,7 +2203,8 @@ class InputMenu(Element):
 class ControlOption:
     """控制选项类"""
 
-    def __init__(self, name: str, x: float, y: float, width: float, height: float, color: pygame.Color) -> None:
+    def __init__(self, name: str, x: float, y: float, width: float,
+                 height: float, color: pygame.Color) -> None:
         self.name: str = name
         self.x: float = x
         self.y: float = y
@@ -2192,7 +2215,7 @@ class ControlOption:
     def attrEditor(self, game: Game, target: Element) -> None:
         """打开属性编辑器"""
         inputMenu = InputMenu(
-            Vector2(game.screen.get_width()/2, game.screen.get_height()/2), game, target)
+            Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2), game, target)
 
         for option in game.elementMenu.optionsList:
             if option["type"] == target.type:
@@ -2269,7 +2292,7 @@ class ControlOption:
 
             coordinator.update(game)
             coordinator.draw(game, tempOption, str(
-                round(abs(self.additionVelocity)/10))+"m/s")
+                round(abs(self.additionVelocity) / 10)) + "m/s")
             self.additionVelocity = tempOption.creationPoints[1] - \
                 tempOption.creationPoints[0]
 
@@ -2312,7 +2335,7 @@ class ControlOption:
                         loadedTipText = game.fontSmall.render(
                             f"{game.gameName}加载成功", True, (0, 0, 0))
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
 
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
@@ -2375,7 +2398,7 @@ class ControlOption:
 
             coordinator.update(game)
             coordinator.draw(game, tempOption, str(
-                round(abs(self.additionForce))/10)+"N")
+                round(abs(self.additionForce)) / 10) + "N")
             self.additionForce = tempOption.creationPoints[1] - \
                 tempOption.creationPoints[0]
 
@@ -2417,7 +2440,7 @@ class ControlOption:
                         loadedTipText = game.fontSmall.render(
                             f"{game.gameName}加载成功", True, (0, 0, 0))
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width()/2, game.screen.get_height()/2))
+                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
                         game.screen.blit(loadedTipText, loadedTipRect)
                         game.update()
                         pygame.display.update()
@@ -2447,16 +2470,17 @@ class ControlOption:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在控件上"""
-        return self.x < pos.x < self.x + self.width and self.y < pos.y < self.y + self.height
+        return self.x < pos.x < self.x + \
+            self.width and self.y < pos.y < self.y + self.height
 
     def draw(self, game: Game) -> None:
         """绘制控件"""
         pygame.draw.rect(game.screen, self.color, (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width*2/100))
+                         self.width, self.height), border_radius=int(self.width * 2 / 100))
         text = game.translation[self.name]
         textSurface = game.fontSmall.render(text, True, (0, 0, 0))
-        game.screen.blit(textSurface, (self.x + self.width/2 - textSurface.get_width() /
-                         2, self.y + self.height/2 - textSurface.get_height()/2))
+        game.screen.blit(textSurface, (self.x + self.width / 2 - textSurface.get_width() /
+                         2, self.y + self.height / 2 - textSurface.get_height() / 2))
 
 
 class ElementController:
@@ -2487,7 +2511,8 @@ class ElementController:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在控制器上"""
-        return self.x < pos.x < self.x + self.optionWidth and self.y < pos.y < self.y + self.optionHeight * len(self.controlOptionsList)
+        return self.x < pos.x < self.x + self.optionWidth and self.y < pos.y < self.y + \
+            self.optionHeight * len(self.controlOptionsList)
 
     def update(self, game: Game) -> None:
         """更新控制器"""
@@ -2499,8 +2524,9 @@ class ElementController:
 
         screenHeight = game.screen.get_height()
 
-        if self.y + len(self.controlOptionsList)*self.optionHeight > screenHeight:
-            self.y -= len(self.controlOptionsList)*self.optionHeight + 50
+        if self.y + len(self.controlOptionsList) * \
+                self.optionHeight > screenHeight:
+            self.y -= len(self.controlOptionsList) * self.optionHeight + 50
 
         currentY = self.y  # 初始 y 坐标
 

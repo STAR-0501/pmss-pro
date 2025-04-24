@@ -22,7 +22,7 @@ def colorStringToTuple(color: str) -> tuple[int, int, int]:
             return (0, 0, 0)
 
     # 处理十六进制字符串格式
-    return tuple(int(color[i: i+2], 16) for i in (1, 3, 5))
+    return tuple(int(color[i: i + 2], 16) for i in (1, 3, 5))
 
 
 def colorTupleToString(color: tuple[int, int, int]) -> str:
@@ -30,7 +30,8 @@ def colorTupleToString(color: tuple[int, int, int]) -> str:
     return '#%02x%02x%02x' % color
 
 
-def colorMiddle(color1: tuple[int, int, int] | str, color2: tuple[int, int, int] | str, factor: float = 0.5) -> tuple[int, int, int]:
+def colorMiddle(color1: tuple[int, int, int] | str, color2: tuple[int,
+                int, int] | str, factor: float = 0.5) -> tuple[int, int, int]:
     """计算平均颜色"""
 
     if isinstance(color1, str):
@@ -39,7 +40,8 @@ def colorMiddle(color1: tuple[int, int, int] | str, color2: tuple[int, int, int]
     if isinstance(color2, str):
         color2 = colorStringToTuple(color2)
 
-    return (int(color1[0] * factor + color2[0] * (1 - factor)), int(color1[1] * factor + color2[1] * (1 - factor)), int(color1[2] * factor + color2[2] * (1 - factor)))
+    return (int(color1[0] * factor + color2[0] * (1 - factor)), int(color1[1] * factor +
+            color2[1] * (1 - factor)), int(color1[2] * factor + color2[2] * (1 - factor)))
 
 
 def colorOpposite(color: tuple[int, int, int]) -> tuple[int, int, int]:
@@ -47,7 +49,8 @@ def colorOpposite(color: tuple[int, int, int]) -> tuple[int, int, int]:
     return (255 - color[0], 255 - color[1], 255 - color[2])
 
 
-def colorSuitable(color1: tuple[int, int, int] | str, color2: tuple[int, int, int] | str) -> tuple[int, int, int]:
+def colorSuitable(color1: tuple[int, int, int] | str,
+                  color2: tuple[int, int, int] | str) -> tuple[int, int, int]:
     """计算合适颜色"""
     return colorOpposite(colorMiddle(color1, color2))
 
@@ -55,7 +58,8 @@ def colorSuitable(color1: tuple[int, int, int] | str, color2: tuple[int, int, in
 class Vector2:
     """二维向量类，提供基本向量运算和几何操作方法"""
 
-    def __init__(self, x: float | tuple[float, float], y: float = None) -> None:
+    def __init__(self, x: float |
+                 tuple[float, float], y: float = None) -> None:
 
         if y is None:
             self.x: float = x[0]
@@ -159,13 +163,15 @@ ZERO = Vector2(0, 0)
 
 def triangleArea(p1: Vector2, p2: Vector2, p3: Vector2) -> float:
     """计算三角形面积"""
-    return abs((p1.x*(p2.y-p3.y) + p2.x*(p3.y-p1.y) + p3.x*(p1.y-p2.y))/2)
+    return abs((p1.x * (p2.y - p3.y) + p2.x *
+               (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2)
 
 
 class CollisionLine:
     """碰撞线段类，处理线段相交检测和显示"""
 
-    def __init__(self, start: Vector2, end: Vector2, isLine: bool = False, collisionFactor: float = 1, display: bool = True) -> None:
+    def __init__(self, start: Vector2, end: Vector2, isLine: bool = False,
+                 collisionFactor: float = 1, display: bool = True) -> None:
         self.start: Vector2 = start
         self.end: Vector2 = end
         self.vector: Vector2 = end - start
@@ -195,7 +201,8 @@ class CollisionLine:
         BD_cross_CD = crossProduct(BD, other.vector)
 
         # 判断线段是否相交
-        return (AC_cross_AB * AD_cross_AB < 0) and (BC_cross_CD * BD_cross_CD < 0)
+        return (AC_cross_AB * AD_cross_AB <
+                0) and (BC_cross_CD * BD_cross_CD < 0)
 
     def draw(self, game) -> None:
         """绘制线段到游戏窗口"""
@@ -324,8 +331,8 @@ class Coordinator():
         # 绘制角度信息
         pygame.draw.arc(
             game.screen, "black",
-            (game.realToScreen((self.position.x - radius/2), game.x),
-             game.realToScreen((self.position.y - radius/2), game.y),
+            (game.realToScreen((self.position.x - radius / 2), game.x),
+             game.realToScreen((self.position.y - radius / 2), game.y),
              game.realToScreen(radius),
              game.realToScreen(radius)),
             startAngle, endAngle, 2
@@ -349,18 +356,18 @@ class Coordinator():
             degreeText = str(round(self.minDegree)) + "°"
             textSize = game.fontSmall.size(degreeText)
             textX = game.realToScreen(
-                self.position.x + (nowDirection.x/3), game.x) - textSize[0]/3
+                self.position.x + (nowDirection.x / 3), game.x) - textSize[0] / 3
             textY = game.realToScreen(
-                self.position.y + (nowDirection.y/3), game.y) - textSize[1]/3
+                self.position.y + (nowDirection.y / 3), game.y) - textSize[1] / 3
             game.screen.blit(game.fontSmall.render(
                 degreeText, True, "black"), (textX, textY))
 
         if text != "":
             textSize = game.fontSmall.size(text)
             textX = game.realToScreen(
-                self.position.x + (nowDirection.x*2/3), game.x) - textSize[0]*2/3
+                self.position.x + (nowDirection.x * 2 / 3), game.x) - textSize[0] * 2 / 3
             textY = game.realToScreen(
-                self.position.y + (nowDirection.y*2/3), game.y) - textSize[1]*2/3
+                self.position.y + (nowDirection.y * 2 / 3), game.y) - textSize[1] * 2 / 3
             game.screen.blit(game.fontSmall.render(
                 text, True, "black"), (textX, textY))
 
@@ -368,7 +375,8 @@ class Coordinator():
 class Ball(Element):
     """球体物理实体类，处理运动学计算和碰撞响应"""
 
-    def __init__(self, position: Vector2, radius: float, color: pygame.Color, mass: float, velocity: Vector2, artificialForces: list[Vector2], gravity: float = 1, collisionFactor: float = 1, gravitation: bool = False) -> None:
+    def __init__(self, position: Vector2, radius: float, color: pygame.Color, mass: float, velocity: Vector2,
+                 artificialForces: list[Vector2], gravity: float = 1, collisionFactor: float = 1, gravitation: bool = False) -> None:
         self.position: Vector2 = position
         self.radius: float = radius
         self.color: pygame.Color = color
@@ -394,7 +402,8 @@ class Ball(Element):
 
     def isPosOn(self, game, pos: Vector2) -> bool:
         """检测坐标点是否在球体范围内"""
-        return (pos.x - self.position.x)**2 + (pos.y - self.position.y)**2 <= self.radius**2
+        return (pos.x - self.position.x)**2 + \
+            (pos.y - self.position.y)**2 <= self.radius**2
 
     def isCollidedByBall(self, other: Self) -> bool:
         """检测球与球之间的碰撞"""
@@ -601,7 +610,7 @@ class Ball(Element):
 
             # 创建临时surface实现透明度
             tempSurface = pygame.Surface(
-                (drawRadius*2, drawRadius*2), pygame.SRCALPHA)
+                (drawRadius * 2, drawRadius * 2), pygame.SRCALPHA)
 
             pygame.draw.circle(
                 tempSurface, (red, green, blue, alpha),
@@ -609,7 +618,7 @@ class Ball(Element):
             )
 
             game.screen.blit(
-                tempSurface, (pos[0]-drawRadius, pos[1]-drawRadius))
+                tempSurface, (pos[0] - drawRadius, pos[1] - drawRadius))
 
         self.highLighted = False
 
@@ -620,7 +629,8 @@ class Ball(Element):
         self.velocity = self.velocity * 0
         return self.velocity
 
-    def reboundByLine(self, line: CollisionLine, timeIsReversed: bool = False) -> Vector2:
+    def reboundByLine(self, line: CollisionLine,
+                      timeIsReversed: bool = False) -> Vector2:
         """处理与线段的碰撞反弹逻辑"""
         AB = line.end - line.start
         lineLength = AB.dot(AB)
@@ -681,7 +691,7 @@ class Ball(Element):
             # 将法向分量乘以 self.collisionFactor
             velocityNormalAfterRebound = self.velocity.dot(normal)
             self.velocity += normal * (velocityNormalAfterRebound * ((self.collisionFactor *
-                                       line.collisionFactor if not timeIsReversed else 1/self.collisionFactor/line.collisionFactor) - 1))
+                                       line.collisionFactor if not timeIsReversed else 1 / self.collisionFactor / line.collisionFactor) - 1))
 
             # 调整速度大小
             self.velocity = self.velocity.copy().normalize() * abs(abs(self.velocity) **
@@ -731,9 +741,9 @@ class Ball(Element):
 
         # 弹性碰撞公式
         newVelocityNormal1 = (
-            (self.mass - ball.mass)*velocityNormal1 + 2*ball.mass*velocityNormal2) / totalMass
-        newVelocityNormal2 = (2*self.mass*velocityNormal1 +
-                              (ball.mass - self.mass)*velocityNormal2) / totalMass
+            (self.mass - ball.mass) * velocityNormal1 + 2 * ball.mass * velocityNormal2) / totalMass
+        newVelocityNormal2 = (2 * self.mass * velocityNormal1 +
+                              (ball.mass - self.mass) * velocityNormal2) / totalMass
 
         # 应用碰撞因子到法向分量
         collisionFactor = self.collisionFactor * ball.collisionFactor
@@ -872,7 +882,8 @@ class Ball(Element):
 class Wall(Element):
     """墙体类，处理多边形碰撞和显示"""
 
-    def __init__(self, vertexes: list[Vector2], color: pygame.Color, isLine: bool = False) -> None:
+    def __init__(self, vertexes: list[Vector2],
+                 color: pygame.Color, isLine: bool = False) -> None:
         self.vertexes: list[Vector2] = vertexes
         self.color: pygame.Color = color
         self.isLine: bool = isLine
@@ -969,7 +980,8 @@ class Wall(Element):
                 normal = (ball.position - vertex).normalize()
                 self.handleVertexCollision(ball, vertex, normal)
 
-    def handleVertexCollision(self, ball: Ball, vertex: Vector2, normal: Vector2) -> None:
+    def handleVertexCollision(
+            self, ball: Ball, vertex: Vector2, normal: Vector2) -> None:
         """处理顶点碰撞的响应"""
         # 计算穿透深度
         penetration = ball.radius - ball.position.distance(vertex)
@@ -1046,7 +1058,8 @@ class WallPosition:
 class Rope(Element):
     """绳索类，处理绳索的显示和物理效果"""
 
-    def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float, width: float, color: pygame.Color, collisionFactor: float = 1.0) -> None:
+    def __init__(self, start: Ball | WallPosition, end: Ball | WallPosition, length: float,
+                 width: float, color: pygame.Color, collisionFactor: float = 1.0) -> None:
         self.start: Ball | WallPosition = start
         self.end: Ball | WallPosition = end
         self.position: Vector2 = (start.getPosition() + end.getPosition()) / 2
@@ -1061,7 +1074,8 @@ class Rope(Element):
 
     def isReachingLimit(self) -> bool:
         """判断绳索是否到达极限长度"""
-        return self.length < abs(self.start.getPosition() - self.end.getPosition())
+        return self.length < abs(
+            self.start.getPosition() - self.end.getPosition())
 
     def pullBall(self) -> bool:
         """处理球与绳索的影响"""
@@ -1094,9 +1108,9 @@ class Rope(Element):
 
                 # 弹性碰撞公式
                 newVelocityNormal1 = ((self.start.mass - self.end.mass) *
-                                      velocityNormal1 + 2*self.end.mass*velocityNormal2) / totalMass
-                newVelocityNormal2 = (2*self.start.mass*velocityNormal1 + (
-                    self.end.mass - self.start.mass)*velocityNormal2) / totalMass
+                                      velocityNormal1 + 2 * self.end.mass * velocityNormal2) / totalMass
+                newVelocityNormal2 = (2 * self.start.mass * velocityNormal1 + (
+                    self.end.mass - self.start.mass) * velocityNormal2) / totalMass
 
                 # 应用碰撞因子到法向分量
                 collisionFactor = self.collisionFactor
