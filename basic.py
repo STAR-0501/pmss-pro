@@ -1031,7 +1031,42 @@ class Rope(Element):
                 self.end.velocity = tangent * velocityTangent2 + normal * newVelocityNormal2
 
                 # 位置修正
-                ...
+                # 无条件分离，防止绳索过度拉伸
+                separation = normal * (overlap * 1.05)  # 增加分离系数
+                
+                # 按质量比例分配分离量
+                self.start.position += separation * (self.end.mass / totalMass)
+                self.end.position -= separation * (self.start.mass / totalMass)
+                
+                # 防止碰撞系数小于1时粘连
+                minSepSpeed = 1.0  # 分离速度
+                relVel = (self.start.velocity - self.end.velocity).dot(normal)
+                
+                # 当相对速度不足以分离时，添加额外分离速度
+                if relVel > -minSepSpeed:
+                    # 强制分离速度，碰撞系数越小，分离因子越大
+                    sepFactor = min(2.0, 2.0 - collisionFactor * 1.5)
+                    
+                    # 添加与重力方向相关的分离速度
+                    gravityDir = Vector2(0, 1)  # 重力方向
+                    gravityComponent = normal.dot(gravityDir)
+                    
+                    # 如果法线与重力方向有分量，增强该方向的分离
+                    if abs(gravityComponent) > 0.01:
+                        # 根据重力方向调整分离力度
+                        gravityBoost = 1.0 * gravityComponent * (2.0 - collisionFactor)
+                        
+                        # 对上下方向的球体施加不同的分离力
+                        if gravityComponent > 0:  # 下方球体需要更强的向上分离力
+                            self.start.velocity += normal * (minSepSpeed * sepFactor + gravityBoost) * (self.end.mass / totalMass)
+                            self.end.velocity -= normal * (minSepSpeed * sepFactor) * (self.start.mass / totalMass)
+                        else:  # 上方球体需要更强的向下分离力
+                            self.start.velocity += normal * (minSepSpeed * sepFactor) * (self.end.mass / totalMass)
+                            self.end.velocity -= normal * (minSepSpeed * sepFactor + abs(gravityBoost)) * (self.start.mass / totalMass)
+                    else:
+                        # 水平方向的普通分离
+                        self.start.velocity += normal * minSepSpeed * sepFactor * (self.end.mass / totalMass)
+                        self.end.velocity -= normal * minSepSpeed * sepFactor * (self.start.mass / totalMass)
 
             elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
                 ...
