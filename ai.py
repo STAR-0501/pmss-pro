@@ -11,13 +11,12 @@ class AI:
     def __init__(self, game) -> None:
         self.game = game
 
-    client: OpenAI = OpenAI(
-        base_url='https://api.siliconflow.cn/v1',
-        api_key=key
-    )
+    client: OpenAI = OpenAI(base_url="https://api.siliconflow.cn/v1", api_key=key)
 
     message: list[dict[str, str]] = [
-        {"role": "system", "content": """
+        {
+            "role": "system",
+            "content": """
 你的名字是PMSS-Pro，一个机器人助手，基于Deepseek-V3/R1模型。
 
 当用户输入需求时，你需用以下命令实现需求（用户没有提供完整参数时你可以自己用合适的数值补全，每条命令部分请用<...>括起，一定要括起！！）：
@@ -57,7 +56,8 @@ class AI:
 11. 当你开始回答时输出“$ ”，且避免在其他地方输出$，一定要输出！！！
 12. 如果用户想要的操作不在当前模式，可以先转模式 再执行操作 再把模式转回来
 13. 当用户没有什么指令需求时，可以不输出指令而是回答用户的问题
-        """}
+        """,
+        }
     ]
 
     def chat(self, message: str) -> str:
@@ -78,9 +78,13 @@ class AI:
 
         # 发送带有流式输出的请求
         response = self.client.chat.completions.create(
-            model="Pro/deepseek-ai/DeepSeek-V3" if not reasoner else "Pro/deepseek-ai/DeepSeek-R1",
+            model=(
+                "Pro/deepseek-ai/DeepSeek-V3"
+                if not reasoner
+                else "Pro/deepseek-ai/DeepSeek-R1"
+            ),
             messages=self.message,
-            stream=True  # 启用流式输出
+            stream=True,  # 启用流式输出
         )
 
         # 逐步接收并处理响应
@@ -105,7 +109,7 @@ class AI:
                     break
 
             # 尝试从最后一个chunk获取Token数
-            if chunk and hasattr(chunk, 'usage') and chunk.usage:
+            if chunk and hasattr(chunk, "usage") and chunk.usage:
                 total_tokens = chunk.usage.total_tokens
             else:
                 total_tokens = "无法获取"  # 备选方案

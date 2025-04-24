@@ -51,25 +51,27 @@ class Game:
         try:
             with open("config/screenSize.txt", "r", encoding="utf-8") as f:
                 self.screenSize: list[int, int] = [
-                    int(i.replace(" ", "")) for i in f.read().split("x")]
+                    int(i.replace(" ", "")) for i in f.read().split("x")
+                ]
 
         except Exception:
             self.screenSize: list[int, int] = [1280, 720]
 
         self.screen: pygame.Surface = pygame.display.set_mode(
-            size=(self.screenSize[0], self.screenSize[1]), flags=pygame.FULLSCREEN)
-        print(
-            f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
+            size=(self.screenSize[0], self.screenSize[1]), flags=pygame.FULLSCREEN
+        )
+        print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
         pygame.display.set_caption("Physics Motion Simulation System Beta")
-        icon: pygame.Surface = pygame.image.load(
-            "static/python.png").convert_alpha()
+        icon: pygame.Surface = pygame.image.load("static/python.png").convert_alpha()
         pygame.display.set_icon(icon)
 
-        self.mousePos: tuple[int, int] = (0, 0)   # 鼠标屏幕坐标，而非真实坐标
+        self.mousePos: tuple[int, int] = (0, 0)  # 鼠标屏幕坐标，而非真实坐标
         self.fontSmall: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 125))
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 125)
+        )
         self.fontBig: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 75))
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 75)
+        )
         self.ratio: int = 5
         self.lastRatio: int = self.ratio
         self.minLimitRatio: int = 1
@@ -77,7 +79,7 @@ class Game:
         self.x: int = self.screen.get_width() / 2 / self.ratio
         self.y: int = self.screen.get_height() / self.ratio
         self.lastX: int = self.x
-        self.lastY: int = 2e+7
+        self.lastY: int = 2e7
         self.elementMenu: Menu = None
         self.exampleMenu: Menu = None
         self.currentTime: float = time.time()
@@ -88,8 +90,16 @@ class Game:
         self.upMove: int = 0
         self.speed: int = 1
         self.circularVelocityFactor: float = 1
-        self.floor: Wall = Wall([Vector2(0, -10), Vector2(self.screen.get_width(), -10), Vector2(
-            self.screen.get_width(), self.screen.get_height()), Vector2(0, self.screen.get_height())], (200, 200, 200), True)
+        self.floor: Wall = Wall(
+            [
+                Vector2(0, -10),
+                Vector2(self.screen.get_width(), -10),
+                Vector2(self.screen.get_width(), self.screen.get_height()),
+                Vector2(0, self.screen.get_height()),
+            ],
+            (200, 200, 200),
+            True,
+        )
         self.isFloorIllegal: bool = False
         self.background: str | pygame.Color = "lightgrey"
         self.settingsButton: SettingsButton = SettingsButton(0, 0, 50, 50)
@@ -104,7 +114,7 @@ class Game:
             "ball": [],
             "wall": [],
             "rope": [],
-            "controlling": []
+            "controlling": [],
         }
 
         self.celestialElements: dict[str, list[Element | Ball | Wall | Rope]] = {
@@ -112,7 +122,7 @@ class Game:
             "ball": [],
             "wall": [],
             "rope": [],
-            "controlling": []
+            "controlling": [],
         }
 
         self.translation: dict[str, str] = {}
@@ -136,7 +146,10 @@ class Game:
             self.translation = json.load(f)
 
         self.inputMenu = InputMenu(
-            Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2), self, self)
+            Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2),
+            self,
+            self,
+        )
         self.inputMenu.options = self.environmentOptions
         self.inputMenu.update(self)
 
@@ -161,9 +174,7 @@ class Game:
             elementOption.highLighted = False
 
         # 创建一个新的字典，用于存储可序列化的属性
-        serializableDict = {
-            "gameName": f"{int(time.time())}备份"
-        }
+        serializableDict = {"gameName": f"{int(time.time())}备份"}
 
         # serializableDict = {               #做预设用的
         #     "gameName" : f"彩蛋",
@@ -174,7 +185,12 @@ class Game:
 
         # 遍历 self.__dict__，排除不可序列化的对象
         for attr, value in self.__dict__.items():
-            if attr != "screen" and attr != "fpsSaver" and attr != "icon" and attr != "gameName":
+            if (
+                attr != "screen"
+                and attr != "fpsSaver"
+                and attr != "icon"
+                and attr != "gameName"
+            ):
                 try:
                     # 尝试序列化对象，如果成功则添加到 serializableDict 中
                     pickle.dumps(value)
@@ -230,17 +246,23 @@ class Game:
                     for i in range(len(currentElementMenu.options)):
                         self.elementMenu.options[i].x = currentElementMenu.options[i].x
                         self.elementMenu.options[i].y = currentElementMenu.options[i].y
-                        self.elementMenu.options[i].width = currentElementMenu.options[i].width
-                        self.elementMenu.options[i].height = currentElementMenu.options[i].height
+                        self.elementMenu.options[i].width = currentElementMenu.options[
+                            i
+                        ].width
+                        self.elementMenu.options[i].height = currentElementMenu.options[
+                            i
+                        ].height
 
                 if currentFloor is not None:
                     self.floor = currentFloor
 
                 # 恢复坐标系统相关参数
                 self.x = serializableDict.get(
-                    "x", self.screen.get_width() / 2 / self.ratio)
+                    "x", self.screen.get_width() / 2 / self.ratio
+                )
                 self.y = serializableDict.get(
-                    "y", self.screen.get_height() / self.ratio)
+                    "y", self.screen.get_height() / self.ratio
+                )
                 self.ratio = serializableDict.get("ratio", 5)
 
                 # 重置移动控制状态
@@ -268,8 +290,9 @@ class Game:
                 option["value"] = value
                 break
 
-    def realToScreen(self, r: float | Vector2, x: float |
-                     Vector2 = None) -> float | Vector2:
+    def realToScreen(
+        self, r: float | Vector2, x: float | Vector2 = None
+    ) -> float | Vector2:
         """实际坐标转屏幕坐标"""
         if x is None:
             if isinstance(r, Vector2):
@@ -279,8 +302,9 @@ class Game:
 
         return (r + x) * self.ratio
 
-    def screenToReal(self, r: float | Vector2, x: float |
-                     Vector2 = None) -> float | Vector2:
+    def screenToReal(
+        self, r: float | Vector2, x: float | Vector2 = None
+    ) -> float | Vector2:
         """屏幕坐标转实际坐标"""
         if x is None:
             if isinstance(r, Vector2):
@@ -328,34 +352,26 @@ class Game:
                 if event.y == 1 and self.ratio < self.maxLimitRatio:
                     if not self.isCtrlPressing:
 
-                        bx = self.screenToReal(
-                            pygame.mouse.get_pos()[0], self.x)
-                        by = self.screenToReal(
-                            pygame.mouse.get_pos()[1], self.y)
+                        bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                        by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
 
                         self.ratio *= speed
 
-                        nx = self.screenToReal(
-                            pygame.mouse.get_pos()[0], self.x)
-                        ny = self.screenToReal(
-                            pygame.mouse.get_pos()[1], self.y)
+                        nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                        ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
 
                     else:
 
-                        bx = self.screenToReal(
-                            self.screen.get_width() / 2, self.x)
-                        by = self.screenToReal(
-                            self.screen.get_height() / 2, self.y)
+                        bx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                        by = self.screenToReal(self.screen.get_height() / 2, self.y)
 
                         self.ratio *= speed
 
-                        nx = self.screenToReal(
-                            self.screen.get_width() / 2, self.x)
-                        ny = self.screenToReal(
-                            self.screen.get_height() / 2, self.y)
+                        nx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                        ny = self.screenToReal(self.screen.get_height() / 2, self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
@@ -363,34 +379,26 @@ class Game:
                 elif event.y == -1 and self.ratio > self.minLimitRatio:
                     if not self.isCtrlPressing:
 
-                        bx = self.screenToReal(
-                            pygame.mouse.get_pos()[0], self.x)
-                        by = self.screenToReal(
-                            pygame.mouse.get_pos()[1], self.y)
+                        bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                        by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
 
                         self.ratio /= speed
 
-                        nx = self.screenToReal(
-                            pygame.mouse.get_pos()[0], self.x)
-                        ny = self.screenToReal(
-                            pygame.mouse.get_pos()[1], self.y)
+                        nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                        ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
 
                     else:
 
-                        bx = self.screenToReal(
-                            self.screen.get_width() / 2, self.x)
-                        by = self.screenToReal(
-                            self.screen.get_height() / 2, self.y)
+                        bx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                        by = self.screenToReal(self.screen.get_height() / 2, self.y)
 
                         self.ratio /= speed
 
-                        nx = self.screenToReal(
-                            self.screen.get_width() / 2, self.x)
-                        ny = self.screenToReal(
-                            self.screen.get_height() / 2, self.y)
+                        nx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                        ny = self.screenToReal(self.screen.get_height() / 2, self.y)
 
                         self.x += nx - bx
                         self.y += ny - by
@@ -398,25 +406,31 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.mousePos = pygame.mouse.get_pos()
 
-                if event.button == 1 and not self.elementMenu.isMouseOn(
-                ) and not self.isElementCreating and not self.isElementControlling and not self.isEditing:
+                if (
+                    event.button == 1
+                    and not self.elementMenu.isMouseOn()
+                    and not self.isElementCreating
+                    and not self.isElementControlling
+                    and not self.isEditing
+                ):
                     self.isMoving = True
                     self.isScreenMoving = True
 
                     for element in self.elements["all"]:
-                        if (element.isMouseOn(self)):
+                        if element.isMouseOn(self):
                             self.elements["controlling"].append(element)
                             self.isScreenMoving = False
 
                 if event.button == 3 and not self.elementMenu.isMouseOn():
                     self.isElementControlling = True
                     for element in self.elements["all"]:
-                        if (element.isMouseOn(self)):
+                        if element.isMouseOn(self):
                             element.highLighted = True
                             self.update()
                             pygame.display.update()
                             elementController = ElementController(
-                                element, Vector2(self.mousePos))
+                                element, Vector2(self.mousePos)
+                            )
                             while self.isElementControlling:
                                 self.updateFPS()
                                 elementController.update(self)
@@ -437,22 +451,30 @@ class Game:
 
                                     if event.type == pygame.KEYDOWN:
 
-                                        if event.key == pygame.K_z and self.isCtrlPressing and len(
-                                                self.elements["all"]) > 0:
+                                        if (
+                                            event.key == pygame.K_z
+                                            and self.isCtrlPressing
+                                            and len(self.elements["all"]) > 0
+                                        ):
                                             lastElement = self.elements["all"][-1]
-                                            self.elements["all"].remove(
-                                                lastElement)
+                                            self.elements["all"].remove(lastElement)
 
                                             for ball in self.elements["ball"]:
-                                                ball.displayedAcceleration = ball.acceleration + \
-                                                    (ball.displayedAcceleration - ball.acceleration) * \
-                                                    ball.displayedAccelerationFactor
+                                                ball.displayedAcceleration = (
+                                                    ball.acceleration
+                                                    + (
+                                                        ball.displayedAcceleration
+                                                        - ball.acceleration
+                                                    )
+                                                    * ball.displayedAccelerationFactor
+                                                )
                                                 ball.displayedAccelerationFactor = 1
 
                                             for option in self.elementMenu.options:
                                                 if option.type == lastElement.type:
                                                     self.elements[option.type].remove(
-                                                        lastElement)
+                                                        lastElement
+                                                    )
                                                     break
 
                                         if event.key == pygame.K_g:
@@ -466,15 +488,24 @@ class Game:
 
                                         if pygame.K_1 <= event.key <= pygame.K_9:
                                             self.loadGame(
-                                                f"default/{str(event.key - pygame.K_0)}")
+                                                f"default/{str(event.key - pygame.K_0)}"
+                                            )
                                             loadedTipText = self.fontSmall.render(
-                                                f"{self.gameName}加载成功", True, (0, 0, 0))
+                                                f"{self.gameName}加载成功",
+                                                True,
+                                                (0, 0, 0),
+                                            )
                                             loadedTipRect = loadedTipText.get_rect(
-                                                center=(self.screen.get_width() / 2, self.screen.get_height() / 2))
+                                                center=(
+                                                    self.screen.get_width() / 2,
+                                                    self.screen.get_height() / 2,
+                                                )
+                                            )
 
                                             self.update()
                                             self.screen.blit(
-                                                loadedTipText, loadedTipRect)
+                                                loadedTipText, loadedTipRect
+                                            )
                                             pygame.display.update()
                                             time.sleep(0.5)
                                             self.lastTime = time.time()
@@ -483,11 +514,13 @@ class Game:
                                         if event.key == pygame.K_r:
                                             self.elements["all"].clear()
                                             for option in self.elementMenu.options:
-                                                self.elements[option.type].clear(
-                                                )
+                                                self.elements[option.type].clear()
                                             self.isElementControlling = False
 
-                                        if event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL:
+                                        if (
+                                            event.key == pygame.K_LCTRL
+                                            or event.key == pygame.K_RCTRL
+                                        ):
                                             self.isCtrlPressing = True
 
                                         if event.key == pygame.K_ESCAPE:
@@ -495,7 +528,10 @@ class Game:
 
                                     if event.type == pygame.MOUSEBUTTONDOWN:
 
-                                        if not elementController.isMouseOn() or element.isMouseOn(self):
+                                        if (
+                                            not elementController.isMouseOn()
+                                            or element.isMouseOn(self)
+                                        ):
                                             self.isElementControlling = False
                                             element.highLighted = False
 
@@ -513,13 +549,20 @@ class Game:
                         element.highLighted = False
                         element.isFollowing = False
 
-                    self.x += self.screenToReal(pygame.mouse.get_pos()
-                                                [0] - self.mousePos[0])
+                    self.x += self.screenToReal(
+                        pygame.mouse.get_pos()[0] - self.mousePos[0]
+                    )
 
-                    if not self.isFloorIllegal or self.screenToReal(
-                            pygame.mouse.get_pos()[1] - self.mousePos[1]) > 0:
-                        self.y += self.screenToReal(pygame.mouse.get_pos()
-                                                    [1] - self.mousePos[1])
+                    if (
+                        not self.isFloorIllegal
+                        or self.screenToReal(
+                            pygame.mouse.get_pos()[1] - self.mousePos[1]
+                        )
+                        > 0
+                    ):
+                        self.y += self.screenToReal(
+                            pygame.mouse.get_pos()[1] - self.mousePos[1]
+                        )
 
                     self.mousePos = pygame.mouse.get_pos()
 
@@ -536,21 +579,26 @@ class Game:
 
                 if event.button == 2:
                     for element in self.elements["all"]:
-                        if (element.isMouseOn(self)):
+                        if element.isMouseOn(self):
                             element.copy(self)
                             break
 
             if event.type == pygame.KEYDOWN:
 
-                if event.key == pygame.K_z and self.isCtrlPressing and len(
-                        self.elements["all"]) > 0:
+                if (
+                    event.key == pygame.K_z
+                    and self.isCtrlPressing
+                    and len(self.elements["all"]) > 0
+                ):
                     lastElement = self.elements["all"][-1]
                     self.elements["all"].remove(lastElement)
 
                     for ball in self.elements["ball"]:
-                        ball.displayedAcceleration = ball.acceleration + \
-                            (ball.displayedAcceleration - ball.acceleration) * \
-                            ball.displayedAccelerationFactor
+                        ball.displayedAcceleration = (
+                            ball.acceleration
+                            + (ball.displayedAcceleration - ball.acceleration)
+                            * ball.displayedAccelerationFactor
+                        )
                         ball.displayedAccelerationFactor = 1
 
                     for option in self.elementMenu.options:
@@ -584,9 +632,14 @@ class Game:
                 if pygame.K_1 <= event.key <= pygame.K_9:
                     self.loadGame(f"default/{str(event.key - pygame.K_0)}")
                     loadedTipText = self.fontSmall.render(
-                        f"{self.gameName}加载成功", True, (0, 0, 0))
+                        f"{self.gameName}加载成功", True, (0, 0, 0)
+                    )
                     loadedTipRect = loadedTipText.get_rect(
-                        center=(self.screen.get_width() / 2, self.screen.get_height() / 2))
+                        center=(
+                            self.screen.get_width() / 2,
+                            self.screen.get_height() / 2,
+                        )
+                    )
 
                     self.update()
                     self.screen.blit(loadedTipText, loadedTipRect)
@@ -622,8 +675,15 @@ class Game:
 
                 # 测试 !!!
                 if event.key == pygame.K_t:
-                    rope = Rope(self.elements["ball"][-2], self.elements["ball"][-1], self.elements["ball"]
-                                [-2].getPosition().distance(self.elements["ball"][-1].getPosition()), 1, "red")
+                    rope = Rope(
+                        self.elements["ball"][-2],
+                        self.elements["ball"][-1],
+                        self.elements["ball"][-2]
+                        .getPosition()
+                        .distance(self.elements["ball"][-1].getPosition()),
+                        1,
+                        "red",
+                    )
                     self.elements["all"].append(rope)
                     self.elements["rope"].append(rope)
 
@@ -654,15 +714,20 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
 
-                    if event.key == pygame.K_z and self.isCtrlPressing and len(
-                            self.elements["all"]) > 0:
+                    if (
+                        event.key == pygame.K_z
+                        and self.isCtrlPressing
+                        and len(self.elements["all"]) > 0
+                    ):
                         lastElement = self.elements["all"][-1]
                         self.elements["all"].remove(lastElement)
 
                         for ball in self.elements["ball"]:
-                            ball.displayedAcceleration = ball.acceleration + \
-                                (ball.displayedAcceleration - ball.acceleration) * \
-                                ball.displayedAccelerationFactor
+                            ball.displayedAcceleration = (
+                                ball.acceleration
+                                + (ball.displayedAcceleration - ball.acceleration)
+                                * ball.displayedAccelerationFactor
+                            )
                             ball.displayedAccelerationFactor = 1
 
                         for option in self.elementMenu.options:
@@ -670,7 +735,11 @@ class Game:
                                 self.elements[option.type].remove(lastElement)
                                 break
 
-                    if event.key == pygame.K_m or event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
+                    if (
+                        event.key == pygame.K_m
+                        or event.key == pygame.K_ESCAPE
+                        or event.key == pygame.K_RETURN
+                    ):
                         self.isEditing = False
 
                 inputMenu.updateBoxes(event, self)
@@ -729,8 +798,11 @@ class Game:
 
         self.x += self.rightMove
         self.y += self.upMove
-        if self.realToScreen(self.floor.vertexes[0].y, self.y) < self.screen.get_height(
-        ) * 2 / 3 and not self.isCelestialBodyMode:
+        if (
+            self.realToScreen(self.floor.vertexes[0].y, self.y)
+            < self.screen.get_height() * 2 / 3
+            and not self.isCelestialBodyMode
+        ):
             self.isFloorIllegal = True
         else:
             self.isFloorIllegal = False
@@ -744,7 +816,8 @@ class Game:
         if self.elementMenu is None:
             with open("config/elementOptions.json", "r", encoding="utf-8") as filenames:
                 self.elementMenu = Menu(
-                    Vector2(width * 97 / 100, 0), json.load(filenames))
+                    Vector2(width * 97 / 100, 0), json.load(filenames)
+                )
         self.elementMenu.draw(game=self)
 
         if self.exampleMenu is None:
@@ -761,15 +834,9 @@ class Game:
                             "name": data["gameName"],
                             "type": "example",
                             "attrs": [
-                                {
-                                    "type": "path",
-                                    "value": "default/" + file
-                                },
-                                {
-                                    "type": "icon",
-                                    "value": data["icon"]
-                                }
-                            ]
+                                {"type": "path", "value": "default/" + file},
+                                {"type": "icon", "value": data["icon"]},
+                            ],
                         }
 
                         examples.append(example)
@@ -782,12 +849,7 @@ class Game:
                         example = {
                             "name": os.path.basename(dirpath),
                             "type": "example",
-                            "attrs": [
-                                {
-                                    "type": "path",
-                                    "value": "default/" + file
-                                }
-                            ]
+                            "attrs": [{"type": "path", "value": "default/" + file}],
                         }
 
                         examples.append(example)
@@ -798,8 +860,10 @@ class Game:
         self.exampleMenu.draw(game=self)
 
         if self.speed != 0:
-            if self.fpsAverage / \
-                    abs(self.speed) ** 0.5 < 60 or self.fpsMinimum / abs(self.speed) ** 0.5 < 30:
+            if (
+                self.fpsAverage / abs(self.speed) ** 0.5 < 60
+                or self.fpsMinimum / abs(self.speed) ** 0.5 < 30
+            ):
                 fpsTextColor = "red"
             elif self.fpsMinimum / abs(self.speed) ** 0.5 < 60:
                 fpsTextColor = "darkorange"
@@ -809,7 +873,10 @@ class Game:
             fpsTextColor = "darkgreen"
 
         fpsText = self.fontSmall.render(
-            f"fps = {self.fpsAverage: .0f} / {self.fpsMinimum: .0f} ", True, fpsTextColor)
+            f"fps = {self.fpsAverage: .0f} / {self.fpsMinimum: .0f} ",
+            True,
+            fpsTextColor,
+        )
         fpsTextRect = fpsText.get_rect()
         fpsTextRect.x = self.screen.get_width() - fpsText.get_width()
         fpsTextRect.y = 0
@@ -831,40 +898,56 @@ class Game:
                 objectCountTextColor = "black"
 
         objectCountText = self.fontSmall.render(
-            f"物体数量 = {len(self.elements["all"])} ", True, objectCountTextColor)
+            f"物体数量 = {len(self.elements["all"])} ", True, objectCountTextColor
+        )
         objectCountTextRect = objectCountText.get_rect()
         objectCountTextRect.x = self.screen.get_width() - objectCountText.get_width()
         objectCountTextRect.y = fpsText.get_height()
         self.screen.blit(objectCountText, objectCountTextRect)
 
         mousePosText = self.fontSmall.render(
-            f"鼠标位置 = ( {int(self.screenToReal(pygame.mouse.get_pos()[0] / 10, self.x))}, {-int(self.screenToReal(pygame.mouse.get_pos()[1] / 10, self.y))} ) ", True, "black")
+            f"鼠标位置 = ( {int(self.screenToReal(pygame.mouse.get_pos()[0] / 10, self.x))}, {-int(self.screenToReal(pygame.mouse.get_pos()[1] / 10, self.y))} ) ",
+            True,
+            "black",
+        )
         mousePosTextRect = mousePosText.get_rect()
         mousePosTextRect.x = self.screen.get_width() - mousePosText.get_width()
         mousePosTextRect.y = fpsText.get_height() + objectCountText.get_height()
         self.screen.blit(mousePosText, mousePosTextRect)
 
         ratioText = self.fontSmall.render(
-            f"缩放比例 = {self.ratio: .1f}x ", True, "black")
+            f"缩放比例 = {self.ratio: .1f}x ", True, "black"
+        )
         ratioTextRect = ratioText.get_rect()
         ratioTextRect.x = self.screen.get_width() - ratioText.get_width()
-        ratioTextRect.y = fpsText.get_height() + objectCountText.get_height() + \
-            mousePosText.get_height()
+        ratioTextRect.y = (
+            fpsText.get_height()
+            + objectCountText.get_height()
+            + mousePosText.get_height()
+        )
         self.screen.blit(ratioText, ratioTextRect)
 
-        speedText = self.fontSmall.render(
-            f"倍速 = {self.speed: .1f}x ", True, "black")
+        speedText = self.fontSmall.render(f"倍速 = {self.speed: .1f}x ", True, "black")
         speedTextRect = speedText.get_rect()
         speedTextRect.x = self.screen.get_width() - speedText.get_width()
-        speedTextRect.y = fpsText.get_height() + objectCountText.get_height() + \
-            mousePosText.get_height() + ratioText.get_height()
+        speedTextRect.y = (
+            fpsText.get_height()
+            + objectCountText.get_height()
+            + mousePosText.get_height()
+            + ratioText.get_height()
+        )
         self.screen.blit(speedText, speedTextRect)
 
         pauseText = self.fontSmall.render(f"已暂停 ", True, "red")
         pauseTextRect = pauseText.get_rect()
         pauseTextRect.x = self.screen.get_width() - pauseText.get_width()
-        pauseTextRect.y = fpsText.get_height() + objectCountText.get_height() + \
-            mousePosText.get_height() + ratioText.get_height() + speedText.get_height()
+        pauseTextRect.y = (
+            fpsText.get_height()
+            + objectCountText.get_height()
+            + mousePosText.get_height()
+            + ratioText.get_height()
+            + speedText.get_height()
+        )
         if self.isPaused and self.tempFrames == 0:
             self.screen.blit(pauseText, pauseTextRect)
 
@@ -873,8 +956,7 @@ class Game:
             if option.isMouseOn():
                 option.highLighted = True
                 nameText = self.fontSmall.render(option.name, True, (0, 0, 0))
-                nameTextRect = nameText.get_rect(
-                    center=(x + nameText.get_width(), y))
+                nameTextRect = nameText.get_rect(center=(x + nameText.get_width(), y))
                 self.screen.blit(nameText, nameTextRect)
             else:
                 option.highLighted = False
@@ -883,8 +965,7 @@ class Game:
             if option.isMouseOn():
                 option.highLighted = True
                 nameText = self.fontSmall.render(option.name, True, (0, 0, 0))
-                nameTextRect = nameText.get_rect(
-                    center=(x - nameText.get_width(), y))
+                nameTextRect = nameText.get_rect(center=(x - nameText.get_width(), y))
                 self.screen.blit(nameText, nameTextRect)
             else:
                 if not option.selected:
@@ -893,14 +974,14 @@ class Game:
     def updateElements(self) -> None:
         """更新所有物理元素状态"""
         for element in self.groundElements["all"]:
-            if element.position.y <= -1.5e+7:
+            if element.position.y <= -1.5e7:
                 self.groundElements["all"].remove(element)
                 self.groundElements[element.type].remove(element)
                 self.celestialElements["all"].append(element)
                 self.celestialElements[element.type].append(element)
 
         for element in self.celestialElements["all"]:
-            if element.position.y >= -1.5e+7:
+            if element.position.y >= -1.5e7:
                 self.groundElements["all"].append(element)
                 self.groundElements[element.type].append(element)
                 self.celestialElements["all"].remove(element)
@@ -931,54 +1012,89 @@ class Game:
                 self.screen.blit(followingTipsText, followingTipsTextRect)
 
                 massTipsText = self.fontBig.render(
-                    f"质量：{ball.mass: .1f}", True, "darkgreen")
+                    f"质量：{ball.mass: .1f}", True, "darkgreen"
+                )
                 massTipsTextRect = massTipsText.get_rect()
                 massTipsTextRect.x = self.screen.get_width() / 2
-                massTipsTextRect.y = self.screen.get_height() / 50 + followingTipsText.get_height()
+                massTipsTextRect.y = (
+                    self.screen.get_height() / 50 + followingTipsText.get_height()
+                )
                 self.screen.blit(massTipsText, massTipsTextRect)
 
                 radiusTipsText = self.fontBig.render(
-                    f"半径：{ball.radius: .1f}", True, "darkgreen")
+                    f"半径：{ball.radius: .1f}", True, "darkgreen"
+                )
                 radiusTipsTextRect = radiusTipsText.get_rect()
                 radiusTipsTextRect.x = self.screen.get_width() / 2
-                radiusTipsTextRect.y = self.screen.get_height(
-                ) / 50 + followingTipsText.get_height() + massTipsText.get_height()
+                radiusTipsTextRect.y = (
+                    self.screen.get_height() / 50
+                    + followingTipsText.get_height()
+                    + massTipsText.get_height()
+                )
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
 
                 ballPos = ball.position
                 tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
 
-                acceleration = ball.acceleration + \
-                    (ball.displayedAcceleration - ball.acceleration) * \
-                    ball.displayedAccelerationFactor
-                accelerationPosition = ballPos + acceleration.copy().normalize() * \
-                    abs(acceleration) ** 0.5 * 2
-                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
-                    self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
+                acceleration = (
+                    ball.acceleration
+                    + (ball.displayedAcceleration - ball.acceleration)
+                    * ball.displayedAccelerationFactor
+                )
+                accelerationPosition = (
+                    ballPos
+                    + acceleration.copy().normalize() * abs(acceleration) ** 0.5 * 2
+                )
+                tempOption.drawArrow(
+                    self,
+                    (
+                        self.realToScreen(ballPos.x, self.x),
+                        self.realToScreen(ballPos.y, self.y),
+                    ),
+                    (
+                        self.realToScreen(accelerationPosition.x, self.x),
+                        self.realToScreen(accelerationPosition.y, self.y),
+                    ),
+                    "red",
+                )
                 accelerationTipsText = self.fontBig.render(
-                    f"加速度：{abs(acceleration) / 10: .1f} m/s²", True, "red")
+                    f"加速度：{abs(acceleration) / 10: .1f} m/s²", True, "red"
+                )
                 accelerationTipsTextRect = accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(
-                    accelerationPosition.x, self.x)
+                    accelerationPosition.x, self.x
+                )
                 accelerationTipsTextRect.y = self.realToScreen(
-                    accelerationPosition.y, self.y)
-                self.screen.blit(accelerationTipsText,
-                                 accelerationTipsTextRect)
+                    accelerationPosition.y, self.y
+                )
+                self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
 
-                velocity = ball.velocity + \
-                    (ball.displayedVelocity - ball.velocity) * \
-                    ball.displayedVelocityFactor
-                velocityPosition = ballPos + velocity.copy().normalize() * \
-                    abs(velocity) ** 0.5 * 2
-                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
-                    self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
+                velocity = (
+                    ball.velocity
+                    + (ball.displayedVelocity - ball.velocity)
+                    * ball.displayedVelocityFactor
+                )
+                velocityPosition = (
+                    ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2
+                )
+                tempOption.drawArrow(
+                    self,
+                    (
+                        self.realToScreen(ballPos.x, self.x),
+                        self.realToScreen(ballPos.y, self.y),
+                    ),
+                    (
+                        self.realToScreen(velocityPosition.x, self.x),
+                        self.realToScreen(velocityPosition.y, self.y),
+                    ),
+                    "blue",
+                )
                 velocityTipsText = self.fontBig.render(
-                    f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue")
+                    f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue"
+                )
                 velocityTipsTextRect = velocityTipsText.get_rect()
-                velocityTipsTextRect.x = self.realToScreen(
-                    velocityPosition.x, self.x)
-                velocityTipsTextRect.y = self.realToScreen(
-                    velocityPosition.y, self.y)
+                velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
                 self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
             if ball.isShowingInfo:
@@ -987,45 +1103,75 @@ class Game:
 
                 ballPos = ball.position
                 massTipsText = self.fontSmall.render(
-                    f"质量：{ball.mass: .1f}", True, "darkgreen")
+                    f"质量：{ball.mass: .1f}", True, "darkgreen"
+                )
                 massTipsTextRect = massTipsText.get_rect()
                 massTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
-                massTipsTextRect.y = self.realToScreen(
-                    ballPos.y, self.y) + massTipsText.get_height()
+                massTipsTextRect.y = (
+                    self.realToScreen(ballPos.y, self.y) + massTipsText.get_height()
+                )
                 self.screen.blit(massTipsText, massTipsTextRect)
 
                 tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
 
-                acceleration = ball.acceleration + \
-                    (ball.displayedAcceleration - ball.acceleration) * \
-                    ball.displayedAccelerationFactor
-                accelerationPosition = ballPos + acceleration.copy().normalize() * \
-                    abs(acceleration) ** 0.5
-                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
-                    self.realToScreen(accelerationPosition.x, self.x), self.realToScreen(accelerationPosition.y, self.y)), "red")
+                acceleration = (
+                    ball.acceleration
+                    + (ball.displayedAcceleration - ball.acceleration)
+                    * ball.displayedAccelerationFactor
+                )
+                accelerationPosition = (
+                    ballPos + acceleration.copy().normalize() * abs(acceleration) ** 0.5
+                )
+                tempOption.drawArrow(
+                    self,
+                    (
+                        self.realToScreen(ballPos.x, self.x),
+                        self.realToScreen(ballPos.y, self.y),
+                    ),
+                    (
+                        self.realToScreen(accelerationPosition.x, self.x),
+                        self.realToScreen(accelerationPosition.y, self.y),
+                    ),
+                    "red",
+                )
                 accelerationTipsText = self.fontSmall.render(
-                    f"加速度：{abs(acceleration) / 10: .1f} m/s²", True, "red")
+                    f"加速度：{abs(acceleration) / 10: .1f} m/s²", True, "red"
+                )
                 accelerationTipsTextRect = accelerationTipsText.get_rect()
                 accelerationTipsTextRect.x = self.realToScreen(
-                    accelerationPosition.x, self.x)
+                    accelerationPosition.x, self.x
+                )
                 accelerationTipsTextRect.y = self.realToScreen(
-                    accelerationPosition.y, self.y)
-                self.screen.blit(accelerationTipsText,
-                                 accelerationTipsTextRect)
+                    accelerationPosition.y, self.y
+                )
+                self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
 
-                velocity = ball.velocity + \
-                    (ball.displayedVelocity - ball.velocity) * \
-                    ball.displayedVelocityFactor
-                velocityPosition = ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5
-                tempOption.drawArrow(self, (self.realToScreen(ballPos.x, self.x), self.realToScreen(ballPos.y, self.y)), (
-                    self.realToScreen(velocityPosition.x, self.x), self.realToScreen(velocityPosition.y, self.y)), "blue")
+                velocity = (
+                    ball.velocity
+                    + (ball.displayedVelocity - ball.velocity)
+                    * ball.displayedVelocityFactor
+                )
+                velocityPosition = (
+                    ballPos + velocity.copy().normalize() * abs(velocity) ** 0.5
+                )
+                tempOption.drawArrow(
+                    self,
+                    (
+                        self.realToScreen(ballPos.x, self.x),
+                        self.realToScreen(ballPos.y, self.y),
+                    ),
+                    (
+                        self.realToScreen(velocityPosition.x, self.x),
+                        self.realToScreen(velocityPosition.y, self.y),
+                    ),
+                    "blue",
+                )
                 velocityTipsText = self.fontSmall.render(
-                    f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue")
+                    f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue"
+                )
                 velocityTipsTextRect = velocityTipsText.get_rect()
-                velocityTipsTextRect.x = self.realToScreen(
-                    velocityPosition.x, self.x)
-                velocityTipsTextRect.y = self.realToScreen(
-                    velocityPosition.y, self.y)
+                velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
                 self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
         for ball in self.elements["ball"]:
@@ -1044,11 +1190,15 @@ class Game:
                                 if ball1.isFollowing or ball2.isFollowing:
                                     newBall.isFollowing = True
 
-                                if (ball1 in self.elements["controlling"] and ball1.mass >= ball2.mass) or (
-                                        ball2 in self.elements["controlling"] and ball2.mass >= ball1.mass):
+                                if (
+                                    ball1 in self.elements["controlling"]
+                                    and ball1.mass >= ball2.mass
+                                ) or (
+                                    ball2 in self.elements["controlling"]
+                                    and ball2.mass >= ball1.mass
+                                ):
                                     self.elements["controlling"].clear()
-                                    self.elements["controlling"].append(
-                                        newBall)
+                                    self.elements["controlling"].append(newBall)
                                     newBall.highLighted = True
 
                                 self.elements["all"].remove(ball1)
@@ -1059,9 +1209,14 @@ class Game:
                                 self.elements["ball"].append(newBall)
 
                                 for ball in self.elements["ball"]:
-                                    ball.displayedAcceleration = ball.acceleration + \
-                                        (ball.displayedAcceleration - ball.acceleration) * \
-                                        ball.displayedAccelerationFactor
+                                    ball.displayedAcceleration = (
+                                        ball.acceleration
+                                        + (
+                                            ball.displayedAcceleration
+                                            - ball.acceleration
+                                        )
+                                        * ball.displayedAccelerationFactor
+                                    )
                                     ball.displayedAccelerationFactor = 1
                             else:
                                 ball1.reboundByBall(ball2)
@@ -1101,13 +1256,15 @@ class Game:
         for wall in self.elements["wall"]:
             for line in wall.lines:
                 for ball in self.elements["ball"]:
-                    if ball.isCollidedByLine(
-                            line) and not wall.isPosOn(self, ball.position):
+                    if ball.isCollidedByLine(line) and not wall.isPosOn(
+                        self, ball.position
+                    ):
                         ball.reboundByLine(line)
 
         if not self.isCelestialBodyMode:
             self.floor.position.x = self.screenToReal(
-                self.screen.get_width() / 2, self.x)
+                self.screen.get_width() / 2, self.x
+            )
             self.floor.update(deltaTime)
             self.floor.draw(self)
 
@@ -1172,11 +1329,9 @@ class Game:
 
             distance = ball.position.distance(ball2.position)
 
-            if G * ball.mass * ball2.mass / \
-                    (distance ** 2 + 1e-6) > maxGravitation:
+            if G * ball.mass * ball2.mass / (distance**2 + 1e-6) > maxGravitation:
                 result = ball2
-                maxGravitation = G * ball.mass * \
-                    ball2.mass / (distance ** 2 + 1e-6)
+                maxGravitation = G * ball.mass * ball2.mass / (distance**2 + 1e-6)
 
         return result
 
@@ -1198,7 +1353,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height()) / 2 < 1.5e+7:
+        if self.y - self.screenToReal(self.screen.get_height()) / 2 < 1.5e7:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -1246,7 +1401,7 @@ class Game:
             self.y = self.lastY
             self.lastY = y
 
-        if self.y - self.screenToReal(self.screen.get_height()) / 2 >= 1.5e+7:
+        if self.y - self.screenToReal(self.screen.get_height()) / 2 >= 1.5e7:
             self.isModeChangingNaturally = True
             for option in self.environmentOptions:
 
@@ -1280,8 +1435,16 @@ class Menu:
 
         self.options: list = []
         for i in range(len(self.optionsList)):
-            option = Option(Vector2(self.x + self.width * 1 / 10, self.y + self.width * 1 / 10 + i * self.width * 9 / 10), Vector2(
-                self.width * 8 / 10, self.width * 8 / 10), self.optionsList[i]["type"], self.optionsList[i]["attrs"], self)
+            option = Option(
+                Vector2(
+                    self.x + self.width * 1 / 10,
+                    self.y + self.width * 1 / 10 + i * self.width * 9 / 10,
+                ),
+                Vector2(self.width * 8 / 10, self.width * 8 / 10),
+                self.optionsList[i]["type"],
+                self.optionsList[i]["attrs"],
+                self,
+            )
             option.name = self.optionsList[i]["name"]
             self.options.append(option)
 
@@ -1292,13 +1455,21 @@ class Menu:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定位置是否在菜单区域"""
-        return pos.x > self.x and pos.x < self.x + \
-            self.width and pos.y > self.y and pos.y < self.y + self.height
+        return (
+            pos.x > self.x
+            and pos.x < self.x + self.width
+            and pos.y > self.y
+            and pos.y < self.y + self.height
+        )
 
     def draw(self, game: Game) -> None:
         """绘制菜单界面"""
-        pygame.draw.rect(game.screen, (220, 220, 220), (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width * 15 / 100))
+        pygame.draw.rect(
+            game.screen,
+            (220, 220, 220),
+            (self.x, self.y, self.width, self.height),
+            border_radius=int(self.width * 15 / 100),
+        )
         for option in self.options:
             option.draw(game)
 
@@ -1306,8 +1477,9 @@ class Menu:
 class Option:
     """菜单选项类"""
 
-    def __init__(self, pos: Vector2, size: Vector2,
-                 type: str, attrs_: list, menu: Menu) -> None:
+    def __init__(
+        self, pos: Vector2, size: Vector2, type: str, attrs_: list, menu: Menu
+    ) -> None:
         self.x: float = pos.x
         self.y: float = pos.y
         self.width: float = size.x
@@ -1324,8 +1496,13 @@ class Option:
         for attr in self.attrs_:
             self.attrs[attr["type"]] = attr["value"]
 
-    def drawArrow(self, game: Game, startPos: tuple[float, float],
-                  endPos: tuple[float, float], color: pygame.Color) -> None:
+    def drawArrow(
+        self,
+        game: Game,
+        startPos: tuple[float, float],
+        endPos: tuple[float, float],
+        color: pygame.Color,
+    ) -> None:
         """绘制箭头（坐标参数用tuple而不是Vector2）"""
         pygame.draw.line(game.screen, color, startPos, endPos, 3)
 
@@ -1341,17 +1518,16 @@ class Option:
         # 计算箭头的两个端点
         arrowPoint1 = (
             endPos[0] - arrowLength * math.cos(angle - arrowAngle),
-            endPos[1] - arrowLength * math.sin(angle - arrowAngle)
+            endPos[1] - arrowLength * math.sin(angle - arrowAngle),
         )
 
         arrowPoint2 = (
             endPos[0] - arrowLength * math.cos(angle + arrowAngle),
-            endPos[1] - arrowLength * math.sin(angle + arrowAngle)
+            endPos[1] - arrowLength * math.sin(angle + arrowAngle),
         )
 
         # 绘制箭头
-        pygame.draw.polygon(game.screen, color, [
-                            endPos, arrowPoint1, arrowPoint2])
+        pygame.draw.polygon(game.screen, color, [endPos, arrowPoint1, arrowPoint2])
 
     def isMouseOn(self) -> bool:
         """判断鼠标是否在选项区域"""
@@ -1360,8 +1536,12 @@ class Option:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定位置是否在选项区域"""
-        return pos.x > self.x and pos.x < self.x + \
-            self.width and pos.y > self.y and pos.y < self.y + self.height
+        return (
+            pos.x > self.x
+            and pos.x < self.x + self.width
+            and pos.y > self.y
+            and pos.y < self.y + self.height
+        )
 
     def ballCreate(self, game: Game) -> None:
         """创建球体"""
@@ -1387,57 +1567,107 @@ class Option:
 
             maximumGravitationBall = game.findMaximumGravitationBall(ball)
             if maximumGravitationBall is not None:
-                maximumGravitationBallCopy = copy.deepcopy(
-                    maximumGravitationBall)
+                maximumGravitationBallCopy = copy.deepcopy(maximumGravitationBall)
                 maximumGravitationBallCopy.velocity = ZERO
 
-            if game.isCelestialBodyMode and game.isCircularVelocityGetting and maximumGravitationBall is not None:
+            if (
+                game.isCelestialBodyMode
+                and game.isCircularVelocityGetting
+                and maximumGravitationBall is not None
+            ):
 
                 if 0 <= game.circularVelocityFactor <= 1:
                     circularVelocityFactorColor = colorMiddle(
-                        "green", "yellow", game.circularVelocityFactor)
+                        "green", "yellow", game.circularVelocityFactor
+                    )
                 elif 1 <= game.circularVelocityFactor <= 2**0.5:
                     circularVelocityFactorColor = colorMiddle(
-                        "yellow", "green", (game.circularVelocityFactor - 1) / (2**0.5 - 1))
+                        "yellow",
+                        "green",
+                        (game.circularVelocityFactor - 1) / (2**0.5 - 1),
+                    )
                 elif 2**0.5 <= game.circularVelocityFactor <= 2:
                     circularVelocityFactorColor = colorMiddle(
-                        "red", "yellow", (game.circularVelocityFactor - 2**0.5))
+                        "red", "yellow", (game.circularVelocityFactor - 2**0.5)
+                    )
                 else:
                     circularVelocityFactorColor = "red"
 
-                pygame.draw.circle(game.screen, circularVelocityFactorColor, game.realToScreen(maximumGravitationBall.position, Vector2(
-                    game.x, game.y)).toTuple(), game.realToScreen(ball.position.distance(maximumGravitationBall.position)), 3)
-                velocity = ball.getCircularVelocity(maximumGravitationBallCopy, game.circularVelocityFactor * (
-                    1 if game.isCircularVelocityDirectionAnticlockwise else -1))
-                self.drawArrow(game, mousePosition, game.realToScreen(ball.position + velocity.copy().normalize(
-                ) * abs(velocity) ** 0.5 * 2, Vector2(game.x, game.y)).toTuple(), circularVelocityFactorColor)
+                pygame.draw.circle(
+                    game.screen,
+                    circularVelocityFactorColor,
+                    game.realToScreen(
+                        maximumGravitationBall.position, Vector2(game.x, game.y)
+                    ).toTuple(),
+                    game.realToScreen(
+                        ball.position.distance(maximumGravitationBall.position)
+                    ),
+                    3,
+                )
+                velocity = ball.getCircularVelocity(
+                    maximumGravitationBallCopy,
+                    game.circularVelocityFactor
+                    * (1 if game.isCircularVelocityDirectionAnticlockwise else -1),
+                )
+                self.drawArrow(
+                    game,
+                    mousePosition,
+                    game.realToScreen(
+                        ball.position
+                        + velocity.copy().normalize() * abs(velocity) ** 0.5 * 2,
+                        Vector2(game.x, game.y),
+                    ).toTuple(),
+                    circularVelocityFactorColor,
+                )
 
                 if game.circularVelocityFactor != 1:
                     circularVelocityFactorText = game.fontSmall.render(
-                        f"{game.circularVelocityFactor: .1f}x", True, circularVelocityFactorColor)
+                        f"{game.circularVelocityFactor: .1f}x",
+                        True,
+                        circularVelocityFactorColor,
+                    )
                     circularVelocityFactorRect = circularVelocityFactorText.get_rect()
-                    circularVelocityFactorRect.x = pygame.mouse.get_pos()[
-                        0] + game.fontSmall.get_height()
-                    circularVelocityFactorRect.y = pygame.mouse.get_pos(
-                    )[1] - game.fontSmall.get_height() - game.realToScreen(ball.radius)
-                    game.screen.blit(circularVelocityFactorText,
-                                     circularVelocityFactorRect)
+                    circularVelocityFactorRect.x = (
+                        pygame.mouse.get_pos()[0] + game.fontSmall.get_height()
+                    )
+                    circularVelocityFactorRect.y = (
+                        pygame.mouse.get_pos()[1]
+                        - game.fontSmall.get_height()
+                        - game.realToScreen(ball.radius)
+                    )
+                    game.screen.blit(
+                        circularVelocityFactorText, circularVelocityFactorRect
+                    )
 
             if not game.isDragging:
 
-                ball = Ball(Vector2(game.screenToReal(mousePosition[0], game.x), game.screenToReal(
-                    mousePosition[1], game.y)), radius, color, mass, ZERO, [ZERO], True)
+                ball = Ball(
+                    Vector2(
+                        game.screenToReal(mousePosition[0], game.x),
+                        game.screenToReal(mousePosition[1], game.y),
+                    ),
+                    radius,
+                    color,
+                    mass,
+                    ZERO,
+                    [ZERO],
+                    True,
+                )
                 self.creationPoints = [ball.position, ball.position]
                 ball.draw(game)
                 radiusText = game.fontSmall.render(
-                    f"半径 = {radius}", True, colorSuitable(ball.color, game.background))
+                    f"半径 = {radius}", True, colorSuitable(ball.color, game.background)
+                )
                 radiusTextRect = radiusText.get_rect()
                 radiusTextRect.x = mousePosition[0]
                 radiusTextRect.y = mousePosition[1]
                 game.screen.blit(radiusText, radiusTextRect)
 
                 massText = game.fontSmall.render(
-                    f"质量 = {mass: .1f}", True, colorSuitable(ball.color, game.background))
+                    f"质量 = {mass: .1f}",
+                    True,
+                    colorSuitable(ball.color, game.background),
+                )
                 massTextRect = massText.get_rect()
                 massTextRect.x = mousePosition[0]
                 massTextRect.y = mousePosition[1] + radiusText.get_height()
@@ -1446,13 +1676,19 @@ class Option:
             if game.isDragging:
 
                 if not game.isCelestialBodyMode or not game.isCircularVelocityGetting:
-                    startPos = (game.realToScreen(ball.position.x, game.x),
-                                game.realToScreen(ball.position.y, game.y))
-                    endPos = (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(
-                        self.creationPoints[1].y, game.y))
+                    startPos = (
+                        game.realToScreen(ball.position.x, game.x),
+                        game.realToScreen(ball.position.y, game.y),
+                    )
+                    endPos = (
+                        game.realToScreen(self.creationPoints[1].x, game.x),
+                        game.realToScreen(self.creationPoints[1].y, game.y),
+                    )
 
-                    self.creationPoints[1] = Vector2(game.screenToReal(
-                        mousePosition[0], game.x), game.screenToReal(mousePosition[1], game.y))
+                    self.creationPoints[1] = Vector2(
+                        game.screenToReal(mousePosition[0], game.x),
+                        game.screenToReal(mousePosition[1], game.y),
+                    )
 
                     if coordinator.isMouseOn():
                         self.drawArrow(game, startPos, endPos, "yellow")
@@ -1462,13 +1698,16 @@ class Option:
                     ball.draw(game)
                     coordinator.position = ball.position
                     self.additionVelocity = (
-                        self.creationPoints[1] - self.creationPoints[0]) * 2
+                        self.creationPoints[1] - self.creationPoints[0]
+                    ) * 2
                     coordinator.update(game)
                     coordinator.draw(game, self)
 
                 else:
-                    ball.position = Vector2(game.screenToReal(
-                        mousePosition[0], game.x), game.screenToReal(mousePosition[1], game.y))
+                    ball.position = Vector2(
+                        game.screenToReal(mousePosition[0], game.x),
+                        game.screenToReal(mousePosition[1], game.y),
+                    )
                     ball.draw(game)
                     coordinator.position = ball.position
                     coordinator.update(game)
@@ -1490,11 +1729,26 @@ class Option:
                                 break
 
                         if not game.elementMenu.isMouseOn() and allowToPlace:
-                            ball = Ball(Vector2(game.screenToReal(mousePosition[0], game.x), game.screenToReal(
-                                mousePosition[1], game.y)), radius, color, mass, ZERO, [ZERO])
+                            ball = Ball(
+                                Vector2(
+                                    game.screenToReal(mousePosition[0], game.x),
+                                    game.screenToReal(mousePosition[1], game.y),
+                                ),
+                                radius,
+                                color,
+                                mass,
+                                ZERO,
+                                [ZERO],
+                            )
 
-                    elif event.button == 3 and game.isCelestialBodyMode and game.isCircularVelocityGetting:
-                        game.isCircularVelocityDirectionAnticlockwise = not game.isCircularVelocityDirectionAnticlockwise
+                    elif (
+                        event.button == 3
+                        and game.isCelestialBodyMode
+                        and game.isCircularVelocityGetting
+                    ):
+                        game.isCircularVelocityDirectionAnticlockwise = (
+                            not game.isCircularVelocityDirectionAnticlockwise
+                        )
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
 
@@ -1510,32 +1764,59 @@ class Option:
                                 game.isElementCreating = False
                                 self.highLighted = False
                                 self.selected = False
-                                option.createElement(game, Vector2(
-                                    mousePosition[0], mousePosition[1]))
+                                option.createElement(
+                                    game, Vector2(mousePosition[0], mousePosition[1])
+                                )
                                 break
 
                     elif not game.elementMenu.isMouseOn() or game.isDragging:
                         game.isDragging = False
-                        ball = Ball(ball.position, radius, color, mass, Vector2(game.screenToReal(mousePosition[0], game.x) - ball.position.x, game.screenToReal(
-                            mousePosition[1], game.y) - ball.position.y) * 2, [], gravitation=game.isCelestialBodyMode)
-                        maximumGravitationBall = game.findMaximumGravitationBall(
-                            ball)
+                        ball = Ball(
+                            ball.position,
+                            radius,
+                            color,
+                            mass,
+                            Vector2(
+                                game.screenToReal(mousePosition[0], game.x)
+                                - ball.position.x,
+                                game.screenToReal(mousePosition[1], game.y)
+                                - ball.position.y,
+                            )
+                            * 2,
+                            [],
+                            gravitation=game.isCelestialBodyMode,
+                        )
+                        maximumGravitationBall = game.findMaximumGravitationBall(ball)
                         if maximumGravitationBall is not None:
                             maximumGravitationBallCopy = copy.deepcopy(
-                                maximumGravitationBall)
+                                maximumGravitationBall
+                            )
                             maximumGravitationBallCopy.velocity = ZERO
 
-                        if maximumGravitationBall is not None and game.isCelestialBodyMode and game.isCircularVelocityGetting:
-                            ball.velocity = ball.getCircularVelocity(maximumGravitationBall, game.circularVelocityFactor * (
-                                1 if game.isCircularVelocityDirectionAnticlockwise else -1))
+                        if (
+                            maximumGravitationBall is not None
+                            and game.isCelestialBodyMode
+                            and game.isCircularVelocityGetting
+                        ):
+                            ball.velocity = ball.getCircularVelocity(
+                                maximumGravitationBall,
+                                game.circularVelocityFactor
+                                * (
+                                    1
+                                    if game.isCircularVelocityDirectionAnticlockwise
+                                    else -1
+                                ),
+                            )
 
                         game.elements["all"].append(ball)
                         game.elements["ball"].append(ball)
 
                         for ball in game.elements["ball"]:
-                            ball.displayedAcceleration = ball.acceleration + \
-                                (ball.displayedAcceleration - ball.acceleration) * \
-                                ball.displayedAccelerationFactor
+                            ball.displayedAcceleration = (
+                                ball.acceleration
+                                + (ball.displayedAcceleration - ball.acceleration)
+                                * ball.displayedAccelerationFactor
+                            )
                             ball.displayedAccelerationFactor = 1
 
                     else:
@@ -1550,7 +1831,10 @@ class Option:
 
                 if event.type == pygame.MOUSEWHEEL and not game.isDragging:
 
-                    if not game.isCelestialBodyMode or not game.isCircularVelocityGetting:
+                    if (
+                        not game.isCelestialBodyMode
+                        or not game.isCircularVelocityGetting
+                    ):
 
                         if event.y == 1:
                             if game.isMassSetting:
@@ -1595,15 +1879,20 @@ class Option:
 
                 if event.type == pygame.KEYDOWN:
 
-                    if event.key == pygame.K_z and game.isCtrlPressing and len(
-                            self.elements["all"]) > 0:
+                    if (
+                        event.key == pygame.K_z
+                        and game.isCtrlPressing
+                        and len(self.elements["all"]) > 0
+                    ):
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
 
                         for ball in self.elements["ball"]:
-                            ball.displayedAcceleration = ball.acceleration + \
-                                (ball.displayedAcceleration - ball.acceleration) * \
-                                ball.displayedAccelerationFactor
+                            ball.displayedAcceleration = (
+                                ball.acceleration
+                                + (ball.displayedAcceleration - ball.acceleration)
+                                * ball.displayedAccelerationFactor
+                            )
                             ball.displayedAccelerationFactor = 1
 
                         for option in game.elementMenu.options:
@@ -1620,9 +1909,14 @@ class Option:
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
                         loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0))
+                            f"{game.gameName}加载成功", True, (0, 0, 0)
+                        )
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
+                            center=(
+                                game.screen.get_width() / 2,
+                                game.screen.get_height() / 2,
+                            )
+                        )
 
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
@@ -1691,28 +1985,67 @@ class Option:
             game.update()
 
             if clickNum % 4 == 3:
-                self.creationPoints[3] = Vector2(self.creationPoints[0].x + (self.creationPoints[2].x - self.creationPoints[1].x),
-                                                 self.creationPoints[0].y + (self.creationPoints[2].y - self.creationPoints[1].y))
+                self.creationPoints[3] = Vector2(
+                    self.creationPoints[0].x
+                    + (self.creationPoints[2].x - self.creationPoints[1].x),
+                    self.creationPoints[0].y
+                    + (self.creationPoints[2].y - self.creationPoints[1].y),
+                )
                 wall = Wall(self.creationPoints, self.attrs["color"])
                 game.elements["all"].append(wall)
                 game.elements["wall"].append(wall)
                 clickNum = 0
 
             if clickNum % 4 == 2:
-                pygame.draw.line(game.screen, self.attrs["color"], (game.realToScreen(self.creationPoints[0].x, game.x), game.realToScreen(
-                    self.creationPoints[0].y, game.y)), (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(self.creationPoints[1].y, game.y)))
+                pygame.draw.line(
+                    game.screen,
+                    self.attrs["color"],
+                    (
+                        game.realToScreen(self.creationPoints[0].x, game.x),
+                        game.realToScreen(self.creationPoints[0].y, game.y),
+                    ),
+                    (
+                        game.realToScreen(self.creationPoints[1].x, game.x),
+                        game.realToScreen(self.creationPoints[1].y, game.y),
+                    ),
+                )
 
                 pos = pygame.mouse.get_pos()
-                pos = Vector2(game.screenToReal(
-                    pos[0], game.x), game.screenToReal(pos[1], game.y))
+                pos = Vector2(
+                    game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)
+                )
                 line1 = self.creationPoints[0] - self.creationPoints[1]
                 line2 = pos - self.creationPoints[1]
                 line3 = line2.projectVertical(line1)
                 self.creationPoints[2] = self.creationPoints[1] + line3
-                self.creationPoints[3] = Vector2(self.creationPoints[0].x + (self.creationPoints[2].x - self.creationPoints[1].x),
-                                                 self.creationPoints[0].y + (self.creationPoints[2].y - self.creationPoints[1].y))
-                pygame.draw.polygon(game.screen, self.attrs["color"], [(game.realToScreen(self.creationPoints[0].x, game.x), game.realToScreen(self.creationPoints[0].y, game.y)), (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(
-                    self.creationPoints[1].y, game.y)), (game.realToScreen(self.creationPoints[2].x, game.x), game.realToScreen(self.creationPoints[2].y, game.y)), (game.realToScreen(self.creationPoints[3].x, game.x), game.realToScreen(self.creationPoints[3].y, game.y))])
+                self.creationPoints[3] = Vector2(
+                    self.creationPoints[0].x
+                    + (self.creationPoints[2].x - self.creationPoints[1].x),
+                    self.creationPoints[0].y
+                    + (self.creationPoints[2].y - self.creationPoints[1].y),
+                )
+                pygame.draw.polygon(
+                    game.screen,
+                    self.attrs["color"],
+                    [
+                        (
+                            game.realToScreen(self.creationPoints[0].x, game.x),
+                            game.realToScreen(self.creationPoints[0].y, game.y),
+                        ),
+                        (
+                            game.realToScreen(self.creationPoints[1].x, game.x),
+                            game.realToScreen(self.creationPoints[1].y, game.y),
+                        ),
+                        (
+                            game.realToScreen(self.creationPoints[2].x, game.x),
+                            game.realToScreen(self.creationPoints[2].y, game.y),
+                        ),
+                        (
+                            game.realToScreen(self.creationPoints[3].x, game.x),
+                            game.realToScreen(self.creationPoints[3].y, game.y),
+                        ),
+                    ],
+                )
                 pygame.display.update()
 
             if clickNum % 4 == 1:
@@ -1721,17 +2054,36 @@ class Option:
                 coordinator.draw(game, self)
 
                 if coordinator.isMouseOn():
-                    pygame.draw.line(game.screen, "yellow", (game.realToScreen(self.creationPoints[0].x, game.x), game.realToScreen(
-                        self.creationPoints[0].y, game.y)), (game.realToScreen(self.creationPoints[1].x, game.x), game.realToScreen(self.creationPoints[1].y, game.y)))
+                    pygame.draw.line(
+                        game.screen,
+                        "yellow",
+                        (
+                            game.realToScreen(self.creationPoints[0].x, game.x),
+                            game.realToScreen(self.creationPoints[0].y, game.y),
+                        ),
+                        (
+                            game.realToScreen(self.creationPoints[1].x, game.x),
+                            game.realToScreen(self.creationPoints[1].y, game.y),
+                        ),
+                    )
                 else:
-                    pygame.draw.line(game.screen, self.attrs["color"], (game.realToScreen(
-                        self.creationPoints[0].x, game.x), game.realToScreen(self.creationPoints[0].y, game.y)), pygame.mouse.get_pos())
+                    pygame.draw.line(
+                        game.screen,
+                        self.attrs["color"],
+                        (
+                            game.realToScreen(self.creationPoints[0].x, game.x),
+                            game.realToScreen(self.creationPoints[0].y, game.y),
+                        ),
+                        pygame.mouse.get_pos(),
+                    )
 
                 pygame.display.update()
 
             if clickNum % 4 == 0:
-                coordinator.position = Vector2(game.screenToReal(pygame.mouse.get_pos(
-                )[0], game.x), game.screenToReal(pygame.mouse.get_pos()[1], game.y))
+                coordinator.position = Vector2(
+                    game.screenToReal(pygame.mouse.get_pos()[0], game.x),
+                    game.screenToReal(pygame.mouse.get_pos()[1], game.y),
+                )
                 coordinator.width = 10
                 coordinator.update(game)
                 coordinator.draw(game, self)
@@ -1759,8 +2111,10 @@ class Option:
                                 if clickNum % 4 == 1:
 
                                     if not self.isAbsorption:
-                                        self.creationPoints[1] = Vector2(game.screenToReal(
-                                            event.pos[0], game.x), game.screenToReal(event.pos[1], game.y))
+                                        self.creationPoints[1] = Vector2(
+                                            game.screenToReal(event.pos[0], game.x),
+                                            game.screenToReal(event.pos[1], game.y),
+                                        )
                                         self.isAbsorption = False
 
                                     else:
@@ -1768,8 +2122,13 @@ class Option:
                                     clickNum += 1
 
                                 if clickNum % 4 == 0:
-                                    self.creationPoints = [Vector2(game.screenToReal(
-                                        event.pos[0], game.x), game.screenToReal(event.pos[1], game.y)) for i in range(4)]
+                                    self.creationPoints = [
+                                        Vector2(
+                                            game.screenToReal(event.pos[0], game.x),
+                                            game.screenToReal(event.pos[1], game.y),
+                                        )
+                                        for i in range(4)
+                                    ]
                                     clickNum += 1
 
                         if self.isMouseOn():
@@ -1799,15 +2158,20 @@ class Option:
                         setCapsLock(True)
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_z and game.isCtrlPressing and len(
-                            self.elements["all"]) > 0:
+                    if (
+                        event.key == pygame.K_z
+                        and game.isCtrlPressing
+                        and len(self.elements["all"]) > 0
+                    ):
                         lastElement = game.elements["all"][-1]
                         game.elements["all"].remove(lastElement)
 
                         for ball in self.elements["ball"]:
-                            ball.displayedAcceleration = ball.acceleration + \
-                                (ball.displayedAcceleration - ball.acceleration) * \
-                                ball.displayedAccelerationFactor
+                            ball.displayedAcceleration = (
+                                ball.acceleration
+                                + (ball.displayedAcceleration - ball.acceleration)
+                                * ball.displayedAccelerationFactor
+                            )
                             ball.displayedAccelerationFactor = 1
 
                         for option in game.elementMenu.options:
@@ -1824,9 +2188,14 @@ class Option:
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
                         loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0))
+                            f"{game.gameName}加载成功", True, (0, 0, 0)
+                        )
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
+                            center=(
+                                game.screen.get_width() / 2,
+                                game.screen.get_height() / 2,
+                            )
+                        )
 
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
@@ -1878,9 +2247,11 @@ class Option:
         attrs["path"] = attrs["path"].replace(".pkl", "")
         game.loadGame(attrs["path"])
         loadedTipText = game.fontSmall.render(
-            f"{game.gameName}加载成功", True, (0, 0, 0))
+            f"{game.gameName}加载成功", True, (0, 0, 0)
+        )
         loadedTipRect = loadedTipText.get_rect(
-            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
+            center=(game.screen.get_width() / 2, game.screen.get_height() / 2)
+        )
 
         game.update()
         game.screen.blit(loadedTipText, loadedTipRect)
@@ -1892,7 +2263,10 @@ class Option:
     def elementEdit(self, game: Game, attrs: list) -> None:
         """打开编辑元素属性框"""
         inputMenu = InputMenu(
-            Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2), game, self)
+            Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2),
+            game,
+            self,
+        )
 
         # 从元素实例获取实时属性值
         updated_attrs = []
@@ -1919,19 +2293,39 @@ class Option:
     def draw(self, game: Game) -> None:
         """绘制选项界面"""
         if self.highLighted:
-            pygame.draw.rect(game.screen, "yellow", (self.x - 3, self.y - 3,
-                             self.width + 6, self.height + 6), border_radius=int(self.width * 15 / 100))
+            pygame.draw.rect(
+                game.screen,
+                "yellow",
+                (self.x - 3, self.y - 3, self.width + 6, self.height + 6),
+                border_radius=int(self.width * 15 / 100),
+            )
 
-        pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width * 15 / 100))
+        pygame.draw.rect(
+            game.screen,
+            (255, 255, 255),
+            (self.x, self.y, self.width, self.height),
+            border_radius=int(self.width * 15 / 100),
+        )
 
         if self.type == "ball":
-            pygame.draw.circle(game.screen, self.attrs["color"], (
-                self.x + self.width / 2, self.y + self.height / 2), self.width / 3)
+            pygame.draw.circle(
+                game.screen,
+                self.attrs["color"],
+                (self.x + self.width / 2, self.y + self.height / 2),
+                self.width / 3,
+            )
 
         if self.type == "wall":
-            pygame.draw.rect(game.screen, self.attrs["color"], (
-                self.x + self.width / 10, self.y + self.height / 10, self.width * 8 / 10, self.height * 8 / 10))
+            pygame.draw.rect(
+                game.screen,
+                self.attrs["color"],
+                (
+                    self.x + self.width / 10,
+                    self.y + self.height / 10,
+                    self.width * 8 / 10,
+                    self.height * 8 / 10,
+                ),
+            )
 
         if self.type == "example":
 
@@ -1939,8 +2333,7 @@ class Option:
                 icon = pygame.image.load(self.attrs["icon"]).convert_alpha()
 
                 # 调整图片大小以适应给定的宽度和高度
-                scaled_icon = pygame.transform.scale(
-                    icon, (self.width, self.height))
+                scaled_icon = pygame.transform.scale(icon, (self.width, self.height))
 
                 # 计算图片的中心位置
                 icon_x = self.x + self.width / 2 - scaled_icon.get_width() / 2
@@ -1960,7 +2353,12 @@ class Option:
         x = pos.x
         y = pos.y
 
-        if x > self.x and x < self.x + self.width and y > self.y and y < self.y + self.height:
+        if (
+            x > self.x
+            and x < self.x + self.width
+            and y > self.y
+            and y < self.y + self.height
+        ):
             method = eval(f"self.{self.type}Create")
             method(game)
 
@@ -1969,15 +2367,19 @@ class Option:
         x = pos.x
         y = pos.y
 
-        if x > self.x and x < self.x + self.width and y > self.y and y < self.y + self.height:
+        if (
+            x > self.x
+            and x < self.x + self.width
+            and y > self.y
+            and y < self.y + self.height
+        ):
             self.elementEdit(game, list(self.attrs.keys()))
 
 
 class SettingsButton:
     """设置按钮控件类"""
 
-    def __init__(self, x: float, y: float, width: float,
-                 height: float) -> None:
+    def __init__(self, x: float, y: float, width: float, height: float) -> None:
         self.x: float = x
         self.y: float = y
         self.width: float = width
@@ -1988,7 +2390,8 @@ class SettingsButton:
 
         # 调整图片大小
         self.icon: pygame.Surface = pygame.transform.scale(
-            originalIcon, (self.width, self.height))
+            originalIcon, (self.width, self.height)
+        )
 
     def draw(self, game: Game) -> None:
         """绘制设置按钮"""
@@ -1996,28 +2399,40 @@ class SettingsButton:
 
     def isMouseOn(self) -> bool:
         """判断鼠标是否在按钮上"""
-        return self.isPosOn(Vector2(pygame.mouse.get_pos()[
-                            0], pygame.mouse.get_pos()[1]))
+        return self.isPosOn(
+            Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+        )
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在按钮上"""
-        return pos.x > self.x and pos.x < self.x + \
-            self.width and pos.y > self.y and pos.y < self.y + self.height
+        return (
+            pos.x > self.x
+            and pos.x < self.x + self.width
+            and pos.y > self.y
+            and pos.y < self.y + self.height
+        )
 
 
 class InputBox:
     """输入框控件类"""
 
-    def __init__(self, x: float, y: float, width: float, height: float,
-                 option: Option, target: Element, text: str = "") -> None:
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        option: Option,
+        target: Element,
+        text: str = "",
+    ) -> None:
         self.rect: pygame.Rect = pygame.Rect(x, y, width - 100, height)
         self.colorInactive: pygame.Color = pygame.Color("lightskyblue3")
         self.colorActive: pygame.Color = pygame.Color("dodgerblue2")
         self.color: pygame.Color = self.colorInactive
         self.text: str = text
         self.font: pygame.font.Font = pygame.font.Font(None, int(height))
-        self.textSurface: pygame.Surface = self.font.render(
-            self.text, True, self.color)
+        self.textSurface: pygame.Surface = self.font.render(self.text, True, self.color)
         self.active: bool = False
         self.cursorVisible: bool = True
         self.cursorTimer: float = 0
@@ -2053,7 +2468,8 @@ class InputBox:
 
                     else:
                         messagebox.showerror(
-                            "错误", "您输入的颜色不合法!!!\n请输入合法的颜色编号或名称!")
+                            "错误", "您输入的颜色不合法!!!\n请输入合法的颜色编号或名称!"
+                        )
                         game.isEditing = True
 
                 else:
@@ -2061,9 +2477,13 @@ class InputBox:
                     if self.option["type"] != "color":
 
                         if event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[: -1]
+                            self.text = self.text[:-1]
 
-                        if event.unicode.isdigit() or event.unicode == "." or event.unicode == "-":
+                        if (
+                            event.unicode.isdigit()
+                            or event.unicode == "."
+                            or event.unicode == "-"
+                        ):
 
                             try:
                                 self.text += event.unicode
@@ -2075,12 +2495,12 @@ class InputBox:
                                     self.text = str(self.max)
 
                             except ValueError:
-                                self.text = self.text[: -1]
+                                self.text = self.text[:-1]
 
                     else:
 
                         if event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[: -1]
+                            self.text = self.text[:-1]
 
                         if event.unicode.isalnum() or event.unicode == "#":
                             self.text += event.unicode
@@ -2090,7 +2510,7 @@ class InputBox:
                         try:
 
                             if len(self.text) != 0 and self.text[0] == "#":
-                                self.text = self.text[0: 7]
+                                self.text = self.text[0:7]
 
                             pygame.Color(self.text)
                             self.attrUpdate(self.target)
@@ -2128,10 +2548,18 @@ class InputBox:
 
         # 渲染光标
         if self.active and self.cursorVisible:
-            cursorPos = self.font.render(
-                self.text, True, self.color).get_width() + self.rect.x + 5
-            pygame.draw.line(screen, self.color, (cursorPos,
-                             self.rect.y + 5), (cursorPos, self.rect.y + 27), 2)
+            cursorPos = (
+                self.font.render(self.text, True, self.color).get_width()
+                + self.rect.x
+                + 5
+            )
+            pygame.draw.line(
+                screen,
+                self.color,
+                (cursorPos, self.rect.y + 5),
+                (cursorPos, self.rect.y + 27),
+                2,
+            )
 
 
 class InputMenu(Element):
@@ -2147,7 +2575,8 @@ class InputMenu(Element):
         self.y: float = position.y - self.height / 2
         self.commitFunction: str = ""
         self.font: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.verticalSpacing / 6))
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.verticalSpacing / 6)
+        )
         self.options: list[Option] = []
         self.inputBoxes: list[InputBox] = []
         self.target: Element = target
@@ -2164,8 +2593,15 @@ class InputMenu(Element):
             option = self.options[i]
             # 计算每个输入框的y坐标
             y = self.y + 10 + i * self.verticalSpacing
-            inputBox = InputBox(self.x + self.width * 3 / 10, y, self.width - self.width *
-                                3 / 10, self.verticalSpacing / 3, option, self.target, str(option["value"]))
+            inputBox = InputBox(
+                self.x + self.width * 3 / 10,
+                y,
+                self.width - self.width * 3 / 10,
+                self.verticalSpacing / 3,
+                option,
+                self.target,
+                str(option["value"]),
+            )
             self.height += self.verticalSpacing  # 更新InputMenu的高度
             self.inputBoxes.append(inputBox)
 
@@ -2181,8 +2617,12 @@ class InputMenu(Element):
 
     def draw(self, game: Game) -> None:
         """绘制输入菜单"""
-        pygame.draw.rect(game.screen, (255, 255, 255), (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width * 2 / 100))
+        pygame.draw.rect(
+            game.screen,
+            (255, 255, 255),
+            (self.x, self.y, self.width, self.height),
+            border_radius=int(self.width * 2 / 100),
+        )
 
         # 绘制所有输入框和选项文本
         length = len(self.options)
@@ -2192,8 +2632,7 @@ class InputMenu(Element):
             inputBox = self.inputBoxes[i]
 
             # 绘制选项文本
-            optionText = self.font.render(
-                game.translation[optionType], True, (0, 0, 0))
+            optionText = self.font.render(game.translation[optionType], True, (0, 0, 0))
             game.screen.blit(optionText, (self.x, inputBox.rect.y))
 
             # 绘制输入框
@@ -2203,8 +2642,15 @@ class InputMenu(Element):
 class ControlOption:
     """控制选项类"""
 
-    def __init__(self, name: str, x: float, y: float, width: float,
-                 height: float, color: pygame.Color) -> None:
+    def __init__(
+        self,
+        name: str,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        color: pygame.Color,
+    ) -> None:
         self.name: str = name
         self.x: float = x
         self.y: float = y
@@ -2215,7 +2661,10 @@ class ControlOption:
     def attrEditor(self, game: Game, target: Element) -> None:
         """打开属性编辑器"""
         inputMenu = InputMenu(
-            Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2), game, target)
+            Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2),
+            game,
+            target,
+        )
 
         for option in game.elementMenu.optionsList:
             if option["type"] == target.type:
@@ -2235,9 +2684,11 @@ class ControlOption:
                 game.elements[type].remove(target)
 
         for ball in game.elements["ball"]:
-            ball.displayedAcceleration = ball.acceleration + \
-                (ball.displayedAcceleration - ball.acceleration) * \
-                ball.displayedAccelerationFactor
+            ball.displayedAcceleration = (
+                ball.acceleration
+                + (ball.displayedAcceleration - ball.acceleration)
+                * ball.displayedAccelerationFactor
+            )
             ball.displayedAccelerationFactor = 1
 
     def follow(self, game: Game, target: Element) -> None:
@@ -2266,24 +2717,28 @@ class ControlOption:
         coordinator.position = target.position
         coordinator.update(game)
         tempOption.creationPoints = [target.position, target.position]
-        self.additionVelocity = tempOption.creationPoints[1] - \
-            tempOption.creationPoints[0]
+        self.additionVelocity = (
+            tempOption.creationPoints[1] - tempOption.creationPoints[0]
+        )
         originVelocity = target.velocity
         originAcceleration = target.acceleration
 
         while isAdding:
             target.position = tempOption.creationPoints[0]
             startPos = game.realToScreen(
-                target.position, Vector2(game.x, game.y)).toTuple()
+                target.position, Vector2(game.x, game.y)
+            ).toTuple()
             endPos = game.realToScreen(
-                tempOption.creationPoints[1], Vector2(game.x, game.y)).toTuple()
+                tempOption.creationPoints[1], Vector2(game.x, game.y)
+            ).toTuple()
             target.velocity = originVelocity
             target.acceleration = originAcceleration
 
             game.update()
             pos = pygame.mouse.get_pos()
             tempOption.creationPoints[1] = game.screenToReal(
-                Vector2(pos), Vector2(game.x, game.y))
+                Vector2(pos), Vector2(game.x, game.y)
+            )
 
             if coordinator.isMouseOn():
                 tempOption.drawArrow(game, startPos, endPos, "yellow")
@@ -2291,10 +2746,12 @@ class ControlOption:
                 tempOption.drawArrow(game, startPos, endPos, "blue")
 
             coordinator.update(game)
-            coordinator.draw(game, tempOption, str(
-                round(abs(self.additionVelocity) / 10)) + "m/s")
-            self.additionVelocity = tempOption.creationPoints[1] - \
-                tempOption.creationPoints[0]
+            coordinator.draw(
+                game, tempOption, str(round(abs(self.additionVelocity) / 10)) + "m/s"
+            )
+            self.additionVelocity = (
+                tempOption.creationPoints[1] - tempOption.creationPoints[0]
+            )
 
             for event in pygame.event.get():
 
@@ -2310,12 +2767,15 @@ class ControlOption:
                         setCapsLock(True)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    target.displayedVelocity = target.velocity + \
-                        (target.displayedVelocity - target.velocity) * \
-                        target.displayedVelocityFactor
+                    target.displayedVelocity = (
+                        target.velocity
+                        + (target.displayedVelocity - target.velocity)
+                        * target.displayedVelocityFactor
+                    )
                     target.displayedVelocityFactor = 1
-                    target.velocity += tempOption.creationPoints[1] - \
-                        tempOption.creationPoints[0]
+                    target.velocity += (
+                        tempOption.creationPoints[1] - tempOption.creationPoints[0]
+                    )
                     isAdding = False
                     target.highLighted = False
 
@@ -2333,9 +2793,14 @@ class ControlOption:
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
                         loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0))
+                            f"{game.gameName}加载成功", True, (0, 0, 0)
+                        )
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
+                            center=(
+                                game.screen.get_width() / 2,
+                                game.screen.get_height() / 2,
+                            )
+                        )
 
                         game.update()
                         game.screen.blit(loadedTipText, loadedTipRect)
@@ -2372,24 +2837,26 @@ class ControlOption:
         coordinator.position = target.position
         coordinator.update(game)
         tempOption.creationPoints = [target.position, target.position]
-        self.additionForce = tempOption.creationPoints[1] - \
-            tempOption.creationPoints[0]
+        self.additionForce = tempOption.creationPoints[1] - tempOption.creationPoints[0]
         originVelocity = target.velocity
         originAcceleration = target.acceleration
 
         while isAdding:
             target.position = tempOption.creationPoints[0]
             startPos = game.realToScreen(
-                target.position, Vector2(game.x, game.y)).toTuple()
+                target.position, Vector2(game.x, game.y)
+            ).toTuple()
             endPos = game.realToScreen(
-                tempOption.creationPoints[1], Vector2(game.x, game.y)).toTuple()
+                tempOption.creationPoints[1], Vector2(game.x, game.y)
+            ).toTuple()
             target.velocity = originVelocity
             target.acceleration = originAcceleration
 
             game.update()
             pos = pygame.mouse.get_pos()
-            tempOption.creationPoints[1] = Vector2(game.screenToReal(
-                pos[0], game.x), game.screenToReal(pos[1], game.y))
+            tempOption.creationPoints[1] = Vector2(
+                game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)
+            )
 
             if coordinator.isMouseOn():
                 tempOption.drawArrow(game, startPos, endPos, "yellow")
@@ -2397,10 +2864,12 @@ class ControlOption:
                 tempOption.drawArrow(game, startPos, endPos, "red")
 
             coordinator.update(game)
-            coordinator.draw(game, tempOption, str(
-                round(abs(self.additionForce)) / 10) + "N")
-            self.additionForce = tempOption.creationPoints[1] - \
-                tempOption.creationPoints[0]
+            coordinator.draw(
+                game, tempOption, str(round(abs(self.additionForce)) / 10) + "N"
+            )
+            self.additionForce = (
+                tempOption.creationPoints[1] - tempOption.creationPoints[0]
+            )
 
             for event in pygame.event.get():
 
@@ -2416,9 +2885,11 @@ class ControlOption:
                         setCapsLock(True)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    target.displayedAcceleration = target.acceleration + \
-                        (target.displayedAcceleration - target.acceleration) * \
-                        target.displayedAccelerationFactor
+                    target.displayedAcceleration = (
+                        target.acceleration
+                        + (target.displayedAcceleration - target.acceleration)
+                        * target.displayedAccelerationFactor
+                    )
                     target.displayedAccelerationFactor = 1
                     target.force(self.additionForce)
                     isAdding = False
@@ -2438,9 +2909,14 @@ class ControlOption:
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         game.loadGame(f"default/{str(event.key - pygame.K_0)}")
                         loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0))
+                            f"{game.gameName}加载成功", True, (0, 0, 0)
+                        )
                         loadedTipRect = loadedTipText.get_rect(
-                            center=(game.screen.get_width() / 2, game.screen.get_height() / 2))
+                            center=(
+                                game.screen.get_width() / 2,
+                                game.screen.get_height() / 2,
+                            )
+                        )
                         game.screen.blit(loadedTipText, loadedTipRect)
                         game.update()
                         pygame.display.update()
@@ -2470,17 +2946,28 @@ class ControlOption:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在控件上"""
-        return self.x < pos.x < self.x + \
-            self.width and self.y < pos.y < self.y + self.height
+        return (
+            self.x < pos.x < self.x + self.width
+            and self.y < pos.y < self.y + self.height
+        )
 
     def draw(self, game: Game) -> None:
         """绘制控件"""
-        pygame.draw.rect(game.screen, self.color, (self.x, self.y,
-                         self.width, self.height), border_radius=int(self.width * 2 / 100))
+        pygame.draw.rect(
+            game.screen,
+            self.color,
+            (self.x, self.y, self.width, self.height),
+            border_radius=int(self.width * 2 / 100),
+        )
         text = game.translation[self.name]
         textSurface = game.fontSmall.render(text, True, (0, 0, 0))
-        game.screen.blit(textSurface, (self.x + self.width / 2 - textSurface.get_width() /
-                         2, self.y + self.height / 2 - textSurface.get_height() / 2))
+        game.screen.blit(
+            textSurface,
+            (
+                self.x + self.width / 2 - textSurface.get_width() / 2,
+                self.y + self.height / 2 - textSurface.get_height() / 2,
+            ),
+        )
 
 
 class ElementController:
@@ -2511,8 +2998,12 @@ class ElementController:
 
     def isPosOn(self, pos: Vector2) -> bool:
         """判断指定坐标是否在控制器上"""
-        return self.x < pos.x < self.x + self.optionWidth and self.y < pos.y < self.y + \
-            self.optionHeight * len(self.controlOptionsList)
+        return (
+            self.x < pos.x < self.x + self.optionWidth
+            and self.y
+            < pos.y
+            < self.y + self.optionHeight * len(self.controlOptionsList)
+        )
 
     def update(self, game: Game) -> None:
         """更新控制器"""
@@ -2524,8 +3015,7 @@ class ElementController:
 
         screenHeight = game.screen.get_height()
 
-        if self.y + len(self.controlOptionsList) * \
-                self.optionHeight > screenHeight:
+        if self.y + len(self.controlOptionsList) * self.optionHeight > screenHeight:
             self.y -= len(self.controlOptionsList) * self.optionHeight + 50
 
         currentY = self.y  # 初始 y 坐标
@@ -2538,12 +3028,14 @@ class ElementController:
                 currentY,  # 使用当前 y 坐标
                 self.optionWidth,
                 self.optionHeight,
-                "white"  # 颜色默认白色
+                "white",  # 颜色默认白色
             )
 
             self.controlOptions.append(controlOption)
 
-            currentY += self.optionHeight + 5  # 更新 y 坐标，增加当前 ControlOption 的高度和间距
+            currentY += (
+                self.optionHeight + 5
+            )  # 更新 y 坐标，增加当前 ControlOption 的高度和间距
 
     def draw(self, game: Game) -> None:
         """绘制控制器"""
