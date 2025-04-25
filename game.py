@@ -906,7 +906,9 @@ class Game:
         self.screen.blit(objectCountText, objectCountTextRect)
 
         mousePosText = self.fontSmall.render(
-            f"鼠标位置 = ( {int(self.screenToReal(pygame.mouse.get_pos()[0] / 10, self.x))}, {-int(self.screenToReal(pygame.mouse.get_pos()[1] / 10, self.y))} ) ",
+            "鼠标位置 = ("
+            f" {int(self.screenToReal(pygame.mouse.get_pos()[0] / 10, self.x))},"
+            f" {-int(self.screenToReal(pygame.mouse.get_pos()[1] / 10, self.y))} ) ",
             True,
             "black",
         )
