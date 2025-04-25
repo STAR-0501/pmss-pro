@@ -1347,16 +1347,85 @@ class Rope(Element):
 
     def draw(self, game) -> None:
         """绘制绳索"""
-        pygame.draw.line(
-            game.screen,
-            self.color,
-            (
-                game.realToScreen(self.start.getPosition().x, game.x),
-                game.realToScreen(self.start.getPosition().y, game.y),
-            ),
-            (
-                game.realToScreen(self.end.getPosition().x, game.x),
-                game.realToScreen(self.end.getPosition().y, game.y),
-            ),
-            self.width,
-        )
+        startPos = self.start.getPosition()
+        endPos = self.end.getPosition()
+        actualDistance = startPos.distance(endPos)
+
+        # 如果绳索被拉紧，直接画直线
+        if actualDistance >= self.length * 0.99:  # 允许1%的误差
+            pygame.draw.line(
+                game.screen,
+                self.color,
+                (
+                    game.realToScreen(startPos.x, game.x),
+                    game.realToScreen(startPos.y, game.y),
+                ),
+                (
+                    game.realToScreen(endPos.x, game.x),
+                    game.realToScreen(endPos.y, game.y),
+                ),
+                self.width,
+            )
+        else:
+            # 绘制悬链线
+            # 计算松弛程度
+            slack = self.length - actualDistance
+
+            # 计算方向向量
+            direction = endPos - startPos
+            if direction.magnitude() < 0.001:  # 防止除零错误
+                direction = Vector2(1, 0)
+            else:
+                direction = direction.normalize()
+
+            # 计算垂直方向
+            perpendicular = direction.vertical()
+
+            # 悬链线的最大下垂量，与松弛程度成正比
+            maxSag = min(slack * 0.5, self.length * 0.3)  # 限制最大下垂量
+
+            # 绘制多段线来近似悬链线
+            segments = 20  # 分段数量
+            points = []
+
+            # 重力方向始终向下
+            gravityDir = Vector2(0, 1)  # 重力方向
+
+            # 确保下垂方向始终有向下的分量
+            # 计算垂直方向与重力方向的点积
+            dotWithGravity = perpendicular.dot(gravityDir)
+
+            # 如果垂直方向与重力方向点积为负，说明垂直方向向上，需要反转
+            if dotWithGravity < 0:
+                perpendicular = -perpendicular
+
+            for i in range(segments + 1):
+                t = i / segments  # 参数 t 从 0 到 1
+
+                # 线性插值计算基础位置
+                basePos = startPos + direction * (actualDistance * t)
+
+                # 计算下垂量，使用正弦函数模拟悬链线形状
+                # 在中间位置下垂最大，两端为0
+                sag = maxSag * math.sin(math.pi * t)
+
+                # 计算下垂方向（重力方向和垂直方向的混合）
+                # 如果绳索水平，则完全沿重力方向下垂
+                # 如果绳索垂直，则沿垂直方向下垂
+                dotWithHorizontal = abs(direction.dot(Vector2(1, 0)))
+                sagDir = perpendicular * dotWithHorizontal + gravityDir * (
+                    1 - dotWithHorizontal
+                )
+                sagDir = sagDir.normalize()
+
+                # 应用下垂
+                finalPos = basePos + sagDir * sag
+
+                # 转换为屏幕坐标
+                screenX = game.realToScreen(finalPos.x, game.x)
+                screenY = game.realToScreen(finalPos.y, game.y)
+                points.append((screenX, screenY))
+
+            # 绘制多段线
+            if len(points) > 1:
+                pygame.draw.lines(game.screen, self.color, False, points, self.width)

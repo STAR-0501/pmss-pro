@@ -1289,7 +1289,7 @@ class Game:
                     element.position.x = self.screenToReal(pos[0], self.x)
                     element.position.y = self.screenToReal(pos[1], self.y)
 
-                element.update(deltaTime)
+                element.update(deltaTime * self.speed)
 
         self.updateFPS()
 
@@ -1308,6 +1308,11 @@ class Game:
         """主更新循环"""
         self.eventLoop()
         self.updateScreen()
+
+        # 即使在暂停状态下也要更新绳子的位置
+        for rope in self.elements["rope"]:
+            rope.pullBall()  # 确保绳子两端位置正确
+
         self.updateElements()
         self.updateMenu()
         if self.tempFrames > 0:
