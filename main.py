@@ -9,35 +9,35 @@ import re
 def ballsToString(balls: list[Element]) -> str:
     """balls列表转字符串"""
     text: str = ""
-    for i in range(len(balls)):
-        text += f"ballIndex={i} position={
-            balls[i].position.toTuple()} radius={
-            balls[i].radius} color={
-            balls[i].color} mass={
-                balls[i].mass} velocity={
-                    balls[i].velocity.toTuple()} acceleration={
-                        balls[i].acceleration.toTuple()} gravity={
-                            balls[i].gravity} collisionFactor={
-                                balls[i].collisionFactor} gravitation={
-                                    balls[i].gravitation} \n"
+    for i, ball in enumerate(balls):
+        text += (
+            f"ballIndex={i} "
+            f"position={ball.position.toTuple()} "
+            f"radius={ball.radius} "
+            f"color={ball.color} "
+            f"mass={ball.mass} "
+            f"velocity={ball.velocity.toTuple()} "
+            f"acceleration={ball.acceleration.toTuple()} "
+            f"gravity={ball.gravity} "
+            f"collisionFactor={ball.collisionFactor} "
+            f"gravitation={ball.gravitation}\n"
+        )
     return text
 
 
 def wallsToString(walls: list[Element]) -> str:
     """walls列表转字符串"""
     text: str = ""
-    for i in range(len(walls)):
-        text += f"wallIndex={i} position={
-            walls[i].position.toTuple()} x1={
-            walls[i].vertexes[0].x} y1={
-            walls[i].vertexes[0].y} x2={
-                walls[i].vertexes[1].x} y2={
-                    walls[i].vertexes[1].y} x3={
-                        walls[i].vertexes[2].x} y3={
-                            walls[i].vertexes[2].y} x4={
-                                walls[i].vertexes[3].x} y4={
-                                    walls[i].vertexes[3].y} color={
-                                        walls[i].color} \n"
+    for i, wall in enumerate(walls):
+        text += (
+            f"wallIndex={i} "
+            f"position={wall.position.toTuple()} "
+            f"x1={wall.vertexes[0].x} y1={wall.vertexes[0].y} "
+            f"x2={wall.vertexes[1].x} y2={wall.vertexes[1].y} "
+            f"x3={wall.vertexes[2].x} y3={wall.vertexes[2].y} "
+            f"x4={wall.vertexes[3].x} y4={wall.vertexes[3].y} "
+            f"color={wall.color}\n"
+        )
     return text
 
 
@@ -127,7 +127,8 @@ def command(text: str, game: Game) -> bool:
 
                 elif commands[3] == "gravity":
                     """set ball [ballIndex] gravity [value]"""
-                    game.elements["ball"][int(commands[2])].gravity = float(commands[4])
+                    game.elements["ball"][int(
+                        commands[2])].gravity = float(commands[4])
 
                 elif commands[3] == "collisionFactor":
                     """set ball [ballIndex] collisionFactor [value]"""
@@ -190,7 +191,8 @@ def command(text: str, game: Game) -> bool:
                 game.elements["ball"][int(commands[2])].velocity = ZERO
 
             elif commands[3] == "force":
-                game.elements["ball"][int(commands[2])].artificialForces.clear()
+                game.elements["ball"][int(
+                    commands[2])].artificialForces.clear()
 
             else:
                 return False
@@ -287,7 +289,8 @@ def AIThreadMethod(game: Game) -> None:
             game.isChatting = False
 
             if not game.isCelestialBodyMode:
-                groundPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
+                groundPoint1 = game.screenToReal(
+                    Vector2(0, 0), Vector2(game.x, game.y))
                 groundPoint2 = game.screenToReal(
                     Vector2(game.screen.get_width(), game.screen.get_height()),
                     Vector2(game.x, game.y),
@@ -369,7 +372,8 @@ if __name__ == "__main__":
     game: Game = Game()
 
     # 创建并启动AI线程
-    AIThread: threading.Thread = threading.Thread(target=AIThreadMethod, args=(game,))
+    AIThread: threading.Thread = threading.Thread(
+        target=AIThreadMethod, args=(game,))
     AIThread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     AIThread.start()
 
