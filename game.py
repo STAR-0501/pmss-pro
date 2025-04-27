@@ -55,13 +55,13 @@ class Game:
                 ]
 
         except Exception:
-            self.screenSize: list[int, int] = [1280, 720]
+            self.screenSize: list[int, int] = [0, 0]
 
         self.screen: pygame.Surface = pygame.display.set_mode(
             size=(self.screenSize[0], self.screenSize[1]), flags=pygame.FULLSCREEN
         )
         print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
-        pygame.display.set_caption("Physics Motion Simulation System Beta")
+        pygame.display.set_caption("Physics Motion Simulation System Pro")
         icon: pygame.Surface = pygame.image.load("static/python.png").convert_alpha()
         pygame.display.set_icon(icon)
 
