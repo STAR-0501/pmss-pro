@@ -1202,134 +1202,73 @@ class Rope(Element):
         """判断绳索是否到达极限长度"""
         return self.length < abs(self.start.getPosition() - self.end.getPosition())
 
-    def pullBall(self) -> bool:
-        """处理球与绳索的影响"""
+    def calculateForce(self) -> bool:
+        """计算绳索力并应用到连接的物体上"""
+        # 获取两端点位置
+        startPos = self.start.getPosition()
+        endPos = self.end.getPosition()
 
-        actualDistance = self.start.getPosition().distance(self.end.getPosition())
-        deltaPosition = self.end.getPosition() - self.start.getPosition()
+        # 计算当前长度和方向
+        deltaPosition = endPos - startPos
+        actualDistance = deltaPosition.magnitude()
+
+        # 防止除零错误
+        if actualDistance < 0.001:
+            return False
+
+        # 计算单位方向向量
+        direction = deltaPosition / actualDistance
+
+        # 计算形变量（只考虑拉伸，绳索不会压缩）
         overlap = actualDistance - self.length
 
-        # 位置修正
+        # 只有当绳索被拉伸时才施加力
         if overlap > 0:
+            # 计算绳索拉力大小（可以视为非常大的弹簧系数）
+            stiffness = 1000.0  # 绳索刚度系数，比弹簧大得多
+            forceMagnitude = stiffness * overlap
 
+            # 计算绳索力向量
+            ropeForce = direction * forceMagnitude
+
+            # 应用绳索力到两端物体
             if isinstance(self.start, Ball) and isinstance(self.end, Ball):
+                # 计算相对速度的阻尼力（减少振荡）
+                dampingFactor = 0.1 * self.collisionFactor  # 阻尼系数与碰撞因子相关
+                relativeVelocity = self.end.velocity - self.start.velocity
+                dampingForce = (
+                    direction * relativeVelocity.dot(direction) * dampingFactor
+                )
 
-                # 计算总质量
+                # 应用力到两个球体（注意力的方向相反）
+                self.start.force(ropeForce + dampingForce, isNatural=True)
+                self.end.force(-ropeForce - dampingForce, isNatural=True)
+
+                # 位置修正（防止过度拉伸）
                 totalMass = self.start.mass + self.end.mass
-
-                # 计算速度单位向量
-                normal = deltaPosition / actualDistance
-                tangent = normal.vertical()
-
-                # 记录碰撞前速度用于位置修正
-                originalVelocity1 = self.start.velocity.copy()
-                originalVelocity2 = self.end.velocity.copy()
-
-                # 分解速度分量
-                velocityNormal1 = originalVelocity1.dot(normal)
-                velocityTangent1 = originalVelocity1.dot(tangent)
-                velocityNormal2 = originalVelocity2.dot(normal)
-                velocityTangent2 = originalVelocity2.dot(tangent)
-
-                # 弹性碰撞公式
-                newVelocityNormal1 = (
-                    (self.start.mass - self.end.mass) * velocityNormal1
-                    + 2 * self.end.mass * velocityNormal2
-                ) / totalMass
-                newVelocityNormal2 = (
-                    2 * self.start.mass * velocityNormal1
-                    + (self.end.mass - self.start.mass) * velocityNormal2
-                ) / totalMass
-
-                # 应用碰撞因子到法向分量
-                collisionFactor = self.collisionFactor
-                newVelocityNormal1 *= collisionFactor
-                newVelocityNormal2 *= collisionFactor
-
-                # 重建速度向量
-                self.start.velocity = (
-                    tangent * velocityTangent1 + normal * newVelocityNormal1
-                )
-                self.end.velocity = (
-                    tangent * velocityTangent2 + normal * newVelocityNormal2
-                )
-
-                # 位置修正
-                # 无条件分离，防止绳索过度拉伸
-                separation = normal * (overlap * 1.05)  # 增加分离系数
+                separation = direction * (overlap * 0.05)  # 小幅度位置修正
 
                 # 按质量比例分配分离量
                 self.start.position += separation * (self.end.mass / totalMass)
                 self.end.position -= separation * (self.start.mass / totalMass)
 
-                # 防止碰撞系数小于1时粘连
-                minSepSpeed = 1.0  # 分离速度
-                relVel = (self.start.velocity - self.end.velocity).dot(normal)
-
-                # 当相对速度不足以分离时，添加额外分离速度
-                if relVel > -minSepSpeed:
-                    # 强制分离速度，碰撞系数越小，分离因子越大
-                    sepFactor = min(2.0, 2.0 - collisionFactor * 1.5)
-
-                    # 添加与重力方向相关的分离速度
-                    gravityDir = Vector2(0, 1)  # 重力方向
-                    gravityComponent = normal.dot(gravityDir)
-
-                    # 如果法线与重力方向有分量，增强该方向的分离
-                    if abs(gravityComponent) > 0.01:
-                        # 根据重力方向调整分离力度
-                        gravityBoost = 1.0 * gravityComponent * (2.0 - collisionFactor)
-
-                        # 对上下方向的球体施加不同的分离力
-                        if gravityComponent > 0:  # 下方球体需要更强的向上分离力
-                            self.start.velocity += (
-                                normal
-                                * (minSepSpeed * sepFactor + gravityBoost)
-                                * (self.end.mass / totalMass)
-                            )
-                            self.end.velocity -= (
-                                normal
-                                * (minSepSpeed * sepFactor)
-                                * (self.start.mass / totalMass)
-                            )
-                        else:  # 上方球体需要更强的向下分离力
-                            self.start.velocity += (
-                                normal
-                                * (minSepSpeed * sepFactor)
-                                * (self.end.mass / totalMass)
-                            )
-                            self.end.velocity -= (
-                                normal
-                                * (minSepSpeed * sepFactor + abs(gravityBoost))
-                                * (self.start.mass / totalMass)
-                            )
-                    else:
-                        # 水平方向的普通分离
-                        self.start.velocity += (
-                            normal
-                            * minSepSpeed
-                            * sepFactor
-                            * (self.end.mass / totalMass)
-                        )
-                        self.end.velocity -= (
-                            normal
-                            * minSepSpeed
-                            * sepFactor
-                            * (self.start.mass / totalMass)
-                        )
+                return True
 
             elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
-                ...
+                # 只对球体应用力
+                self.start.force(ropeForce, isNatural=True)
+                return True
 
             elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
-                ...
+                # 只对球体应用力
+                self.end.force(-ropeForce, isNatural=True)
+                return True
 
-            else:
-                return False
+        return False
 
     def update(self, deltaTime: float) -> Self:
         """更新绳索位置"""
-        self.pullBall()
+        self.calculateForce()
 
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             ...
@@ -1429,3 +1368,198 @@ class Rope(Element):
             # 绘制多段线
             if len(points) > 1:
                 pygame.draw.lines(game.screen, self.color, False, points, self.width)
+
+
+class Spring(Element):
+    """弹簧类，处理弹簧的显示和物理效果"""
+
+    def __init__(
+        self,
+        start: Ball | WallPosition,
+        end: Ball | WallPosition,
+        restLength: float,  # 弹簧的自然长度
+        stiffness: float,  # 弹簧刚度系数
+        width: float,
+        color: pygame.Color,
+        dampingFactor: float = 0.1,  # 阻尼系数
+    ) -> None:
+        self.start: Ball | WallPosition = start
+        self.end: Ball | WallPosition = end
+        self.position: Vector2 = (start.getPosition() + end.getPosition()) / 2
+        self.restLength: float = restLength  # 弹簧的自然长度
+        self.stiffness: float = stiffness  # 弹簧刚度系数
+        self.width: float = width
+        self.color: pygame.Color = color
+        self.dampingFactor: float = dampingFactor  # 阻尼系数
+        self.isLegal: bool = True
+        self.coilCount: int = 10  # 弹簧圈数
+
+        if isinstance(start, WallPosition) and isinstance(end, WallPosition):
+            self.isLegal = False
+
+    def calculateForce(self) -> bool:
+        """计算弹簧力并应用到连接的物体上"""
+        # 获取两端点位置
+        startPos = self.start.getPosition()
+        endPos = self.end.getPosition()
+
+        # 计算当前长度和方向
+        deltaPosition = endPos - startPos
+        currentLength = deltaPosition.magnitude()
+
+        # 防止除零错误
+        if currentLength < 0.001:
+            return False
+
+        # 计算单位方向向量
+        direction = deltaPosition / currentLength
+
+        # 计算形变量（正值表示拉伸，负值表示压缩）
+        deformation = currentLength - self.restLength
+
+        # 计算弹簧力大小 (F = -k * x)，其中k是弹簧系数，x是形变量
+        forceMagnitude = self.stiffness * deformation
+
+        # 计算弹簧力向量
+        springForce = direction * forceMagnitude
+
+        # 应用弹簧力到两端物体
+        if isinstance(self.start, Ball) and isinstance(self.end, Ball):
+            # 计算相对速度的阻尼力
+            relativeVelocity = self.end.velocity - self.start.velocity
+            dampingForce = (
+                direction * relativeVelocity.dot(direction) * self.dampingFactor
+            )
+
+            # 应用力到两个球体（注意力的方向相反）
+            self.start.force(springForce + dampingForce, isNatural=True)
+            self.end.force(-springForce - dampingForce, isNatural=True)
+
+            return True
+
+        elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
+            # 只对球体应用力
+            self.start.force(springForce, isNatural=True)
+            return True
+
+        elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
+            # 只对球体应用力
+            self.end.force(-springForce, isNatural=True)
+            return True
+
+        return False
+
+    def update(self, deltaTime: float) -> Self:
+        """更新弹簧状态"""
+        self.calculateForce()
+
+        # 更新弹簧中心位置
+        if isinstance(self.start, Ball) and isinstance(self.end, Ball):
+            self.position = (self.start.position + self.end.position) / 2
+        elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
+            self.position = (self.start.getPosition() + self.end.position) / 2
+        elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
+            self.position = (self.start.position + self.end.getPosition()) / 2
+
+        return self
+
+    def draw(self, game) -> None:
+        """绘制弹簧"""
+        startPos = self.start.getPosition()
+        endPos = self.end.getPosition()
+
+        # 计算弹簧方向和长度
+        direction = endPos - startPos
+        currentLength = direction.magnitude()
+
+        # 防止除零错误
+        if currentLength < 0.001:
+            return
+
+        # 计算单位方向向量
+        directionNorm = direction / currentLength
+
+        # 计算垂直方向
+        perpendicular = directionNorm.vertical()
+
+        # 弹簧的振幅（弹簧的宽度）
+        amplitude = self.width * 2
+
+        # 计算形变比例（用于视觉效果）
+        deformationRatio = currentLength / self.restLength
+
+        # 调整振幅根据形变
+        if deformationRatio < 1.0:  # 压缩状态
+            amplitude *= 2.0 - deformationRatio  # 压缩时振幅增大
+        else:  # 拉伸状态
+            amplitude *= 1.0 / deformationRatio  # 拉伸时振幅减小
+
+        # 弹簧的段数（圈数 * 2）
+        segments = self.coilCount * 2
+
+        # 绘制弹簧线
+        points = []
+
+        # 添加起点
+        screenStartX = game.realToScreen(startPos.x, game.x)
+        screenStartY = game.realToScreen(startPos.y, game.y)
+        points.append((screenStartX, screenStartY))
+
+        # 弹簧的第一段直线部分（不扭曲的部分）
+        straightPart = min(currentLength * 0.15, self.restLength * 0.15)
+        coilStart = startPos + directionNorm * straightPart
+
+        # 添加弹簧开始扭曲的点
+        screenCoilStartX = game.realToScreen(coilStart.x, game.x)
+        screenCoilStartY = game.realToScreen(coilStart.y, game.y)
+        points.append((screenCoilStartX, screenCoilStartY))
+
+        # 弹簧的最后一段直线部分
+        coilEnd = endPos - directionNorm * straightPart
+
+        # 弹簧的扭曲部分长度
+        coilLength = (coilEnd - coilStart).magnitude()
+
+        # 生成弹簧的扭曲部分
+        for i in range(1, segments):
+            t = i / segments
+
+            # 沿弹簧方向的位置
+            basePos = coilStart + directionNorm * (coilLength * t)
+
+            # 计算正弦波形状（弹簧的扭曲）
+            # 使用正弦函数创建弹簧的波浪形状
+            waveOffset = amplitude * math.sin(t * math.pi * self.coilCount * 2)
+
+            # 应用波形偏移
+            finalPos = basePos + perpendicular * waveOffset
+
+            # 转换为屏幕坐标
+            screenX = game.realToScreen(finalPos.x, game.x)
+            screenY = game.realToScreen(finalPos.y, game.y)
+            points.append((screenX, screenY))
+
+        # 添加弹簧结束扭曲的点
+        screenCoilEndX = game.realToScreen(coilEnd.x, game.x)
+        screenCoilEndY = game.realToScreen(coilEnd.y, game.y)
+        points.append((screenCoilEndX, screenCoilEndY))
+
+        # 添加终点
+        screenEndX = game.realToScreen(endPos.x, game.x)
+        screenEndY = game.realToScreen(endPos.y, game.y)
+        points.append((screenEndX, screenEndY))
+
+        # 绘制弹簧线
+        if len(points) > 1:
+            # 使用颜色变化来表示弹簧的形变状态
+            if deformationRatio < 1.0:  # 压缩状态
+                # 压缩时颜色向红色过渡
+                drawColor = colorMiddle(self.color, "red", 1.0 - deformationRatio)
+            else:  # 拉伸状态
+                # 拉伸时颜色向蓝色过渡
+                stretchFactor = min(deformationRatio - 1.0, 1.0)  # 限制在0-1范围内
+                drawColor = colorMiddle(self.color, "blue", stretchFactor)
+
+            pygame.draw.lines(
+                game.screen, drawColor, False, points, max(1, int(self.width))
+            )

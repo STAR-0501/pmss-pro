@@ -1313,7 +1313,7 @@ class Game:
 
         # 即使在暂停状态下也要更新绳子的位置
         for rope in self.elements["rope"]:
-            rope.pullBall()  # 确保绳子两端位置正确
+            rope.calculateForce()  # 确保绳子两端位置正确
 
         self.updateElements()
         self.updateMenu()

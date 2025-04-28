@@ -127,8 +127,7 @@ def command(text: str, game: Game) -> bool:
 
                 elif commands[3] == "gravity":
                     """set ball [ballIndex] gravity [value]"""
-                    game.elements["ball"][int(
-                        commands[2])].gravity = float(commands[4])
+                    game.elements["ball"][int(commands[2])].gravity = float(commands[4])
 
                 elif commands[3] == "collisionFactor":
                     """set ball [ballIndex] collisionFactor [value]"""
@@ -191,8 +190,7 @@ def command(text: str, game: Game) -> bool:
                 game.elements["ball"][int(commands[2])].velocity = ZERO
 
             elif commands[3] == "force":
-                game.elements["ball"][int(
-                    commands[2])].artificialForces.clear()
+                game.elements["ball"][int(commands[2])].artificialForces.clear()
 
             else:
                 return False
@@ -289,8 +287,7 @@ def AIThreadMethod(game: Game) -> None:
             game.isChatting = False
 
             if not game.isCelestialBodyMode:
-                groundPoint1 = game.screenToReal(
-                    Vector2(0, 0), Vector2(game.x, game.y))
+                groundPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
                 groundPoint2 = game.screenToReal(
                     Vector2(game.screen.get_width(), game.screen.get_height()),
                     Vector2(game.x, game.y),
@@ -372,8 +369,7 @@ if __name__ == "__main__":
     game: Game = Game()
 
     # 创建并启动AI线程
-    AIThread: threading.Thread = threading.Thread(
-        target=AIThreadMethod, args=(game,))
+    AIThread: threading.Thread = threading.Thread(target=AIThreadMethod, args=(game,))
     AIThread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     AIThread.start()
 
