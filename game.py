@@ -675,7 +675,7 @@ class Game:
 
                 # 测试 !!!
                 if event.key == pygame.K_t:
-                    rope = Rope(
+                    rope = Rod(
                         self.elements["ball"][-2],
                         self.elements["ball"][-1],
                         self.elements["ball"][-2]
