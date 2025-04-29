@@ -1194,6 +1194,7 @@ class Rope(Element):
         self.color: pygame.Color = color
         self.collisionFactor: float = collisionFactor
         self.isLegal: bool = True
+        self.type: str = "rope"
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             self.isLegal = False
