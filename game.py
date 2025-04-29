@@ -167,6 +167,94 @@ class Game:
     def test(self) -> None:
         """测试方法（预留）"""
         ...
+        
+    def handleMouseWheel(self, wheel_y: int, speed: float) -> None:
+        """处理鼠标滚轮缩放"""
+        if wheel_y == 1 and self.ratio < self.maxLimitRatio:
+            if not self.isCtrlPressing:
+                bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
+                
+                self.ratio *= speed
+                
+                nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
+                
+                self.x += nx - bx
+                self.y += ny - by
+            else:
+                bx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                by = self.screenToReal(self.screen.get_height() / 2, self.y)
+                
+                self.ratio *= speed
+                
+                nx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                ny = self.screenToReal(self.screen.get_height() / 2, self.y)
+                
+                self.x += nx - bx
+                self.y += ny - by
+        elif wheel_y == -1 and self.ratio > self.minLimitRatio:
+            if not self.isCtrlPressing:
+                bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
+                
+                self.ratio /= speed
+                
+                nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
+                ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
+                
+                self.x += nx - bx
+                self.y += ny - by
+            else:
+                bx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                by = self.screenToReal(self.screen.get_height() / 2, self.y)
+                
+                self.ratio /= speed
+                
+                nx = self.screenToReal(self.screen.get_width() / 2, self.x)
+                ny = self.screenToReal(self.screen.get_height() / 2, self.y)
+                
+                self.x += nx - bx
+                self.y += ny - by
+                
+    def undoLastElement(self) -> None:
+        """撤销上一个添加的元素（Ctrl+Z）"""
+        if len(self.elements["all"]) > 0:
+            lastElement = self.elements["all"][-1]
+            self.elements["all"].remove(lastElement)
+            
+            for ball in self.elements["ball"]:
+                ball.displayedAcceleration = (
+                    ball.acceleration
+                    + (ball.displayedAcceleration - ball.acceleration)
+                    * ball.displayedAccelerationFactor
+                )
+                ball.displayedAccelerationFactor = 1
+            
+            for option in self.elementMenu.options:
+                if option.type == lastElement.type:
+                    self.elements[option.type].remove(lastElement)
+                    break
+                    
+    def showLoadedTip(self, filename: str) -> None:
+        """显示加载游戏成功提示"""
+        self.loadGame(filename)
+        loadedTipText = self.fontSmall.render(
+            f"{self.gameName}加载成功", True, (0, 0, 0)
+        )
+        loadedTipRect = loadedTipText.get_rect(
+            center=(
+                self.screen.get_width() / 2,
+                self.screen.get_height() / 2,
+            )
+        )
+        
+        self.update()
+        self.screen.blit(loadedTipText, loadedTipRect)
+        pygame.display.update()
+        time.sleep(0.5)
+        self.lastTime = time.time()
+        self.currentTime = time.time()
 
     def saveGame(self, filename: str = "autosave") -> None:
         """保存游戏数据"""
@@ -348,60 +436,7 @@ class Game:
 
             if event.type == pygame.MOUSEWHEEL:
                 speed = 1.1
-
-                if event.y == 1 and self.ratio < self.maxLimitRatio:
-                    if not self.isCtrlPressing:
-
-                        bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
-                        by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-
-                        self.ratio *= speed
-
-                        nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
-                        ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-
-                        self.x += nx - bx
-                        self.y += ny - by
-
-                    else:
-
-                        bx = self.screenToReal(self.screen.get_width() / 2, self.x)
-                        by = self.screenToReal(self.screen.get_height() / 2, self.y)
-
-                        self.ratio *= speed
-
-                        nx = self.screenToReal(self.screen.get_width() / 2, self.x)
-                        ny = self.screenToReal(self.screen.get_height() / 2, self.y)
-
-                        self.x += nx - bx
-                        self.y += ny - by
-
-                elif event.y == -1 and self.ratio > self.minLimitRatio:
-                    if not self.isCtrlPressing:
-
-                        bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
-                        by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-
-                        self.ratio /= speed
-
-                        nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
-                        ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-
-                        self.x += nx - bx
-                        self.y += ny - by
-
-                    else:
-
-                        bx = self.screenToReal(self.screen.get_width() / 2, self.x)
-                        by = self.screenToReal(self.screen.get_height() / 2, self.y)
-
-                        self.ratio /= speed
-
-                        nx = self.screenToReal(self.screen.get_width() / 2, self.x)
-                        ny = self.screenToReal(self.screen.get_height() / 2, self.y)
-
-                        self.x += nx - bx
-                        self.y += ny - by
+                self.handleMouseWheel(event.y, speed)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.mousePos = pygame.mouse.get_pos()
@@ -456,26 +491,7 @@ class Game:
                                             and self.isCtrlPressing
                                             and len(self.elements["all"]) > 0
                                         ):
-                                            lastElement = self.elements["all"][-1]
-                                            self.elements["all"].remove(lastElement)
-
-                                            for ball in self.elements["ball"]:
-                                                ball.displayedAcceleration = (
-                                                    ball.acceleration
-                                                    + (
-                                                        ball.displayedAcceleration
-                                                        - ball.acceleration
-                                                    )
-                                                    * ball.displayedAccelerationFactor
-                                                )
-                                                ball.displayedAccelerationFactor = 1
-
-                                            for option in self.elementMenu.options:
-                                                if option.type == lastElement.type:
-                                                    self.elements[option.type].remove(
-                                                        lastElement
-                                                    )
-                                                    break
+                                            self.undoLastElement()
 
                                         if event.key == pygame.K_g:
                                             self.saveGame("manualsave")
@@ -487,29 +503,7 @@ class Game:
                                             self.loadGame("manualsave")
 
                                         if pygame.K_1 <= event.key <= pygame.K_9:
-                                            self.loadGame(
-                                                f"default/{str(event.key - pygame.K_0)}"
-                                            )
-                                            loadedTipText = self.fontSmall.render(
-                                                f"{self.gameName}加载成功",
-                                                True,
-                                                (0, 0, 0),
-                                            )
-                                            loadedTipRect = loadedTipText.get_rect(
-                                                center=(
-                                                    self.screen.get_width() / 2,
-                                                    self.screen.get_height() / 2,
-                                                )
-                                            )
-
-                                            self.update()
-                                            self.screen.blit(
-                                                loadedTipText, loadedTipRect
-                                            )
-                                            pygame.display.update()
-                                            time.sleep(0.5)
-                                            self.lastTime = time.time()
-                                            self.currentTime = time.time()
+                                            self.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
 
                                         if event.key == pygame.K_r:
                                             self.elements["all"].clear()
@@ -590,21 +584,7 @@ class Game:
                     and self.isCtrlPressing
                     and len(self.elements["all"]) > 0
                 ):
-                    lastElement = self.elements["all"][-1]
-                    self.elements["all"].remove(lastElement)
-
-                    for ball in self.elements["ball"]:
-                        ball.displayedAcceleration = (
-                            ball.acceleration
-                            + (ball.displayedAcceleration - ball.acceleration)
-                            * ball.displayedAccelerationFactor
-                        )
-                        ball.displayedAccelerationFactor = 1
-
-                    for option in self.elementMenu.options:
-                        if option.type == lastElement.type:
-                            self.elements[option.type].remove(lastElement)
-                            break
+                    self.undoLastElement()
 
                 if event.key == pygame.K_SPACE:
                     self.isPaused = not self.isPaused
@@ -719,21 +699,7 @@ class Game:
                         and self.isCtrlPressing
                         and len(self.elements["all"]) > 0
                     ):
-                        lastElement = self.elements["all"][-1]
-                        self.elements["all"].remove(lastElement)
-
-                        for ball in self.elements["ball"]:
-                            ball.displayedAcceleration = (
-                                ball.acceleration
-                                + (ball.displayedAcceleration - ball.acceleration)
-                                * ball.displayedAccelerationFactor
-                            )
-                            ball.displayedAccelerationFactor = 1
-
-                        for option in self.elementMenu.options:
-                            if option.type == lastElement.type:
-                                self.elements[option.type].remove(lastElement)
-                                break
+                        self.undoLastElement()
 
                     if (
                         event.key == pygame.K_m
@@ -1891,21 +1857,7 @@ class Option:
                         and game.isCtrlPressing
                         and len(self.elements["all"]) > 0
                     ):
-                        lastElement = game.elements["all"][-1]
-                        game.elements["all"].remove(lastElement)
-
-                        for ball in self.elements["ball"]:
-                            ball.displayedAcceleration = (
-                                ball.acceleration
-                                + (ball.displayedAcceleration - ball.acceleration)
-                                * ball.displayedAccelerationFactor
-                            )
-                            ball.displayedAccelerationFactor = 1
-
-                        for option in game.elementMenu.options:
-                            if option.type == lastElement.type:
-                                game.elements[option.type].remove(lastElement)
-                                break
+                        game.undoLastElement()
 
                     if event.key == pygame.K_l:
                         game.loadGame("autosave")
@@ -1914,23 +1866,7 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.loadGame(f"default/{str(event.key - pygame.K_0)}")
-                        loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0)
-                        )
-                        loadedTipRect = loadedTipText.get_rect(
-                            center=(
-                                game.screen.get_width() / 2,
-                                game.screen.get_height() / 2,
-                            )
-                        )
-
-                        game.update()
-                        game.screen.blit(loadedTipText, loadedTipRect)
-                        pygame.display.update()
-                        time.sleep(0.5)
-                        game.lastTime = time.time()
-                        game.currentTime = time.time()
+                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
                         game.isMassSetting = True
@@ -2170,21 +2106,7 @@ class Option:
                         and game.isCtrlPressing
                         and len(self.elements["all"]) > 0
                     ):
-                        lastElement = game.elements["all"][-1]
-                        game.elements["all"].remove(lastElement)
-
-                        for ball in self.elements["ball"]:
-                            ball.displayedAcceleration = (
-                                ball.acceleration
-                                + (ball.displayedAcceleration - ball.acceleration)
-                                * ball.displayedAccelerationFactor
-                            )
-                            ball.displayedAccelerationFactor = 1
-
-                        for option in game.elementMenu.options:
-                            if option.type == lastElement.type:
-                                game.elements[option.type].remove(lastElement)
-                                break
+                        game.undoLastElement()
 
                     if event.key == pygame.K_l:
                         game.loadGame("autosave")
@@ -2193,23 +2115,7 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.loadGame(f"default/{str(event.key - pygame.K_0)}")
-                        loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0)
-                        )
-                        loadedTipRect = loadedTipText.get_rect(
-                            center=(
-                                game.screen.get_width() / 2,
-                                game.screen.get_height() / 2,
-                            )
-                        )
-
-                        game.update()
-                        game.screen.blit(loadedTipText, loadedTipRect)
-                        pygame.display.update()
-                        time.sleep(0.5)
-                        game.lastTime = time.time()
-                        game.currentTime = time.time()
+                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -2798,23 +2704,7 @@ class ControlOption:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.loadGame(f"default/{str(event.key - pygame.K_0)}")
-                        loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0)
-                        )
-                        loadedTipRect = loadedTipText.get_rect(
-                            center=(
-                                game.screen.get_width() / 2,
-                                game.screen.get_height() / 2,
-                            )
-                        )
-
-                        game.update()
-                        game.screen.blit(loadedTipText, loadedTipRect)
-                        pygame.display.update()
-                        time.sleep(0.5)
-                        game.lastTime = time.time()
-                        game.currentTime = time.time()
+                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_ESCAPE:
                         isAdding = False
