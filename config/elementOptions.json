@@ -74,5 +74,25 @@
                 "type": "delete"
             }
         ]
+    },
+    {
+        "type": "rope",
+        "name": "绳索",
+        "attrs": [
+            {
+                "type": "color",
+                "value": "GREEN",
+                "min": "#000000",
+                "max": "#FFFFFF"
+            }
+        ],
+        "controlOptions": [
+            {
+                "type": "attrEditor"
+            },
+            {
+                "type": "delete"
+            }
+        ]
     }
 ]
