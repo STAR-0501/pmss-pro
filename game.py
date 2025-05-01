@@ -167,62 +167,62 @@ class Game:
     def test(self) -> None:
         """测试方法（预留）"""
         ...
-        
+
     def handleMouseWheel(self, wheel_y: int, speed: float) -> None:
         """处理鼠标滚轮缩放"""
         if wheel_y == 1 and self.ratio < self.maxLimitRatio:
             if not self.isCtrlPressing:
                 bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                 by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-                
+
                 self.ratio *= speed
-                
+
                 nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                 ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-                
+
                 self.x += nx - bx
                 self.y += ny - by
             else:
                 bx = self.screenToReal(self.screen.get_width() / 2, self.x)
                 by = self.screenToReal(self.screen.get_height() / 2, self.y)
-                
+
                 self.ratio *= speed
-                
+
                 nx = self.screenToReal(self.screen.get_width() / 2, self.x)
                 ny = self.screenToReal(self.screen.get_height() / 2, self.y)
-                
+
                 self.x += nx - bx
                 self.y += ny - by
         elif wheel_y == -1 and self.ratio > self.minLimitRatio:
             if not self.isCtrlPressing:
                 bx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                 by = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-                
+
                 self.ratio /= speed
-                
+
                 nx = self.screenToReal(pygame.mouse.get_pos()[0], self.x)
                 ny = self.screenToReal(pygame.mouse.get_pos()[1], self.y)
-                
+
                 self.x += nx - bx
                 self.y += ny - by
             else:
                 bx = self.screenToReal(self.screen.get_width() / 2, self.x)
                 by = self.screenToReal(self.screen.get_height() / 2, self.y)
-                
+
                 self.ratio /= speed
-                
+
                 nx = self.screenToReal(self.screen.get_width() / 2, self.x)
                 ny = self.screenToReal(self.screen.get_height() / 2, self.y)
-                
+
                 self.x += nx - bx
                 self.y += ny - by
-                
+
     def undoLastElement(self) -> None:
         """撤销上一个添加的元素（Ctrl+Z）"""
         if len(self.elements["all"]) > 0:
             lastElement = self.elements["all"][-1]
             self.elements["all"].remove(lastElement)
-            
+
             for ball in self.elements["ball"]:
                 ball.displayedAcceleration = (
                     ball.acceleration
@@ -230,12 +230,12 @@ class Game:
                     * ball.displayedAccelerationFactor
                 )
                 ball.displayedAccelerationFactor = 1
-            
+
             for option in self.elementMenu.options:
                 if option.type == lastElement.type:
                     self.elements[option.type].remove(lastElement)
                     break
-                    
+
     def showLoadedTip(self, filename: str) -> None:
         """显示加载游戏成功提示"""
         self.loadGame(filename)
@@ -248,7 +248,7 @@ class Game:
                 self.screen.get_height() / 2,
             )
         )
-        
+
         self.update()
         self.screen.blit(loadedTipText, loadedTipRect)
         pygame.display.update()
@@ -503,7 +503,9 @@ class Game:
                                             self.loadGame("manualsave")
 
                                         if pygame.K_1 <= event.key <= pygame.K_9:
-                                            self.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                                            self.showLoadedTip(
+                                                f"default/{str(event.key - pygame.K_0)}"
+                                            )
 
                                         if event.key == pygame.K_r:
                                             self.elements["all"].clear()
@@ -664,6 +666,15 @@ class Game:
                         1,
                         "red",
                     )
+                    # rope = Rope(
+                    #     self.elements["ball"][-1],
+                    #     WallPosition(self.elements["wall"][-1], ZERO),
+                    #     self.elements["ball"][-1]
+                    #     .getPosition()
+                    #     .distance(WallPosition(self.elements["wall"][-1], ZERO)),
+                    #     1,
+                    #     "red",
+                    # )
                     self.elements["all"].append(rope)
                     self.elements["rope"].append(rope)
 

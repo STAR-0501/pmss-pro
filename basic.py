@@ -1168,10 +1168,17 @@ class WallPosition:
     def __init__(self, wall: Wall, position: Vector2) -> None:
         self.wall: Wall = wall
         self.position: Vector2 = position
+        self.x = wall.position.x + position.x
+        self.y = wall.position.y + position.y
 
     def getPosition(self) -> Vector2:
         """获取墙体位置"""
         return self.position + self.wall.position
+
+    def update(self) -> None:
+        """更新位置"""
+        self.x = self.wall.position.x + self.position.x
+        self.y = self.wall.position.y + self.position.y
 
 
 class Rope(Element):
@@ -1275,10 +1282,10 @@ class Rope(Element):
             ...
 
         elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
-            ...
+            self.start.update()
 
         elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
-            ...
+            self.end.update()
 
         else:
             ...
@@ -1457,10 +1464,17 @@ class Spring(Element):
         # 更新弹簧中心位置
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             self.position = (self.start.position + self.end.position) / 2
+
         elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
             self.position = (self.start.getPosition() + self.end.position) / 2
+            self.start.update()
+
         elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
             self.position = (self.start.position + self.end.getPosition()) / 2
+            self.end.update()
+
+        else:
+            ...
 
         return self
 
@@ -1670,10 +1684,17 @@ class Rod(Element):
         # 更新轻杆中心位置
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             self.position = (self.start.position + self.end.position) / 2
+
         elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
             self.position = (self.start.getPosition() + self.end.position) / 2
+            self.start.update()
+
         elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
             self.position = (self.start.position + self.end.getPosition()) / 2
+            self.end.update()
+
+        else:
+            ...
 
         return self
 
