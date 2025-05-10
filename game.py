@@ -1479,6 +1479,93 @@ class Option:
         self.attrs_: list = attrs_
         for attr in self.attrs_:
             self.attrs[attr["type"]] = attr["value"]
+            
+    def isLineCrossingWall(self, start: Vector2, end: Vector2, wall, game: Game) -> bool:
+        """
+        检查线段是否完全穿过墙壁（而不仅仅是与边缘相交）
+        """
+        if wall.type != "wall":
+            return False
+            
+        # 检查线段是否完全穿过墙体
+        start_inside = self.isPointInsideWall(start, wall, game)
+        end_inside = self.isPointInsideWall(end, wall, game)
+        
+        # 如果一个点在内部，一个点在外部，则线段穿过墙体
+        if (start_inside and not end_inside) or (not start_inside and end_inside):
+            return True
+            
+        # 如果两个点都在外部，检查线段是否与墙体的任意两条边相交
+        if not start_inside and not end_inside:
+            intersect_count = 0
+            for i in range(len(wall.vertexes)):
+                wall_start = wall.vertexes[i]
+                wall_end = wall.vertexes[(i + 1) % len(wall.vertexes)]
+                
+                if self.doLinesIntersect(start, end, wall_start, wall_end):
+                    intersect_count += 1
+            
+            return intersect_count >= 2
+            
+        return False
+    
+    def isPointInsideWall(self, point: Vector2, wall, game: Game) -> bool:
+        """
+        检查点是否在墙体内部
+        使用射线法判断点是否在多边形内部
+        """
+        if wall.type != "wall":
+            return False
+            
+        # 射线法：从点向右发射一条射线，计算与多边形边的交点数
+        intersect_count = 0
+        for i in range(len(wall.vertexes)):
+            v1 = wall.vertexes[i]
+            v2 = wall.vertexes[(i + 1) % len(wall.vertexes)]
+            
+            if ((v1.y > point.y) != (v2.y > point.y)):
+                x_intersect = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x
+                
+                if point.x < x_intersect:
+                    intersect_count += 1
+                    
+        return intersect_count % 2 == 1
+    
+    def doLinesIntersect(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2) -> bool:
+        """
+        检查两条线段是否相交
+        p1, p2: 第一条线段的端点
+        p3, p4: 第二条线段的端点
+        """
+        # 计算方向
+        def direction(a, b, c):
+            return (c.y - a.y) * (b.x - a.x) - (b.y - a.y) * (c.x - a.x)
+        
+        # 检查点c是否在线段ab上
+        def on_segment(a, b, c):
+            return (min(a.x, b.x) <= c.x <= max(a.x, b.x) and 
+                    min(a.y, b.y) <= c.y <= max(a.y, b.y))
+        
+        d1 = direction(p3, p4, p1)
+        d2 = direction(p3, p4, p2)
+        d3 = direction(p1, p2, p3)
+        d4 = direction(p1, p2, p4)
+        
+        # 如果两条线段相交
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+            return True
+        
+        # 特殊情况：共线
+        if d1 == 0 and on_segment(p3, p4, p1):
+            return True
+        if d2 == 0 and on_segment(p3, p4, p2):
+            return True
+        if d3 == 0 and on_segment(p1, p2, p3):
+            return True
+        if d4 == 0 and on_segment(p1, p2, p4):
+            return True
+            
+        return False
 
     def drawArrow(
         self,
@@ -1513,6 +1600,86 @@ class Option:
         # 绘制箭头
         pygame.draw.polygon(game.screen, color, [endPos, arrowPoint1, arrowPoint2])
 
+    def isLineCrossingWall(self, start: Vector2, end: Vector2, wall) -> bool:
+        """
+        检查线段是否完全穿过墙壁
+        start: 线段起点
+        end: 线段终点
+        wall: 墙壁对象
+        """
+        if wall.type != "wall":
+            return False
+            
+        # 计算线段与墙体边的交点数
+        intersect_count = 0
+        for i in range(len(wall.vertexes)):
+            wall_start = wall.vertexes[i]
+            wall_end = wall.vertexes[(i + 1) % len(wall.vertexes)]
+            
+            if self.doLinesIntersect(start, end, wall_start, wall_end):
+                intersect_count += 1
+        
+        # 如果与墙体的边相交两次或以上，则线段穿过墙体
+        return intersect_count >= 2
+    
+    def doLinesIntersect(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2) -> bool:
+        """
+        检查两条线段是否相交
+        p1, p2: 第一条线段的端点
+        p3, p4: 第二条线段的端点
+        """
+        # 计算方向
+        def direction(a, b, c):
+            return (c.y - a.y) * (b.x - a.x) - (b.y - a.y) * (c.x - a.x)
+        
+        # 检查点c是否在线段ab上
+        def on_segment(a, b, c):
+            return (min(a.x, b.x) <= c.x <= max(a.x, b.x) and 
+                    min(a.y, b.y) <= c.y <= max(a.y, b.y))
+        
+        d1 = direction(p3, p4, p1)
+        d2 = direction(p3, p4, p2)
+        d3 = direction(p1, p2, p3)
+        d4 = direction(p1, p2, p4)
+        
+        # 如果两条线段相交
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+            return True
+        
+        # 特殊情况：共线
+        if d1 == 0 and on_segment(p3, p4, p1):
+            return True
+        if d2 == 0 and on_segment(p3, p4, p2):
+            return True
+        if d3 == 0 and on_segment(p1, p2, p3):
+            return True
+        if d4 == 0 and on_segment(p1, p2, p4):
+            return True
+            
+        return False
+    
+    def isPointInsideWall(self, point: Vector2, wall, game: Game) -> bool:
+        """
+        检查点是否在墙体内部
+        使用射线法判断点是否在多边形内部
+        """
+        if wall.type != "wall":
+            return False
+            
+        # 射线法：从点向右发射一条射线，计算与多边形边的交点数
+        intersect_count = 0
+        for i in range(len(wall.vertexes)):
+            v1 = wall.vertexes[i]
+            v2 = wall.vertexes[(i + 1) % len(wall.vertexes)]
+            
+            if ((v1.y > point.y) != (v2.y > point.y)):
+                x_intersect = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x
+                
+                if point.x < x_intersect:
+                    intersect_count += 1
+                    
+        return intersect_count % 2 == 1
+    
     def isMouseOn(self) -> bool:
         """判断鼠标是否在选项区域"""
         pos = pygame.mouse.get_pos()
@@ -2165,6 +2332,207 @@ class Option:
                             game.CelestialBodyMode()
 
                 game.screenMove(event)
+
+    def ropeCreate(self, game: Game) -> None:
+        """创建绳子"""
+        game.isElementCreating = True
+        self.highLighted = True
+        self.selected = True
+        clickNum = 0
+        coordinator = Coordinator(0, 0, 0, game)
+        chosenElement = [None, None]
+        isAllowPlace = True
+        lineColor = "black"  # 默认线条颜色
+
+        while game.isElementCreating:
+            game.isElementCreating = True
+            game.update()
+
+            for element in game.elements["ball"]:
+                if element.isMouseOn(game):
+                    element.highLighted = True
+                    break
+                else:
+                    element.highLighted = False
+                
+            for element in game.elements["wall"]:
+                if element.isMouseOn(game):
+                    element.highLighted = True
+                    break
+                else:
+                    element.highLighted = False
+
+            if clickNum % 2 == 0:
+                pygame.display.update()
+
+            if clickNum == 1:
+                # 检查预览线是否完全穿过墙体
+                hasWallBetween = False
+                start_pos = chosenElement[0].position
+                mouse_pos = Vector2(
+                    game.screenToReal(pygame.mouse.get_pos()[0], game.x),
+                    game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+                )
+                
+                for wall in game.elements["wall"]:
+                    if self.isLineCrossingWall(start_pos, mouse_pos, wall):
+                        hasWallBetween = True
+                        break
+                
+                # 根据是否有墙壁阻挡设置线条颜色
+                lineColor = "red" if hasWallBetween else "black"
+
+                pygame.draw.line(
+                    game.screen,
+                    lineColor,
+                    (
+                        game.realToScreen(chosenElement[0].position.x, game.x),
+                        game.realToScreen(chosenElement[0].position.y, game.y),
+                    ),
+                    pygame.mouse.get_pos(),
+                    width=2
+                )
+                pygame.display.update()
+
+            if clickNum == 2:
+                # 检查两点之间是否有墙壁阻挡
+                hasWallBetween = False
+                start_pos = chosenElement[0].position
+                end_pos = chosenElement[1].position
+                
+                for wall in game.elements["wall"]:
+                    if self.isLineCrossingWall(start_pos, end_pos, wall):
+                        hasWallBetween = True
+                        break
+                
+                if not hasWallBetween:
+                    rope = Rope(
+                        chosenElement[0],
+                        chosenElement[1],
+                        abs(chosenElement[0].position - chosenElement[1].position),
+                        2,
+                        "black"
+                    )
+                    game.elements["all"].append(rope)
+                    game.elements["rope"].append(rope)
+                    
+                    clickNum = 0
+                    chosenElement = [None, None]
+                else:
+                    clickNum = 1  # 回到第一次点击后的状态，保留第一个点
+
+            for event in pygame.event.get():
+                game.isPressed = False
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+
+                        if not game.elementMenu.isMouseOn():
+                            for element in game.elements["all"]:
+                                if element.isMouseOn(game):
+
+                                    if clickNum % 2 == 0:
+                                        if element.type == "ball":
+                                            chosenElement[0] = element
+                                        if element.type == "wall":
+                                            pos = Vector2(
+                                                game.screenToReal(event.pos[0], game.x),
+                                                game.screenToReal(event.pos[1], game.y),
+                                            )
+                                            wallPosition = WallPosition(element, pos)
+                                            chosenElement[0] = wallPosition
+                                        clickNum += 1
+                                    else:
+                                        if element.type == "ball":
+                                            chosenElement[1] = element
+                                        if element.type == "wall":
+                                            pos = Vector2(
+                                                game.screenToReal(event.pos[0], game.x),
+                                                game.screenToReal(event.pos[1], game.y),
+                                            )
+                                            wallPosition = WallPosition(element, pos)
+                                            chosenElement[1] = wallPosition
+                                        clickNum += 1
+
+                        elif self.isMouseOn():
+                            self.highLighted = False
+                            self.selected = False
+                            game.isElementCreating = False
+                            break
+
+                        for option in game.elementMenu.options:
+                            if option.isMouseOn():
+                                game.isElementCreating = False
+                                self.highLighted = False
+                                self.selected = False
+                                method = eval(f"option.{option.type}Create")
+                                method(game)
+                                break
+
+
+                if event.type == pygame.QUIT:
+                    game.exit()
+
+                elif event.type == pygame.ACTIVEEVENT:
+
+                    if event.gain == 0 and event.state == 2:
+                        setCapsLock(False)
+
+                    elif event.gain == 1 and event.state == 1:
+                        setCapsLock(True)
+
+                if event.type == pygame.KEYDOWN:
+                    if (
+                        event.key == pygame.K_z
+                        and game.isCtrlPressing
+                        and len(self.elements["all"]) > 0
+                    ):
+                        game.undoLastElement()
+
+                    if event.key == pygame.K_l:
+                        game.loadGame("autosave")
+
+                    if event.key == pygame.K_k:
+                        game.loadGame("manualsave")
+
+                    if pygame.K_1 <= event.key <= pygame.K_9:
+                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+
+                    if event.key == pygame.K_SPACE:
+                        game.isPaused = not game.isPaused
+
+                    if event.key == pygame.K_r:
+                        game.elements["all"].clear()
+                        for option in game.elementMenu.options:
+                            game.elements[option.type].clear()
+
+                    if event.key == pygame.K_ESCAPE:
+                        game.isElementCreating = False
+                        self.highLighted = False
+                        self.selected = False
+                        break
+
+                    if event.key == pygame.K_p:
+                        if game.isCelestialBodyMode:
+                            for option in game.environmentOptions:
+
+                                if option["type"] == "mode":
+                                    option["value"] = "0"
+
+                                if option["type"] == "gravity":
+                                    option["value"] = "1"
+
+                            game.GroundSurfaceMode()
+
+                            for option in game.environmentOptions:
+
+                                if option["type"] == "mode":
+                                    option["value"] = "1"
+
+                                if option["type"] == "gravity":
+                                    option["value"] = "0"
+
+                            game.CelestialBodyMode()
 
     def exampleCreate(self, game: Game) -> None:
         attrs = copy.deepcopy(self.attrs)
@@ -2879,7 +3247,7 @@ class ControlOption:
 
 
 class ElementController:
-    """元素控制器类"""
+    """右键菜单"""
 
     def __init__(self, element: Element, position: Vector2) -> None:
         self.x: float = position.x

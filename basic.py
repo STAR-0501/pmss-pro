@@ -464,9 +464,19 @@ class Ball(Element):
 
     def isPosOn(self, game, pos: Vector2) -> bool:
         """检测坐标点是否在球体范围内"""
-        return (pos.x - self.position.x) ** 2 + (
+
+        # 计算距离平方
+        distanceSquared = (pos.x - self.position.x) ** 2 + (
             pos.y - self.position.y
-        ) ** 2 <= self.radius**2
+        ) ** 2
+
+        # 对于小球增加一个最小点击半径（例如1.5个实际半径）
+        effectiveRadius = max(
+            self.radius, 5.0 / game.ratio
+        )  # 确保点击区域至少有5个屏幕像素
+
+        # 与有效半径平方比较
+        return distanceSquared <= effectiveRadius**2
 
     def isCollidedByBall(self, other: Self) -> bool:
         """检测球与球之间的碰撞"""
@@ -1168,17 +1178,21 @@ class WallPosition:
     def __init__(self, wall: Wall, position: Vector2) -> None:
         self.wall: Wall = wall
         self.position: Vector2 = position
+        
+        self.deltaPosition = self.position - wall.position
+
         self.x = wall.position.x + position.x
         self.y = wall.position.y + position.y
 
     def getPosition(self) -> Vector2:
         """获取墙体位置"""
-        return self.position + self.wall.position
+        return self.deltaPosition + self.wall.position
 
     def update(self) -> None:
         """更新位置"""
-        self.x = self.wall.position.x + self.position.x
-        self.y = self.wall.position.y + self.position.y
+        self.x = self.wall.position.x + self.deltaPosition.x
+        self.y = self.wall.position.y + self.deltaPosition.y
+        self.position = self.getPosition()
 
 
 class Rope(Element):
