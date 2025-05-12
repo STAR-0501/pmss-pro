@@ -2,6 +2,7 @@
     "radius": "半径",
     "mass": "质量",
     "color": "颜色",
+    "lengthLimit": "长度限制",
 
     "gravity": "重力加速度",
     "airResistance": "空气阻力",

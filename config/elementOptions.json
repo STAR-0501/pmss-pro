@@ -80,10 +80,50 @@
         "name": "绳索",
         "attrs": [
             {
-                "type": "color",
-                "value": "GREEN",
-                "min": "#000000",
-                "max": "#FFFFFF"
+                "type": "lengthLimit",
+                "value": "0",
+                "min": "0",
+                "max": "2147483647"
+            }
+        ],
+        "controlOptions": [
+            {
+                "type": "attrEditor"
+            },
+            {
+                "type": "delete"
+            }
+        ]
+    },
+    {
+        "type": "rod",
+        "name": "轻杆",
+        "attrs": [
+            {
+                "type": "lengthLimit",
+                "value": "0",
+                "min": "0",
+                "max": "2147483647"
+            }
+        ],
+        "controlOptions": [
+            {
+                "type": "attrEditor"
+            },
+            {
+                "type": "delete"
+            }
+        ]
+    },
+    {
+        "type": "spring",
+        "name": "弹簧",
+        "attrs": [
+            {
+                "type": "lengthLimit",
+                "value": "0",
+                "min": "0",
+                "max": "2147483647"
             }
         ],
         "controlOptions": [

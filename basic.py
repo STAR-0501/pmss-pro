@@ -1194,7 +1194,6 @@ class WallPosition:
         self.y = self.wall.position.y + self.deltaPosition.y
         self.position = self.getPosition()
 
-
 class Rope(Element):
     """绳索类，处理绳索的显示和物理效果"""
 

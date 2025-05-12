@@ -2339,45 +2339,47 @@ class Option:
         self.highLighted = True
         self.selected = True
         clickNum = 0
-        coordinator = Coordinator(0, 0, 0, game)
-        chosenElement = [None, None]
-        isAllowPlace = True
-        lineColor = "black"  # 默认线条颜色
+        chosenElement = [
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []), 
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+        ]
+        lineColor = "black"
 
         while game.isElementCreating:
             game.isElementCreating = True
             game.update()
 
             for element in game.elements["ball"]:
-                if element.isMouseOn(game):
+                if element.isMouseOn(game) and not hasWallBetween:
                     element.highLighted = True
                     break
                 else:
                     element.highLighted = False
                 
             for element in game.elements["wall"]:
-                if element.isMouseOn(game):
+                if element.isMouseOn(game) and not hasWallBetween:
                     element.highLighted = True
                     break
                 else:
                     element.highLighted = False
 
+            # 检查预览线是否完全穿过墙体
+            hasWallBetween = False
+            start_pos = chosenElement[0].position
+            mouse_pos = Vector2(
+                game.screenToReal(pygame.mouse.get_pos()[0], game.x),
+                game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+            )
+            
+            for wall in game.elements["wall"]:
+                if self.isLineCrossingWall(start_pos, mouse_pos, wall):
+                    hasWallBetween = True
+                    break
+
             if clickNum % 2 == 0:
                 pygame.display.update()
 
             if clickNum == 1:
-                # 检查预览线是否完全穿过墙体
-                hasWallBetween = False
-                start_pos = chosenElement[0].position
-                mouse_pos = Vector2(
-                    game.screenToReal(pygame.mouse.get_pos()[0], game.x),
-                    game.screenToReal(pygame.mouse.get_pos()[1], game.y)
-                )
-                
-                for wall in game.elements["wall"]:
-                    if self.isLineCrossingWall(start_pos, mouse_pos, wall):
-                        hasWallBetween = True
-                        break
                 
                 # 根据是否有墙壁阻挡设置线条颜色
                 lineColor = "red" if hasWallBetween else "black"
@@ -2394,22 +2396,17 @@ class Option:
                 )
                 pygame.display.update()
 
+
             if clickNum == 2:
-                # 检查两点之间是否有墙壁阻挡
-                hasWallBetween = False
-                start_pos = chosenElement[0].position
-                end_pos = chosenElement[1].position
-                
-                for wall in game.elements["wall"]:
-                    if self.isLineCrossingWall(start_pos, end_pos, wall):
-                        hasWallBetween = True
-                        break
                 
                 if not hasWallBetween:
+                    length = game.realToScreen(float(self.attrs["lengthLimit"]))
+                    if length == 0:
+                        length = abs(chosenElement[0].position - mouse_pos)
                     rope = Rope(
                         chosenElement[0],
                         chosenElement[1],
-                        abs(chosenElement[0].position - chosenElement[1].position),
+                        length,
                         2,
                         "black"
                     )
@@ -2417,7 +2414,10 @@ class Option:
                     game.elements["rope"].append(rope)
                     
                     clickNum = 0
-                    chosenElement = [None, None]
+                    chosenElement = [
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+                    ]
                 else:
                     clickNum = 1  # 回到第一次点击后的状态，保留第一个点
 
@@ -2486,6 +2486,416 @@ class Option:
                         event.key == pygame.K_z
                         and game.isCtrlPressing
                         and len(self.elements["all"]) > 0
+                    ):
+                        game.undoLastElement()
+
+                    if event.key == pygame.K_l:
+                        game.loadGame("autosave")
+
+                    if event.key == pygame.K_k:
+                        game.loadGame("manualsave")
+
+                    if pygame.K_1 <= event.key <= pygame.K_9:
+                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+
+                    if event.key == pygame.K_SPACE:
+                        game.isPaused = not game.isPaused
+
+                    if event.key == pygame.K_r:
+                        game.elements["all"].clear()
+                        for option in game.elementMenu.options:
+                            game.elements[option.type].clear()
+
+                    if event.key == pygame.K_ESCAPE:
+                        game.isElementCreating = False
+                        self.highLighted = False
+                        self.selected = False
+                        break
+
+                    if event.key == pygame.K_p:
+                        if game.isCelestialBodyMode:
+                            for option in game.environmentOptions:
+
+                                if option["type"] == "mode":
+                                    option["value"] = "0"
+
+                                if option["type"] == "gravity":
+                                    option["value"] = "1"
+
+                            game.GroundSurfaceMode()
+
+                            for option in game.environmentOptions:
+
+                                if option["type"] == "mode":
+                                    option["value"] = "1"
+
+                                if option["type"] == "gravity":
+                                    option["value"] = "0"
+
+                            game.CelestialBodyMode()
+
+    def rodCreate(self, game: Game) -> None:
+        """创建轻杆"""
+        game.isElementCreating = True
+        self.highLighted = True
+        self.selected = True
+        clickNum = 0
+        chosenElement = [
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []), 
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+        ]
+        lineColor = "black"
+
+        while game.isElementCreating:
+            game.isElementCreating = True
+            game.update()
+
+            for element in game.elements["ball"]:
+                if element.isMouseOn(game) and not hasWallBetween:
+                    element.highLighted = True
+                    break
+                else:
+                    element.highLighted = False
+                
+            for element in game.elements["wall"]:
+                if element.isMouseOn(game) and not hasWallBetween:
+                    element.highLighted = True
+                    break
+                else:
+                    element.highLighted = False
+
+            # 检查预览线是否完全穿过墙体
+            hasWallBetween = False
+            start_pos = chosenElement[0].position
+            mouse_pos = Vector2(
+                game.screenToReal(pygame.mouse.get_pos()[0], game.x),
+                game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+            )
+            
+            for wall in game.elements["wall"]:
+                if self.isLineCrossingWall(start_pos, mouse_pos, wall):
+                    hasWallBetween = True
+                    break
+
+            if clickNum % 2 == 0:
+                pygame.display.update()
+
+            if clickNum == 1:
+                
+                # 根据是否有墙壁阻挡设置线条颜色
+                lineColor = "red" if hasWallBetween else "black"
+
+                pygame.draw.line(
+                    game.screen,
+                    lineColor,
+                    (
+                        game.realToScreen(chosenElement[0].position.x, game.x),
+                        game.realToScreen(chosenElement[0].position.y, game.y),
+                    ),
+                    pygame.mouse.get_pos(),
+                    width=int(game.screenToReal(15))
+                )
+                pygame.display.update()
+
+
+            if clickNum == 2:
+                
+                if not hasWallBetween:
+                    length = abs(chosenElement[0].position - chosenElement[1].position)
+                    if float(self.attrs["lengthLimit"]) > 0:
+                        length = float(self.attrs["lengthLimit"])
+                    rod = Rod(
+                        chosenElement[0],
+                        chosenElement[1],
+                        length,
+                        game.screenToReal(15),
+                        "black",
+                    )
+                    game.elements["all"].append(rod)
+                    game.elements["rod"].append(rod)
+                    
+                    clickNum = 0
+                    chosenElement = [
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+                    ]
+                else:
+                    clickNum = 1  # 回到第一次点击后的状态，保留第一个点
+
+            for event in pygame.event.get():
+                game.isPressed = False
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+
+                        if not game.elementMenu.isMouseOn():
+                            for element in game.elements["all"]:
+                                if element.isMouseOn(game):
+
+                                    if clickNum % 2 == 0:
+                                        if element.type == "ball":
+                                            chosenElement[0] = element
+                                        if element.type == "wall":
+                                            pos = Vector2(
+                                                game.screenToReal(event.pos[0], game.x),
+                                                game.screenToReal(event.pos[1], game.y),
+                                            )
+                                            wallPosition = WallPosition(element, pos)
+                                            chosenElement[0] = wallPosition
+                                        clickNum += 1
+                                    else:
+                                        if element.type == "ball":
+                                            chosenElement[1] = element
+                                        if element.type == "wall":
+                                            pos = Vector2(
+                                                game.screenToReal(event.pos[0], game.x),
+                                                game.screenToReal(event.pos[1], game.y),
+                                            )
+                                            wallPosition = WallPosition(element, pos)
+                                            chosenElement[1] = wallPosition
+                                        clickNum += 1
+
+                        elif self.isMouseOn():
+                            self.highLighted = False
+                            self.selected = False
+                            game.isElementCreating = False
+                            break
+
+                        for option in game.elementMenu.options:
+                            if option.isMouseOn():
+                                game.isElementCreating = False
+                                self.highLighted = False
+                                self.selected = False
+                                method = eval(f"option.{option.type}Create")
+                                method(game)
+                                break
+
+
+                if event.type == pygame.QUIT:
+                    game.exit()
+
+                elif event.type == pygame.ACTIVEEVENT:
+
+                    if event.gain == 0 and event.state == 2:
+                        setCapsLock(False)
+
+                    elif event.gain == 1 and event.state == 1:
+                        setCapsLock(True)
+
+                if event.type == pygame.KEYDOWN:
+                    if (
+                        event.key == pygame.K_z
+                        and game.isCtrlPressing
+                        and len(game.elements["all"]) > 0
+                    ):
+                        game.undoLastElement()
+
+                    if event.key == pygame.K_l:
+                        game.loadGame("autosave")
+
+                    if event.key == pygame.K_k:
+                        game.loadGame("manualsave")
+
+                    if pygame.K_1 <= event.key <= pygame.K_9:
+                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+
+                    if event.key == pygame.K_SPACE:
+                        game.isPaused = not game.isPaused
+
+                    if event.key == pygame.K_r:
+                        game.elements["all"].clear()
+                        for option in game.elementMenu.options:
+                            game.elements[option.type].clear()
+
+                    if event.key == pygame.K_ESCAPE:
+                        game.isElementCreating = False
+                        self.highLighted = False
+                        self.selected = False
+                        break
+
+                    if event.key == pygame.K_p:
+                        if game.isCelestialBodyMode:
+                            for option in game.environmentOptions:
+
+                                if option["type"] == "mode":
+                                    option["value"] = "0"
+
+                                if option["type"] == "gravity":
+                                    option["value"] = "1"
+
+                            game.GroundSurfaceMode()
+
+                            for option in game.environmentOptions:
+
+                                if option["type"] == "mode":
+                                    option["value"] = "1"
+
+                                if option["type"] == "gravity":
+                                    option["value"] = "0"
+
+                            game.CelestialBodyMode()
+                            
+    def springCreate(self, game: Game) -> None:
+        """创建弹簧"""
+        game.isElementCreating = True
+        self.highLighted = True
+        self.selected = True
+        clickNum = 0
+        chosenElement = [
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []), 
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+        ]
+        lineColor = "black"
+
+        while game.isElementCreating:
+            game.isElementCreating = True
+            game.update()
+
+            for element in game.elements["ball"]:
+                if element.isMouseOn(game) and not hasWallBetween:
+                    element.highLighted = True
+                    break
+                else:
+                    element.highLighted = False
+                
+            for element in game.elements["wall"]:
+                if element.isMouseOn(game) and not hasWallBetween:
+                    element.highLighted = True
+                    break
+                else:
+                    element.highLighted = False
+
+            # 检查预览线是否完全穿过墙体
+            hasWallBetween = False
+            start_pos = chosenElement[0].position
+            mouse_pos = Vector2(
+                game.screenToReal(pygame.mouse.get_pos()[0], game.x),
+                game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+            )
+            
+            for wall in game.elements["wall"]:
+                if self.isLineCrossingWall(start_pos, mouse_pos, wall):
+                    hasWallBetween = True
+                    break
+
+            if clickNum % 2 == 0:
+                pygame.display.update()
+
+            if clickNum == 1:
+                
+                # 根据是否有墙壁阻挡设置线条颜色
+                lineColor = "red" if hasWallBetween else "black"
+
+                pygame.draw.line(
+                    game.screen,
+                    lineColor,
+                    (
+                        game.realToScreen(chosenElement[0].position.x, game.x),
+                        game.realToScreen(chosenElement[0].position.y, game.y),
+                    ),
+                    pygame.mouse.get_pos(),
+                    width=2
+                )
+                pygame.display.update()
+
+
+            if clickNum == 2:
+                
+                if not hasWallBetween:
+                    # 计算自然长度，如果设置了长度限制则使用限制值
+                    restLength = abs(chosenElement[0].position - chosenElement[1].position)
+                    if float(self.attrs["lengthLimit"]) > 0:
+                        restLength = float(self.attrs["lengthLimit"])
+                    
+                    # 创建弹簧，使用适当的刚度系数
+                    stiffness = 100.0  # 默认刚度系数
+                    if "stiffness" in self.attrs and float(self.attrs["stiffness"]) > 0:
+                        stiffness = float(self.attrs["stiffness"])
+                        
+                    spring = Spring(
+                        chosenElement[0],
+                        chosenElement[1],
+                        restLength,
+                        stiffness,
+                        2,
+                        "black",
+                    )
+                    game.elements["all"].append(spring)
+                    game.elements["spring"].append(spring)
+                    
+                    clickNum = 0
+                    chosenElement = [
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+                    ]
+                else:
+                    clickNum = 1  # 回到第一次点击后的状态，保留第一个点
+
+            for event in pygame.event.get():
+                game.isPressed = False
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+
+                        if not game.elementMenu.isMouseOn():
+                            for element in game.elements["all"]:
+                                if element.isMouseOn(game):
+
+                                    if clickNum % 2 == 0:
+                                        if element.type == "ball":
+                                            chosenElement[0] = element
+                                        if element.type == "wall":
+                                            pos = Vector2(
+                                                game.screenToReal(event.pos[0], game.x),
+                                                game.screenToReal(event.pos[1], game.y),
+                                            )
+                                            wallPosition = WallPosition(element, pos)
+                                            chosenElement[0] = wallPosition
+                                        clickNum += 1
+                                    else:
+                                        if element.type == "ball":
+                                            chosenElement[1] = element
+                                        if element.type == "wall":
+                                            pos = Vector2(
+                                                game.screenToReal(event.pos[0], game.x),
+                                                game.screenToReal(event.pos[1], game.y),
+                                            )
+                                            wallPosition = WallPosition(element, pos)
+                                            chosenElement[1] = wallPosition
+                                        clickNum += 1
+
+                        elif self.isMouseOn():
+                            self.highLighted = False
+                            self.selected = False
+                            game.isElementCreating = False
+                            break
+
+                        for option in game.elementMenu.options:
+                            if option.isMouseOn():
+                                game.isElementCreating = False
+                                self.highLighted = False
+                                self.selected = False
+                                method = eval(f"option.{option.type}Create")
+                                method(game)
+                                break
+
+
+                if event.type == pygame.QUIT:
+                    game.exit()
+
+                elif event.type == pygame.ACTIVEEVENT:
+
+                    if event.gain == 0 and event.state == 2:
+                        setCapsLock(False)
+
+                    elif event.gain == 1 and event.state == 1:
+                        setCapsLock(True)
+
+                if event.type == pygame.KEYDOWN:
+                    if (
+                        event.key == pygame.K_z
+                        and game.isCtrlPressing
+                        and len(game.elements["all"]) > 0
                     ):
                         game.undoLastElement()
 
@@ -2618,6 +3028,48 @@ class Option:
                     self.height * 8 / 10,
                 ),
             )
+
+        if self.type == "rope":
+            # 绘制一条类似0到2π的sin曲线
+            points = []
+            for i in range(11):
+                x_pos = self.x + self.width * i / 10
+                y_pos = self.y + self.height / 2 + math.sin(i * math.pi / 5) * self.height / 4
+                points.append((x_pos, y_pos))
+            
+            # 绘制曲线
+            if len(points) >= 2:
+                pygame.draw.lines(game.screen, "black", False, points, width=2)
+                
+        if self.type == "rod":
+            # 绘制一条直线
+            start_point = (self.x + self.width / 10, self.y + self.height / 2)
+            end_point = (self.x + self.width * 9 / 10, self.y + self.height / 2)
+            pygame.draw.line(game.screen, "black", start_point, end_point, width=3)
+            
+        if self.type == "spring":
+            # 绘制一条折线（弹簧形状）
+            points = []
+            # 起点
+            points.append((self.x + self.width / 10, self.y + self.height / 2))
+            
+            # 中间的折线部分（弹簧形状）
+            segment_width = self.width * 8 / 10 / 8
+            for i in range(8):
+                if i % 2 == 0:
+                    points.append((self.x + self.width / 10 + segment_width * (i + 0.5), 
+                                  self.y + self.height / 4))
+                else:
+                    points.append((self.x + self.width / 10 + segment_width * (i + 0.5), 
+                                  self.y + self.height * 3 / 4))
+            
+            # 终点
+            points.append((self.x + self.width * 9 / 10, self.y + self.height / 2))
+            
+            # 绘制折线
+            if len(points) >= 2:
+                pygame.draw.lines(game.screen, "black", False, points, width=2)
+
 
         if self.type == "example":
 
@@ -2971,6 +3423,31 @@ class ControlOption:
 
     def delete(self, game: Game, target: Element) -> None:
         """删除目标"""
+        # 如果删除的是球或墙，需要同时删除与之相连的绳索和轻杆
+        if target.type == "ball" or target.type == "wall":
+            # 创建一个列表存储需要删除的元素
+            to_remove = []
+            
+            # 遍历所有绳索和轻杆
+            for element in game.elements["rope"]:
+                # 检查元素是否为绳索
+                if element.type == "rope":
+                    # 检查起点或终点是否为目标或与目标相关的墙位置
+                    if (hasattr(element, 'start') and hasattr(element, 'end')) and (
+                       (hasattr(element.start, 'type') and element.start == target) or 
+                       (hasattr(element.end, 'type') and element.end == target) or 
+                       (hasattr(element.start, 'wall') and element.start.wall == target) or 
+                       (hasattr(element.end, 'wall') and element.end.wall == target)):
+                        to_remove.append(element)
+            
+            # 删除相关的绳索
+            for element in to_remove:
+                if element in game.elements["all"]:
+                    game.elements["all"].remove(element)
+                if element.type == "rope" and element in game.elements["rope"]:
+                    game.elements["rope"].remove(element)
+        
+        # 原有的删除逻辑
         for type in game.elements.keys():
             if target in game.elements[type]:
                 game.elements[type].remove(target)
