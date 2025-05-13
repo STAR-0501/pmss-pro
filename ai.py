@@ -14,7 +14,9 @@ class AI:
     def __init__(self, game) -> None:
         self.game = game
 
-    client: openai.OpenAI = openai.OpenAI(base_url="https://api.siliconflow.cn/v1", api_key=key)
+    client: openai.OpenAI = openai.OpenAI(
+        base_url="https://api.siliconflow.cn/v1", api_key=key
+    )
 
     message: list[dict[str, str]] = [
         {
@@ -70,7 +72,11 @@ class AI:
 
         startTime = time.time()
 
-        print("\n系统：", end="", flush=True)
+        print(
+            f"\n{config["models"][1 if message.startswith("~") else 0].split("/")[-1]}：",
+            end="",
+            flush=True,
+        )
 
         if message.startswith("~"):
             reasoner = True
@@ -84,15 +90,11 @@ class AI:
         try:
             # 发送带有流式输出的请求
             response = self.client.chat.completions.create(
-                model=(
-                    config["models"][0]
-                    if not reasoner
-                    else config["models"][1]
-                ),
+                model=(config["models"][0] if not reasoner else config["models"][1]),
                 messages=self.message,
                 stream=True,  # 启用流式输出
             )
-            
+
         except Exception as e:
             print(e, "\n")
             return e.message
