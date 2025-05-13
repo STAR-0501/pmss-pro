@@ -1,0 +1,7 @@
+{
+    "key": "sk-kceztlqyxifrxdqwfqwnmmlrbgpvjhrrtdqezhttlqmjnoxn",
+    "models": [
+        "Pro/deepseek-ai/DeepSeek-V3",
+        "Pro/deepseek-ai/DeepSeek-R1"
+    ]
+}
