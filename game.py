@@ -3423,29 +3423,41 @@ class ControlOption:
 
     def delete(self, game: Game, target: Element) -> None:
         """删除目标"""
-        # 如果删除的是球或墙，需要同时删除与之相连的绳索和轻杆
+        # 如果删除的是球或墙，需要同时删除与之相连的绳索、轻杆和弹簧
         if target.type == "ball" or target.type == "wall":
             # 创建一个列表存储需要删除的元素
             to_remove = []
             
-            # 遍历所有绳索和轻杆
-            for element in game.elements["rope"]:
-                # 检查元素是否为绳索
-                if element.type == "rope":
-                    # 检查起点或终点是否为目标或与目标相关的墙位置
-                    if (hasattr(element, 'start') and hasattr(element, 'end')) and (
-                       (hasattr(element.start, 'type') and element.start == target) or 
-                       (hasattr(element.end, 'type') and element.end == target) or 
-                       (hasattr(element.start, 'wall') and element.start.wall == target) or 
-                       (hasattr(element.end, 'wall') and element.end.wall == target)):
-                        to_remove.append(element)
+            # 检查绳索
+            for rope in game.elements["rope"]:
+                if (rope.start == target or rope.end == target or 
+                    (hasattr(rope.start, 'wall') and rope.start.wall == target) or 
+                    (hasattr(rope.end, 'wall') and rope.end.wall == target)):
+                    to_remove.append(rope)
             
-            # 删除相关的绳索
+            # 检查轻杆（如果存在）
+            if "rod" in game.elements:
+                for rod in game.elements["rod"]:
+                    if (rod.start == target or rod.end == target or 
+                        (hasattr(rod.start, 'wall') and rod.start.wall == target) or 
+                        (hasattr(rod.end, 'wall') and rod.end.wall == target)):
+                        to_remove.append(rod)
+            
+            # 检查弹簧（如果存在）
+            if "spring" in game.elements:
+                for spring in game.elements["spring"]:
+                    if (spring.start == target or spring.end == target or 
+                        (hasattr(spring.start, 'wall') and spring.start.wall == target) or 
+                        (hasattr(spring.end, 'wall') and spring.end.wall == target)):
+                        to_remove.append(spring)
+            
+            # 删除相关的连接元素
             for element in to_remove:
-                if element in game.elements["all"]:
+                try:
                     game.elements["all"].remove(element)
-                if element.type == "rope" and element in game.elements["rope"]:
-                    game.elements["rope"].remove(element)
+                    game.elements[element.type].remove(element)
+                except :
+                    ...
         
         # 原有的删除逻辑
         for type in game.elements.keys():
@@ -3459,7 +3471,7 @@ class ControlOption:
                 * ball.displayedAccelerationFactor
             )
             ball.displayedAccelerationFactor = 1
-
+            
     def follow(self, game: Game, target: Element) -> None:
         """视角跟随目标"""
         target.isShowingInfo = False

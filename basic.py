@@ -1414,6 +1414,7 @@ class Spring(Element):
         self.dampingFactor: float = dampingFactor  # 阻尼系数
         self.isLegal: bool = True
         self.coilCount: int = 10  # 弹簧圈数
+        self.type: str = "spring"
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             self.isLegal = False

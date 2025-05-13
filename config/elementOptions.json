@@ -96,8 +96,8 @@
         ]
     },
     {
-        "type": "rod",
-        "name": "轻杆",
+        "type": "spring",
+        "name": "弹簧",
         "attrs": [
             {
                 "type": "lengthLimit",
@@ -116,8 +116,8 @@
         ]
     },
     {
-        "type": "spring",
-        "name": "弹簧",
+        "type": "rod",
+        "name": "轻杆",
         "attrs": [
             {
                 "type": "lengthLimit",
