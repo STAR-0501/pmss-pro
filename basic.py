@@ -1178,7 +1178,7 @@ class WallPosition:
     def __init__(self, wall: Wall, position: Vector2) -> None:
         self.wall: Wall = wall
         self.position: Vector2 = position
-        
+
         self.deltaPosition = self.position - wall.position
 
         self.x = wall.position.x + position.x
@@ -1193,6 +1193,7 @@ class WallPosition:
         self.x = self.wall.position.x + self.deltaPosition.x
         self.y = self.wall.position.y + self.deltaPosition.y
         self.position = self.getPosition()
+
 
 class Rope(Element):
     """绳索类，处理绳索的显示和物理效果"""

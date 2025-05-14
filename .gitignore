@@ -1,4 +1,6 @@
 __pycache__/
 .venv/
+.conda/
 savefile/autosave.pkl
 savefile/manualsave.pkl
+tempCodeRunnerFile.py

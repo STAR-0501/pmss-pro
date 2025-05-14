@@ -1,8 +1,11 @@
 from basic import *
-from openai import OpenAI
+import openai
 import time
+import json
 
-key = open("config/siliconFlowAPI.txt", "r", encoding="utf-8").read()
+config = json.load(open("config/siliconFlowConfig.json", "r", encoding="utf-8"))
+
+key = config["key"]
 
 
 class AI:
@@ -11,14 +14,16 @@ class AI:
     def __init__(self, game) -> None:
         self.game = game
 
-    client: OpenAI = OpenAI(base_url="https://api.siliconflow.cn/v1", api_key=key)
+    client: openai.OpenAI = openai.OpenAI(
+        base_url="https://api.siliconflow.cn/v1", api_key=key
+    )
 
     message: list[dict[str, str]] = [
         {
             "role": "system",
             "content": (
-                """
-你的名字是PMSS-Pro，一个机器人助手，基于Deepseek-V3/R1模型。
+                f"""
+你的名字是PMSS-Pro，一个机器人助手，基于 {config["models"][0]} 或 {config["models"][1]} 模型。
 
 当用户输入需求时，你需用以下命令实现需求（用户没有提供完整参数时你可以自己用合适的数值补全，每条命令部分请用<...>括起，一定要括起！！）：
 1. save [filename] 保存当前游戏状态
@@ -67,7 +72,11 @@ class AI:
 
         startTime = time.time()
 
-        print("\n系统：", end="", flush=True)
+        print(
+            f"\n{config["models"][1 if message.startswith("~") else 0].split("/")[-1]}：",
+            end="",
+            flush=True,
+        )
 
         if message.startswith("~"):
             reasoner = True
@@ -78,16 +87,17 @@ class AI:
         self.message.append({"role": "user", "content": message})
         text = ""
 
-        # 发送带有流式输出的请求
-        response = self.client.chat.completions.create(
-            model=(
-                "Pro/deepseek-ai/DeepSeek-V3"
-                if not reasoner
-                else "Pro/deepseek-ai/DeepSeek-R1"
-            ),
-            messages=self.message,
-            stream=True,  # 启用流式输出
-        )
+        try:
+            # 发送带有流式输出的请求
+            response = self.client.chat.completions.create(
+                model=(config["models"][0] if not reasoner else config["models"][1]),
+                messages=self.message,
+                stream=True,  # 启用流式输出
+            )
+
+        except Exception as e:
+            print(e, "\n")
+            return e.message
 
         # 逐步接收并处理响应
         try:

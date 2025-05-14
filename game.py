@@ -1479,36 +1479,38 @@ class Option:
         self.attrs_: list = attrs_
         for attr in self.attrs_:
             self.attrs[attr["type"]] = attr["value"]
-            
-    def isLineCrossingWall(self, start: Vector2, end: Vector2, wall, game: Game) -> bool:
+
+    def isLineCrossingWall(
+        self, start: Vector2, end: Vector2, wall, game: Game
+    ) -> bool:
         """
         检查线段是否完全穿过墙壁（而不仅仅是与边缘相交）
         """
         if wall.type != "wall":
             return False
-            
+
         # 检查线段是否完全穿过墙体
         start_inside = self.isPointInsideWall(start, wall, game)
         end_inside = self.isPointInsideWall(end, wall, game)
-        
+
         # 如果一个点在内部，一个点在外部，则线段穿过墙体
         if (start_inside and not end_inside) or (not start_inside and end_inside):
             return True
-            
+
         # 如果两个点都在外部，检查线段是否与墙体的任意两条边相交
         if not start_inside and not end_inside:
             intersect_count = 0
             for i in range(len(wall.vertexes)):
                 wall_start = wall.vertexes[i]
                 wall_end = wall.vertexes[(i + 1) % len(wall.vertexes)]
-                
+
                 if self.doLinesIntersect(start, end, wall_start, wall_end):
                     intersect_count += 1
-            
+
             return intersect_count >= 2
-            
+
         return False
-    
+
     def isPointInsideWall(self, point: Vector2, wall, game: Game) -> bool:
         """
         检查点是否在墙体内部
@@ -1516,45 +1518,51 @@ class Option:
         """
         if wall.type != "wall":
             return False
-            
+
         # 射线法：从点向右发射一条射线，计算与多边形边的交点数
         intersect_count = 0
         for i in range(len(wall.vertexes)):
             v1 = wall.vertexes[i]
             v2 = wall.vertexes[(i + 1) % len(wall.vertexes)]
-            
-            if ((v1.y > point.y) != (v2.y > point.y)):
+
+            if (v1.y > point.y) != (v2.y > point.y):
                 x_intersect = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x
-                
+
                 if point.x < x_intersect:
                     intersect_count += 1
-                    
+
         return intersect_count % 2 == 1
-    
-    def doLinesIntersect(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2) -> bool:
+
+    def doLinesIntersect(
+        self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2
+    ) -> bool:
         """
         检查两条线段是否相交
         p1, p2: 第一条线段的端点
         p3, p4: 第二条线段的端点
         """
+
         # 计算方向
         def direction(a, b, c):
             return (c.y - a.y) * (b.x - a.x) - (b.y - a.y) * (c.x - a.x)
-        
+
         # 检查点c是否在线段ab上
         def on_segment(a, b, c):
-            return (min(a.x, b.x) <= c.x <= max(a.x, b.x) and 
-                    min(a.y, b.y) <= c.y <= max(a.y, b.y))
-        
+            return min(a.x, b.x) <= c.x <= max(a.x, b.x) and min(
+                a.y, b.y
+            ) <= c.y <= max(a.y, b.y)
+
         d1 = direction(p3, p4, p1)
         d2 = direction(p3, p4, p2)
         d3 = direction(p1, p2, p3)
         d4 = direction(p1, p2, p4)
-        
+
         # 如果两条线段相交
-        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and (
+            (d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)
+        ):
             return True
-        
+
         # 特殊情况：共线
         if d1 == 0 and on_segment(p3, p4, p1):
             return True
@@ -1564,7 +1572,7 @@ class Option:
             return True
         if d4 == 0 and on_segment(p1, p2, p4):
             return True
-            
+
         return False
 
     def drawArrow(
@@ -1609,43 +1617,49 @@ class Option:
         """
         if wall.type != "wall":
             return False
-            
+
         # 计算线段与墙体边的交点数
         intersect_count = 0
         for i in range(len(wall.vertexes)):
             wall_start = wall.vertexes[i]
             wall_end = wall.vertexes[(i + 1) % len(wall.vertexes)]
-            
+
             if self.doLinesIntersect(start, end, wall_start, wall_end):
                 intersect_count += 1
-        
+
         # 如果与墙体的边相交两次或以上，则线段穿过墙体
         return intersect_count >= 2
-    
-    def doLinesIntersect(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2) -> bool:
+
+    def doLinesIntersect(
+        self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2
+    ) -> bool:
         """
         检查两条线段是否相交
         p1, p2: 第一条线段的端点
         p3, p4: 第二条线段的端点
         """
+
         # 计算方向
         def direction(a, b, c):
             return (c.y - a.y) * (b.x - a.x) - (b.y - a.y) * (c.x - a.x)
-        
+
         # 检查点c是否在线段ab上
         def on_segment(a, b, c):
-            return (min(a.x, b.x) <= c.x <= max(a.x, b.x) and 
-                    min(a.y, b.y) <= c.y <= max(a.y, b.y))
-        
+            return min(a.x, b.x) <= c.x <= max(a.x, b.x) and min(
+                a.y, b.y
+            ) <= c.y <= max(a.y, b.y)
+
         d1 = direction(p3, p4, p1)
         d2 = direction(p3, p4, p2)
         d3 = direction(p1, p2, p3)
         d4 = direction(p1, p2, p4)
-        
+
         # 如果两条线段相交
-        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and (
+            (d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)
+        ):
             return True
-        
+
         # 特殊情况：共线
         if d1 == 0 and on_segment(p3, p4, p1):
             return True
@@ -1655,9 +1669,9 @@ class Option:
             return True
         if d4 == 0 and on_segment(p1, p2, p4):
             return True
-            
+
         return False
-    
+
     def isPointInsideWall(self, point: Vector2, wall, game: Game) -> bool:
         """
         检查点是否在墙体内部
@@ -1665,21 +1679,21 @@ class Option:
         """
         if wall.type != "wall":
             return False
-            
+
         # 射线法：从点向右发射一条射线，计算与多边形边的交点数
         intersect_count = 0
         for i in range(len(wall.vertexes)):
             v1 = wall.vertexes[i]
             v2 = wall.vertexes[(i + 1) % len(wall.vertexes)]
-            
-            if ((v1.y > point.y) != (v2.y > point.y)):
+
+            if (v1.y > point.y) != (v2.y > point.y):
                 x_intersect = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x
-                
+
                 if point.x < x_intersect:
                     intersect_count += 1
-                    
+
         return intersect_count % 2 == 1
-    
+
     def isMouseOn(self) -> bool:
         """判断鼠标是否在选项区域"""
         pos = pygame.mouse.get_pos()
@@ -2340,8 +2354,8 @@ class Option:
         self.selected = True
         clickNum = 0
         chosenElement = [
-            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []), 
-            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
         ]
         lineColor = "black"
 
@@ -2355,7 +2369,7 @@ class Option:
                     break
                 else:
                     element.highLighted = False
-                
+
             for element in game.elements["wall"]:
                 if element.isMouseOn(game) and not hasWallBetween:
                     element.highLighted = True
@@ -2368,9 +2382,9 @@ class Option:
             start_pos = chosenElement[0].position
             mouse_pos = Vector2(
                 game.screenToReal(pygame.mouse.get_pos()[0], game.x),
-                game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+                game.screenToReal(pygame.mouse.get_pos()[1], game.y),
             )
-            
+
             for wall in game.elements["wall"]:
                 if self.isLineCrossingWall(start_pos, mouse_pos, wall):
                     hasWallBetween = True
@@ -2380,7 +2394,7 @@ class Option:
                 pygame.display.update()
 
             if clickNum == 1:
-                
+
                 # 根据是否有墙壁阻挡设置线条颜色
                 lineColor = "red" if hasWallBetween else "black"
 
@@ -2392,31 +2406,24 @@ class Option:
                         game.realToScreen(chosenElement[0].position.y, game.y),
                     ),
                     pygame.mouse.get_pos(),
-                    width=2
+                    width=2,
                 )
                 pygame.display.update()
 
-
             if clickNum == 2:
-                
+
                 if not hasWallBetween:
                     length = game.realToScreen(float(self.attrs["lengthLimit"]))
                     if length == 0:
                         length = abs(chosenElement[0].position - mouse_pos)
-                    rope = Rope(
-                        chosenElement[0],
-                        chosenElement[1],
-                        length,
-                        2,
-                        "black"
-                    )
+                    rope = Rope(chosenElement[0], chosenElement[1], length, 2, "black")
                     game.elements["all"].append(rope)
                     game.elements["rope"].append(rope)
-                    
+
                     clickNum = 0
                     chosenElement = [
                         Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
-                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
                     ]
                 else:
                     clickNum = 1  # 回到第一次点击后的状态，保留第一个点
@@ -2468,7 +2475,6 @@ class Option:
                                 method = eval(f"option.{option.type}Create")
                                 method(game)
                                 break
-
 
                 if event.type == pygame.QUIT:
                     game.exit()
@@ -2541,8 +2547,8 @@ class Option:
         self.selected = True
         clickNum = 0
         chosenElement = [
-            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []), 
-            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
         ]
         lineColor = "black"
 
@@ -2556,7 +2562,7 @@ class Option:
                     break
                 else:
                     element.highLighted = False
-                
+
             for element in game.elements["wall"]:
                 if element.isMouseOn(game) and not hasWallBetween:
                     element.highLighted = True
@@ -2569,9 +2575,9 @@ class Option:
             start_pos = chosenElement[0].position
             mouse_pos = Vector2(
                 game.screenToReal(pygame.mouse.get_pos()[0], game.x),
-                game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+                game.screenToReal(pygame.mouse.get_pos()[1], game.y),
             )
-            
+
             for wall in game.elements["wall"]:
                 if self.isLineCrossingWall(start_pos, mouse_pos, wall):
                     hasWallBetween = True
@@ -2581,7 +2587,7 @@ class Option:
                 pygame.display.update()
 
             if clickNum == 1:
-                
+
                 # 根据是否有墙壁阻挡设置线条颜色
                 lineColor = "red" if hasWallBetween else "black"
 
@@ -2593,13 +2599,12 @@ class Option:
                         game.realToScreen(chosenElement[0].position.y, game.y),
                     ),
                     pygame.mouse.get_pos(),
-                    width=int(game.screenToReal(15))
+                    width=int(game.screenToReal(15)),
                 )
                 pygame.display.update()
 
-
             if clickNum == 2:
-                
+
                 if not hasWallBetween:
                     length = abs(chosenElement[0].position - chosenElement[1].position)
                     if float(self.attrs["lengthLimit"]) > 0:
@@ -2613,11 +2618,11 @@ class Option:
                     )
                     game.elements["all"].append(rod)
                     game.elements["rod"].append(rod)
-                    
+
                     clickNum = 0
                     chosenElement = [
                         Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
-                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
                     ]
                 else:
                     clickNum = 1  # 回到第一次点击后的状态，保留第一个点
@@ -2669,7 +2674,6 @@ class Option:
                                 method = eval(f"option.{option.type}Create")
                                 method(game)
                                 break
-
 
                 if event.type == pygame.QUIT:
                     game.exit()
@@ -2734,7 +2738,7 @@ class Option:
                                     option["value"] = "0"
 
                             game.CelestialBodyMode()
-                            
+
     def springCreate(self, game: Game) -> None:
         """创建弹簧"""
         game.isElementCreating = True
@@ -2742,8 +2746,8 @@ class Option:
         self.selected = True
         clickNum = 0
         chosenElement = [
-            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []), 
-            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
+            Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
         ]
         lineColor = "black"
 
@@ -2757,7 +2761,7 @@ class Option:
                     break
                 else:
                     element.highLighted = False
-                
+
             for element in game.elements["wall"]:
                 if element.isMouseOn(game) and not hasWallBetween:
                     element.highLighted = True
@@ -2770,9 +2774,9 @@ class Option:
             start_pos = chosenElement[0].position
             mouse_pos = Vector2(
                 game.screenToReal(pygame.mouse.get_pos()[0], game.x),
-                game.screenToReal(pygame.mouse.get_pos()[1], game.y)
+                game.screenToReal(pygame.mouse.get_pos()[1], game.y),
             )
-            
+
             for wall in game.elements["wall"]:
                 if self.isLineCrossingWall(start_pos, mouse_pos, wall):
                     hasWallBetween = True
@@ -2782,7 +2786,7 @@ class Option:
                 pygame.display.update()
 
             if clickNum == 1:
-                
+
                 # 根据是否有墙壁阻挡设置线条颜色
                 lineColor = "red" if hasWallBetween else "black"
 
@@ -2794,24 +2798,25 @@ class Option:
                         game.realToScreen(chosenElement[0].position.y, game.y),
                     ),
                     pygame.mouse.get_pos(),
-                    width=2
+                    width=2,
                 )
                 pygame.display.update()
 
-
             if clickNum == 2:
-                
+
                 if not hasWallBetween:
                     # 计算自然长度，如果设置了长度限制则使用限制值
-                    restLength = abs(chosenElement[0].position - chosenElement[1].position)
+                    restLength = abs(
+                        chosenElement[0].position - chosenElement[1].position
+                    )
                     if float(self.attrs["lengthLimit"]) > 0:
                         restLength = float(self.attrs["lengthLimit"])
-                    
+
                     # 创建弹簧，使用适当的刚度系数
                     stiffness = 100.0  # 默认刚度系数
                     if "stiffness" in self.attrs and float(self.attrs["stiffness"]) > 0:
                         stiffness = float(self.attrs["stiffness"])
-                        
+
                     spring = Spring(
                         chosenElement[0],
                         chosenElement[1],
@@ -2822,11 +2827,11 @@ class Option:
                     )
                     game.elements["all"].append(spring)
                     game.elements["spring"].append(spring)
-                    
+
                     clickNum = 0
                     chosenElement = [
                         Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
-                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), [])
+                        Ball(Vector2(0, 0), 0, "black", 0, Vector2(0, 0), []),
                     ]
                 else:
                     clickNum = 1  # 回到第一次点击后的状态，保留第一个点
@@ -2878,7 +2883,6 @@ class Option:
                                 method = eval(f"option.{option.type}Create")
                                 method(game)
                                 break
-
 
                 if event.type == pygame.QUIT:
                     game.exit()
@@ -3034,42 +3038,53 @@ class Option:
             points = []
             for i in range(11):
                 x_pos = self.x + self.width * i / 10
-                y_pos = self.y + self.height / 2 + math.sin(i * math.pi / 5) * self.height / 4
+                y_pos = (
+                    self.y
+                    + self.height / 2
+                    + math.sin(i * math.pi / 5) * self.height / 4
+                )
                 points.append((x_pos, y_pos))
-            
+
             # 绘制曲线
             if len(points) >= 2:
                 pygame.draw.lines(game.screen, "black", False, points, width=2)
-                
+
         if self.type == "rod":
             # 绘制一条直线
             start_point = (self.x + self.width / 10, self.y + self.height / 2)
             end_point = (self.x + self.width * 9 / 10, self.y + self.height / 2)
             pygame.draw.line(game.screen, "black", start_point, end_point, width=3)
-            
+
         if self.type == "spring":
             # 绘制一条折线（弹簧形状）
             points = []
             # 起点
             points.append((self.x + self.width / 10, self.y + self.height / 2))
-            
+
             # 中间的折线部分（弹簧形状）
             segment_width = self.width * 8 / 10 / 8
             for i in range(8):
                 if i % 2 == 0:
-                    points.append((self.x + self.width / 10 + segment_width * (i + 0.5), 
-                                  self.y + self.height / 4))
+                    points.append(
+                        (
+                            self.x + self.width / 10 + segment_width * (i + 0.5),
+                            self.y + self.height / 4,
+                        )
+                    )
                 else:
-                    points.append((self.x + self.width / 10 + segment_width * (i + 0.5), 
-                                  self.y + self.height * 3 / 4))
-            
+                    points.append(
+                        (
+                            self.x + self.width / 10 + segment_width * (i + 0.5),
+                            self.y + self.height * 3 / 4,
+                        )
+                    )
+
             # 终点
             points.append((self.x + self.width * 9 / 10, self.y + self.height / 2))
-            
+
             # 绘制折线
             if len(points) >= 2:
                 pygame.draw.lines(game.screen, "black", False, points, width=2)
-
 
         if self.type == "example":
 
