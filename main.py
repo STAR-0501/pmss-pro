@@ -284,6 +284,17 @@ def command(text: str, game: Game) -> bool:
 def AIThreadMethod(game: Game) -> None:
     """AI线程方法"""
     ai: AI = AI(game)
+    
+    print(f"""
+直接输入使用第一模型
+在开头插入“~”使用第二模型
+
+当前第一模型：{config["models"][0]}
+当前第二模型：{config["models"][1]}
+
+输入“.”切换第一模型
+输入“..”切换第二模型
+        """)
 
     while True:
         try:
@@ -322,18 +333,22 @@ def AIThreadMethod(game: Game) -> None:
             message: str = input("User：")
             
             if message == ".":
+                print()
                 for i in range(len(modelList)):
                     print(f"{i+1}. {modelList[i]}")
-                index = int(input("请选择模型：")) - 1
+                index = int(input("\n请选择模型以切换第一模型：")) - 1
                 config["models"][0] = modelList[index]
+                print()
                 
                 json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
             
             elif message == "..":
+                print()
                 for i in range(len(modelList)):
                     print(f"{i+1}. {modelList[i]}")
-                index = int(input("请选择模型：")) - 1
+                index = int(input("\n请选择模型以切换第二模型：")) - 1
                 config["models"][1] = modelList[index]
+                print()
                 
                 json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
 
