@@ -265,8 +265,8 @@ class Game:
         serializableDict = {"gameName": f"{int(time.time())}备份"}
 
         # serializableDict = {               #做预设用的
-        #     "gameName" : f"彩蛋",
-        #     "icon" : "static/easterEgg.png"
+        #     "gameName" : f"单摆",
+        #     "icon" : "static/simplePendulum.png"
         # }
 
         # freeFall flatToss idealBevel basketball easterEgg
