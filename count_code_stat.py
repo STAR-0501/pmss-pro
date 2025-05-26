@@ -1,7 +1,7 @@
 import os
 
-target_exts = [".py", ".bat", ".json"]
-exclude_dirs = {".venv", ".conda"}
+target_exts = [".bat", ".html", ".json", ".md", ".py", ".txt"]
+exclude_dirs = {".conda", ".venv"}
 
 
 def is_source_file(filename):

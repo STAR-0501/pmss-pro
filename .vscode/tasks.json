@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "black",
+            "label": "format",
             "type": "shell",
-            "command": "black ${workspaceFolder}",
+            "command": "format.bat",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
