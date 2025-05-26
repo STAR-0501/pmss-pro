@@ -338,21 +338,31 @@ def AIThreadMethod(game: Game) -> None:
                 print()
                 for i in range(len(modelList)):
                     print(f"{i+1}. {modelList[i]}")
-                index = int(input("\n请选择模型以切换第一模型：")) - 1
-                config["models"][0] = modelList[index]
-                print()
-
-                json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
+                while True:
+                    user_input = input(f"\n当前第一模型：{config['models'][0]}\n请选择模型以切换第一模型：")
+                    if not user_input.isdigit() or not 1 <= int(user_input) <= len(modelList):
+                        print(f"输入有误，请输入1到{len(modelList)}之间的整数编号。")
+                        continue
+                    index -= 1
+                    config["models"][0] = modelList[index]
+                    print("已切换第一模型：" + config["models"][0] + "\n")
+                    json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
+                    break
 
             elif message == "..":
                 print()
                 for i in range(len(modelList)):
                     print(f"{i+1}. {modelList[i]}")
-                index = int(input("\n请选择模型以切换第二模型：")) - 1
-                config["models"][1] = modelList[index]
-                print()
-
-                json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
+                while True:
+                    user_input = input(f"\n当前第二模型：{config['models'][1]}\n请选择模型以切换第二模型：")
+                    if not user_input.isdigit() or not 1 <= int(user_input) <= len(modelList):
+                        print(f"输入有误，请输入1到{len(modelList)}之间的整数编号。")
+                        continue
+                    index -= 1
+                    config["models"][1] = modelList[index]
+                    print("已切换第二模型：" + config["models"][1] + "\n")
+                    json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
+                    break
 
             else:
                 game.isChatting = True
