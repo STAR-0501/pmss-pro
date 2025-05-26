@@ -6,7 +6,8 @@ import threading
 import re
 import json
 
-modelList = json.loads(open("config/modelList.json", "r", encoding="utf-8").read())
+modelList = json.loads(
+    open("config/modelList.json", "r", encoding="utf-8").read())
 
 
 def ballsToString(balls: list[Element]) -> str:
@@ -130,7 +131,8 @@ def command(text: str, game: Game) -> bool:
 
                 elif commands[3] == "gravity":
                     """set ball [ballIndex] gravity [value]"""
-                    game.elements["ball"][int(commands[2])].gravity = float(commands[4])
+                    game.elements["ball"][int(
+                        commands[2])].gravity = float(commands[4])
 
                 elif commands[3] == "collisionFactor":
                     """set ball [ballIndex] collisionFactor [value]"""
@@ -193,7 +195,8 @@ def command(text: str, game: Game) -> bool:
                 game.elements["ball"][int(commands[2])].velocity = ZERO
 
             elif commands[3] == "force":
-                game.elements["ball"][int(commands[2])].artificialForces.clear()
+                game.elements["ball"][int(
+                    commands[2])].artificialForces.clear()
 
             else:
                 return False
@@ -303,37 +306,38 @@ def AIThreadMethod(game: Game) -> None:
             game.isChatting = False
 
             if not game.isCelestialBodyMode:
-                groundPoint1 = game.screenToReal(Vector2(0, 0), Vector2(game.x, game.y))
-                
+                groundPoint1 = game.screenToReal(
+                    Vector2(0, 0), Vector2(game.x, game.y))
+
                 groundPoint2 = game.screenToReal(
                     Vector2(game.screen.get_width(), game.screen.get_height()),
                     Vector2(game.x, game.y),
                 )
-                
+
                 celestialPoint1 = game.screenToReal(
                     Vector2(0, 0), Vector2(game.lastX, game.lastY)
                 )
-                
+
                 celestialPoint2 = game.screenToReal(
                     Vector2(game.screen.get_width(), game.screen.get_height()),
                     Vector2(game.lastX, game.lastY),
                 )
 
             else:
-                
+
                 groundPoint1 = game.screenToReal(
                     Vector2(0, 0), Vector2(game.lastX, game.lastY)
                 )
-                
+
                 groundPoint2 = game.screenToReal(
                     Vector2(game.screen.get_width(), game.screen.get_height()),
                     Vector2(game.lastX, game.lastY),
                 )
-                
+
                 celestialPoint1 = game.screenToReal(
                     Vector2(0, 0), Vector2(game.x, game.y)
                 )
-                
+
                 celestialPoint2 = game.screenToReal(
                     Vector2(game.screen.get_width(), game.screen.get_height()),
                     Vector2(game.x, game.y),
@@ -343,58 +347,59 @@ def AIThreadMethod(game: Game) -> None:
 
             if message == ".":
                 print()
-                
+
                 for i in range(len(modelList)):
                     print(f"{i+1}. {modelList[i]}")
-                    
+
                 while True:
-                    
+
                     user_input = input(
                         f"\n当前第一模型：{config['models'][0]}\n请选择模型以切换第一模型："
                     )
-                    
+
                     if not user_input.isdigit() or not 1 <= int(user_input) <= len(modelList):
                         print(f"输入有误，请输入1到{len(modelList)}之间的整数编号。")
                         continue
-                    
+
                     index -= 1
                     config["models"][0] = modelList[index]
                     print("已切换第一模型：" + config["models"][0] + "\n")
-                    
-                    json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
-                    
+
+                    json.dump(config, open(
+                        "config/siliconFlowConfig.json", "w"), indent=4)
+
                     break
 
             elif message == "..":
                 print()
-                
+
                 for i in range(len(modelList)):
                     print(f"{i+1}. {modelList[i]}")
-                    
+
                 while True:
-                    
+
                     user_input = input(
                         f"\n当前第二模型：{config['models'][1]}\n请选择模型以切换第二模型："
                     )
-                    
+
                     if not user_input.isdigit() or not 1 <= int(user_input) <= len(modelList):
                         print(f"输入有误，请输入1到{len(modelList)}之间的整数编号。")
                         continue
-                    
+
                     index -= 1
                     config["models"][1] = modelList[index]
                     print("已切换第二模型：" + config["models"][1] + "\n")
-                    
-                    json.dump(config, open("config/siliconFlowConfig.json", "w"), indent=4)
-                    
+
+                    json.dump(config, open(
+                        "config/siliconFlowConfig.json", "w"), indent=4)
+
                     break
 
             else:
                 game.isChatting = True
 
                 text: str = ai.chat(
-                    message = 
-                    message + "\n"
+                    message=message + "\n"
                     + "当前模式："
                     + ("天体模式" if game.isCelestialBodyMode else "地表模式") + "\n"
                     + "地表模式屏幕对角坐标及元素属性："
@@ -403,9 +408,9 @@ def AIThreadMethod(game: Game) -> None:
                     + ballsToString(game.groundElements["ball"]) + "\n"
                     + wallsToString(game.groundElements["wall"]) + "\n"
                     + "天体模式屏幕对角坐标及元素属性："
-                    + str(celestialPoint1.toTuple())+ " "
-                    + str(celestialPoint2.toTuple())+ "\n"
-                    + ballsToString(game.celestialElements["ball"])+ "\n"
+                    + str(celestialPoint1.toTuple()) + " "
+                    + str(celestialPoint2.toTuple()) + "\n"
+                    + ballsToString(game.celestialElements["ball"]) + "\n"
                     + wallsToString(game.celestialElements["wall"])
                 )
 
@@ -434,7 +439,8 @@ if __name__ == "__main__":
     game: Game = Game()
 
     # 创建并启动AI线程
-    AIThread: threading.Thread = threading.Thread(target=AIThreadMethod, args=(game,))
+    AIThread: threading.Thread = threading.Thread(
+        target=AIThreadMethod, args=(game,))
     AIThread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     AIThread.start()
 

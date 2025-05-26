@@ -58,19 +58,24 @@ class Game:
             self.screenSize: list[int, int] = [0, 0]
 
         self.screen: pygame.Surface = pygame.display.set_mode(
-            size=(self.screenSize[0], self.screenSize[1]), flags=pygame.FULLSCREEN
+            size=(self.screenSize[0], self.screenSize[1]
+                  ), flags=pygame.FULLSCREEN
         )
-        print(f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
+        print(
+            f"\n屏幕大小：{self.screen.get_width()} x {self.screen.get_height()}\n")
         pygame.display.set_caption("Physics Motion Simulation System Pro")
-        icon: pygame.Surface = pygame.image.load("static/python.png").convert_alpha()
+        icon: pygame.Surface = pygame.image.load(
+            "static/python.png").convert_alpha()
         pygame.display.set_icon(icon)
 
         self.mousePos: tuple[int, int] = (0, 0)  # 鼠标屏幕坐标，而非真实坐标
         self.fontSmall: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 125)
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(
+                self.screen.get_width() / 125)
         )
         self.fontBig: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.screen.get_width() / 75)
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(
+                self.screen.get_width() / 75)
         )
         self.ratio: int = 5
         self.lastRatio: int = self.ratio
@@ -510,7 +515,8 @@ class Game:
                                         if event.key == pygame.K_r:
                                             self.elements["all"].clear()
                                             for option in self.elementMenu.options:
-                                                self.elements[option.type].clear()
+                                                self.elements[option.type].clear(
+                                                )
                                             self.isElementControlling = False
 
                                         if (
@@ -906,7 +912,8 @@ class Game:
         )
         self.screen.blit(ratioText, ratioTextRect)
 
-        speedText = self.fontSmall.render(f"倍速 = {self.speed: .1f}x ", True, "black")
+        speedText = self.fontSmall.render(
+            f"倍速 = {self.speed: .1f}x ", True, "black")
         speedTextRect = speedText.get_rect()
         speedTextRect.x = self.screen.get_width() - speedText.get_width()
         speedTextRect.y = (
@@ -935,7 +942,8 @@ class Game:
             if option.isMouseOn():
                 option.highLighted = True
                 nameText = self.fontSmall.render(option.name, True, (0, 0, 0))
-                nameTextRect = nameText.get_rect(center=(x + nameText.get_width(), y))
+                nameTextRect = nameText.get_rect(
+                    center=(x + nameText.get_width(), y))
                 self.screen.blit(nameText, nameTextRect)
             else:
                 option.highLighted = False
@@ -944,7 +952,8 @@ class Game:
             if option.isMouseOn():
                 option.highLighted = True
                 nameText = self.fontSmall.render(option.name, True, (0, 0, 0))
-                nameTextRect = nameText.get_rect(center=(x - nameText.get_width(), y))
+                nameTextRect = nameText.get_rect(
+                    center=(x - nameText.get_width(), y))
                 self.screen.blit(nameText, nameTextRect)
             else:
                 if not option.selected:
@@ -1046,7 +1055,8 @@ class Game:
                 accelerationTipsTextRect.y = self.realToScreen(
                     accelerationPosition.y, self.y
                 )
-                self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
+                self.screen.blit(accelerationTipsText,
+                                 accelerationTipsTextRect)
 
                 velocity = (
                     ball.velocity
@@ -1072,8 +1082,10 @@ class Game:
                     f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue"
                 )
                 velocityTipsTextRect = velocityTipsText.get_rect()
-                velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
-                velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
+                velocityTipsTextRect.x = self.realToScreen(
+                    velocityPosition.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(
+                    velocityPosition.y, self.y)
                 self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
             if ball.isShowingInfo:
@@ -1087,7 +1099,8 @@ class Game:
                 massTipsTextRect = massTipsText.get_rect()
                 massTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
                 massTipsTextRect.y = (
-                    self.realToScreen(ballPos.y, self.y) + massTipsText.get_height()
+                    self.realToScreen(ballPos.y, self.y) +
+                    massTipsText.get_height()
                 )
                 self.screen.blit(massTipsText, massTipsTextRect)
 
@@ -1123,7 +1136,8 @@ class Game:
                 accelerationTipsTextRect.y = self.realToScreen(
                     accelerationPosition.y, self.y
                 )
-                self.screen.blit(accelerationTipsText, accelerationTipsTextRect)
+                self.screen.blit(accelerationTipsText,
+                                 accelerationTipsTextRect)
 
                 velocity = (
                     ball.velocity
@@ -1149,8 +1163,10 @@ class Game:
                     f"速度：{abs(velocity) / 10: .1f} m/s", True, "blue"
                 )
                 velocityTipsTextRect = velocityTipsText.get_rect()
-                velocityTipsTextRect.x = self.realToScreen(velocityPosition.x, self.x)
-                velocityTipsTextRect.y = self.realToScreen(velocityPosition.y, self.y)
+                velocityTipsTextRect.x = self.realToScreen(
+                    velocityPosition.x, self.x)
+                velocityTipsTextRect.y = self.realToScreen(
+                    velocityPosition.y, self.y)
                 self.screen.blit(velocityTipsText, velocityTipsTextRect)
 
         for ball in self.elements["ball"]:
@@ -1177,7 +1193,8 @@ class Game:
                                     and ball2.mass >= ball1.mass
                                 ):
                                     self.elements["controlling"].clear()
-                                    self.elements["controlling"].append(newBall)
+                                    self.elements["controlling"].append(
+                                        newBall)
                                     newBall.highLighted = True
 
                                 self.elements["all"].remove(ball1)
@@ -1315,7 +1332,8 @@ class Game:
 
             if G * ball.mass * ball2.mass / (distance**2 + 1e-6) > maxGravitation:
                 result = ball2
-                maxGravitation = G * ball.mass * ball2.mass / (distance**2 + 1e-6)
+                maxGravitation = G * ball.mass * \
+                    ball2.mass / (distance**2 + 1e-6)
 
         return result
 
@@ -1526,7 +1544,8 @@ class Option:
             v2 = wall.vertexes[(i + 1) % len(wall.vertexes)]
 
             if (v1.y > point.y) != (v2.y > point.y):
-                x_intersect = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x
+                x_intersect = (v2.x - v1.x) * (point.y -
+                                               v1.y) / (v2.y - v1.y) + v1.x
 
                 if point.x < x_intersect:
                     intersect_count += 1
@@ -1606,7 +1625,8 @@ class Option:
         )
 
         # 绘制箭头
-        pygame.draw.polygon(game.screen, color, [endPos, arrowPoint1, arrowPoint2])
+        pygame.draw.polygon(game.screen, color, [
+                            endPos, arrowPoint1, arrowPoint2])
 
     def isLineCrossingWall(self, start: Vector2, end: Vector2, wall) -> bool:
         """
@@ -1687,7 +1707,8 @@ class Option:
             v2 = wall.vertexes[(i + 1) % len(wall.vertexes)]
 
             if (v1.y > point.y) != (v2.y > point.y):
-                x_intersect = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x
+                x_intersect = (v2.x - v1.x) * (point.y -
+                                               v1.y) / (v2.y - v1.y) + v1.x
 
                 if point.x < x_intersect:
                     intersect_count += 1
@@ -1732,7 +1753,8 @@ class Option:
 
             maximumGravitationBall = game.findMaximumGravitationBall(ball)
             if maximumGravitationBall is not None:
-                maximumGravitationBallCopy = copy.deepcopy(maximumGravitationBall)
+                maximumGravitationBallCopy = copy.deepcopy(
+                    maximumGravitationBall)
                 maximumGravitationBallCopy.velocity = ZERO
 
             if (
@@ -1762,7 +1784,8 @@ class Option:
                     game.screen,
                     circularVelocityFactorColor,
                     game.realToScreen(
-                        maximumGravitationBall.position, Vector2(game.x, game.y)
+                        maximumGravitationBall.position, Vector2(
+                            game.x, game.y)
                     ).toTuple(),
                     game.realToScreen(
                         ball.position.distance(maximumGravitationBall.position)
@@ -1821,7 +1844,8 @@ class Option:
                 self.creationPoints = [ball.position, ball.position]
                 ball.draw(game)
                 radiusText = game.fontSmall.render(
-                    f"半径 = {radius}", True, colorSuitable(ball.color, game.background)
+                    f"半径 = {radius}", True, colorSuitable(
+                        ball.color, game.background)
                 )
                 radiusTextRect = radiusText.get_rect()
                 radiusTextRect.x = mousePosition[0]
@@ -1896,8 +1920,10 @@ class Option:
                         if not game.elementMenu.isMouseOn() and allowToPlace:
                             ball = Ball(
                                 Vector2(
-                                    game.screenToReal(mousePosition[0], game.x),
-                                    game.screenToReal(mousePosition[1], game.y),
+                                    game.screenToReal(
+                                        mousePosition[0], game.x),
+                                    game.screenToReal(
+                                        mousePosition[1], game.y),
                                 ),
                                 radius,
                                 color,
@@ -1930,7 +1956,8 @@ class Option:
                                 self.highLighted = False
                                 self.selected = False
                                 option.createElement(
-                                    game, Vector2(mousePosition[0], mousePosition[1])
+                                    game, Vector2(
+                                        mousePosition[0], mousePosition[1])
                                 )
                                 break
 
@@ -1951,7 +1978,8 @@ class Option:
                             [],
                             gravitation=game.isCelestialBodyMode,
                         )
-                        maximumGravitationBall = game.findMaximumGravitationBall(ball)
+                        maximumGravitationBall = game.findMaximumGravitationBall(
+                            ball)
                         if maximumGravitationBall is not None:
                             maximumGravitationBallCopy = copy.deepcopy(
                                 maximumGravitationBall
@@ -2058,7 +2086,8 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                        game.showLoadedTip(
+                            f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
                         game.isMassSetting = True
@@ -2147,7 +2176,8 @@ class Option:
 
                 pos = pygame.mouse.get_pos()
                 pos = Vector2(
-                    game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)
+                    game.screenToReal(pos[0], game.x), game.screenToReal(
+                        pos[1], game.y)
                 )
                 line1 = self.creationPoints[0] - self.creationPoints[1]
                 line2 = pos - self.creationPoints[1]
@@ -2164,20 +2194,28 @@ class Option:
                     self.attrs["color"],
                     [
                         (
-                            game.realToScreen(self.creationPoints[0].x, game.x),
-                            game.realToScreen(self.creationPoints[0].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[0].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[0].y, game.y),
                         ),
                         (
-                            game.realToScreen(self.creationPoints[1].x, game.x),
-                            game.realToScreen(self.creationPoints[1].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[1].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[1].y, game.y),
                         ),
                         (
-                            game.realToScreen(self.creationPoints[2].x, game.x),
-                            game.realToScreen(self.creationPoints[2].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[2].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[2].y, game.y),
                         ),
                         (
-                            game.realToScreen(self.creationPoints[3].x, game.x),
-                            game.realToScreen(self.creationPoints[3].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[3].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[3].y, game.y),
                         ),
                     ],
                 )
@@ -2193,12 +2231,16 @@ class Option:
                         game.screen,
                         "yellow",
                         (
-                            game.realToScreen(self.creationPoints[0].x, game.x),
-                            game.realToScreen(self.creationPoints[0].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[0].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[0].y, game.y),
                         ),
                         (
-                            game.realToScreen(self.creationPoints[1].x, game.x),
-                            game.realToScreen(self.creationPoints[1].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[1].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[1].y, game.y),
                         ),
                     )
                 else:
@@ -2206,8 +2248,10 @@ class Option:
                         game.screen,
                         self.attrs["color"],
                         (
-                            game.realToScreen(self.creationPoints[0].x, game.x),
-                            game.realToScreen(self.creationPoints[0].y, game.y),
+                            game.realToScreen(
+                                self.creationPoints[0].x, game.x),
+                            game.realToScreen(
+                                self.creationPoints[0].y, game.y),
                         ),
                         pygame.mouse.get_pos(),
                     )
@@ -2247,8 +2291,10 @@ class Option:
 
                                     if not self.isAbsorption:
                                         self.creationPoints[1] = Vector2(
-                                            game.screenToReal(event.pos[0], game.x),
-                                            game.screenToReal(event.pos[1], game.y),
+                                            game.screenToReal(
+                                                event.pos[0], game.x),
+                                            game.screenToReal(
+                                                event.pos[1], game.y),
                                         )
                                         self.isAbsorption = False
 
@@ -2259,8 +2305,10 @@ class Option:
                                 if clickNum % 4 == 0:
                                     self.creationPoints = [
                                         Vector2(
-                                            game.screenToReal(event.pos[0], game.x),
-                                            game.screenToReal(event.pos[1], game.y),
+                                            game.screenToReal(
+                                                event.pos[0], game.x),
+                                            game.screenToReal(
+                                                event.pos[1], game.y),
                                         )
                                         for i in range(4)
                                     ]
@@ -2307,7 +2355,8 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                        game.showLoadedTip(
+                            f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -2413,10 +2462,12 @@ class Option:
             if clickNum == 2:
 
                 if not hasWallBetween:
-                    length = game.realToScreen(float(self.attrs["lengthLimit"]))
+                    length = game.realToScreen(
+                        float(self.attrs["lengthLimit"]))
                     if length == 0:
                         length = abs(chosenElement[0].position - mouse_pos)
-                    rope = Rope(chosenElement[0], chosenElement[1], length, 2, "black")
+                    rope = Rope(
+                        chosenElement[0], chosenElement[1], length, 2, "black")
                     game.elements["all"].append(rope)
                     game.elements["rope"].append(rope)
 
@@ -2443,10 +2494,13 @@ class Option:
                                             chosenElement[0] = element
                                         if element.type == "wall":
                                             pos = Vector2(
-                                                game.screenToReal(event.pos[0], game.x),
-                                                game.screenToReal(event.pos[1], game.y),
+                                                game.screenToReal(
+                                                    event.pos[0], game.x),
+                                                game.screenToReal(
+                                                    event.pos[1], game.y),
                                             )
-                                            wallPosition = WallPosition(element, pos)
+                                            wallPosition = WallPosition(
+                                                element, pos)
                                             chosenElement[0] = wallPosition
                                         clickNum += 1
                                     else:
@@ -2454,10 +2508,13 @@ class Option:
                                             chosenElement[1] = element
                                         if element.type == "wall":
                                             pos = Vector2(
-                                                game.screenToReal(event.pos[0], game.x),
-                                                game.screenToReal(event.pos[1], game.y),
+                                                game.screenToReal(
+                                                    event.pos[0], game.x),
+                                                game.screenToReal(
+                                                    event.pos[1], game.y),
                                             )
-                                            wallPosition = WallPosition(element, pos)
+                                            wallPosition = WallPosition(
+                                                element, pos)
                                             chosenElement[1] = wallPosition
                                         clickNum += 1
 
@@ -2502,7 +2559,8 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                        game.showLoadedTip(
+                            f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -2606,7 +2664,8 @@ class Option:
             if clickNum == 2:
 
                 if not hasWallBetween:
-                    length = abs(chosenElement[0].position - chosenElement[1].position)
+                    length = abs(
+                        chosenElement[0].position - chosenElement[1].position)
                     if float(self.attrs["lengthLimit"]) > 0:
                         length = float(self.attrs["lengthLimit"])
                     rod = Rod(
@@ -2642,10 +2701,13 @@ class Option:
                                             chosenElement[0] = element
                                         if element.type == "wall":
                                             pos = Vector2(
-                                                game.screenToReal(event.pos[0], game.x),
-                                                game.screenToReal(event.pos[1], game.y),
+                                                game.screenToReal(
+                                                    event.pos[0], game.x),
+                                                game.screenToReal(
+                                                    event.pos[1], game.y),
                                             )
-                                            wallPosition = WallPosition(element, pos)
+                                            wallPosition = WallPosition(
+                                                element, pos)
                                             chosenElement[0] = wallPosition
                                         clickNum += 1
                                     else:
@@ -2653,10 +2715,13 @@ class Option:
                                             chosenElement[1] = element
                                         if element.type == "wall":
                                             pos = Vector2(
-                                                game.screenToReal(event.pos[0], game.x),
-                                                game.screenToReal(event.pos[1], game.y),
+                                                game.screenToReal(
+                                                    event.pos[0], game.x),
+                                                game.screenToReal(
+                                                    event.pos[1], game.y),
                                             )
-                                            wallPosition = WallPosition(element, pos)
+                                            wallPosition = WallPosition(
+                                                element, pos)
                                             chosenElement[1] = wallPosition
                                         clickNum += 1
 
@@ -2701,7 +2766,8 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                        game.showLoadedTip(
+                            f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -2851,10 +2917,13 @@ class Option:
                                             chosenElement[0] = element
                                         if element.type == "wall":
                                             pos = Vector2(
-                                                game.screenToReal(event.pos[0], game.x),
-                                                game.screenToReal(event.pos[1], game.y),
+                                                game.screenToReal(
+                                                    event.pos[0], game.x),
+                                                game.screenToReal(
+                                                    event.pos[1], game.y),
                                             )
-                                            wallPosition = WallPosition(element, pos)
+                                            wallPosition = WallPosition(
+                                                element, pos)
                                             chosenElement[0] = wallPosition
                                         clickNum += 1
                                     else:
@@ -2862,10 +2931,13 @@ class Option:
                                             chosenElement[1] = element
                                         if element.type == "wall":
                                             pos = Vector2(
-                                                game.screenToReal(event.pos[0], game.x),
-                                                game.screenToReal(event.pos[1], game.y),
+                                                game.screenToReal(
+                                                    event.pos[0], game.x),
+                                                game.screenToReal(
+                                                    event.pos[1], game.y),
                                             )
-                                            wallPosition = WallPosition(element, pos)
+                                            wallPosition = WallPosition(
+                                                element, pos)
                                             chosenElement[1] = wallPosition
                                         clickNum += 1
 
@@ -2910,7 +2982,8 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                        game.showLoadedTip(
+                            f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -3052,8 +3125,10 @@ class Option:
         if self.type == "rod":
             # 绘制一条直线
             start_point = (self.x + self.width / 10, self.y + self.height / 2)
-            end_point = (self.x + self.width * 9 / 10, self.y + self.height / 2)
-            pygame.draw.line(game.screen, "black", start_point, end_point, width=3)
+            end_point = (self.x + self.width * 9 /
+                         10, self.y + self.height / 2)
+            pygame.draw.line(game.screen, "black",
+                             start_point, end_point, width=3)
 
         if self.type == "spring":
             # 绘制一条折线（弹簧形状）
@@ -3067,20 +3142,23 @@ class Option:
                 if i % 2 == 0:
                     points.append(
                         (
-                            self.x + self.width / 10 + segment_width * (i + 0.5),
+                            self.x + self.width / 10 +
+                            segment_width * (i + 0.5),
                             self.y + self.height / 4,
                         )
                     )
                 else:
                     points.append(
                         (
-                            self.x + self.width / 10 + segment_width * (i + 0.5),
+                            self.x + self.width / 10 +
+                            segment_width * (i + 0.5),
                             self.y + self.height * 3 / 4,
                         )
                     )
 
             # 终点
-            points.append((self.x + self.width * 9 / 10, self.y + self.height / 2))
+            points.append((self.x + self.width * 9 /
+                          10, self.y + self.height / 2))
 
             # 绘制折线
             if len(points) >= 2:
@@ -3092,7 +3170,8 @@ class Option:
                 icon = pygame.image.load(self.attrs["icon"]).convert_alpha()
 
                 # 调整图片大小以适应给定的宽度和高度
-                scaled_icon = pygame.transform.scale(icon, (self.width, self.height))
+                scaled_icon = pygame.transform.scale(
+                    icon, (self.width, self.height))
 
                 # 计算图片的中心位置
                 icon_x = self.x + self.width / 2 - scaled_icon.get_width() / 2
@@ -3191,7 +3270,8 @@ class InputBox:
         self.color: pygame.Color = self.colorInactive
         self.text: str = text
         self.font: pygame.font.Font = pygame.font.Font(None, int(height))
-        self.textSurface: pygame.Surface = self.font.render(self.text, True, self.color)
+        self.textSurface: pygame.Surface = self.font.render(
+            self.text, True, self.color)
         self.active: bool = False
         self.cursorVisible: bool = True
         self.cursorTimer: float = 0
@@ -3334,7 +3414,8 @@ class InputMenu(Element):
         self.y: float = position.y - self.height / 2
         self.commitFunction: str = ""
         self.font: pygame.font.Font = pygame.font.Font(
-            "static/HarmonyOS_Sans_SC_Medium.ttf", int(self.verticalSpacing / 6)
+            "static/HarmonyOS_Sans_SC_Medium.ttf", int(
+                self.verticalSpacing / 6)
         )
         self.options: list[Option] = []
         self.inputBoxes: list[InputBox] = []
@@ -3391,7 +3472,8 @@ class InputMenu(Element):
             inputBox = self.inputBoxes[i]
 
             # 绘制选项文本
-            optionText = self.font.render(game.translation[optionType], True, (0, 0, 0))
+            optionText = self.font.render(
+                game.translation[optionType], True, (0, 0, 0))
             game.screen.blit(optionText, (self.x, inputBox.rect.y))
 
             # 绘制输入框
@@ -3555,7 +3637,8 @@ class ControlOption:
 
             coordinator.update(game)
             coordinator.draw(
-                game, tempOption, str(round(abs(self.additionVelocity) / 10)) + "m/s"
+                game, tempOption, str(
+                    round(abs(self.additionVelocity) / 10)) + "m/s"
             )
             self.additionVelocity = (
                 tempOption.creationPoints[1] - tempOption.creationPoints[0]
@@ -3582,7 +3665,8 @@ class ControlOption:
                     )
                     target.displayedVelocityFactor = 1
                     target.velocity += (
-                        tempOption.creationPoints[1] - tempOption.creationPoints[0]
+                        tempOption.creationPoints[1] -
+                        tempOption.creationPoints[0]
                     )
                     isAdding = False
                     target.highLighted = False
@@ -3599,7 +3683,8 @@ class ControlOption:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(f"default/{str(event.key - pygame.K_0)}")
+                        game.showLoadedTip(
+                            f"default/{str(event.key - pygame.K_0)}")
 
                     if event.key == pygame.K_ESCAPE:
                         isAdding = False
@@ -3629,7 +3714,8 @@ class ControlOption:
         coordinator.position = target.position
         coordinator.update(game)
         tempOption.creationPoints = [target.position, target.position]
-        self.additionForce = tempOption.creationPoints[1] - tempOption.creationPoints[0]
+        self.additionForce = tempOption.creationPoints[1] - \
+            tempOption.creationPoints[0]
         originVelocity = target.velocity
         originAcceleration = target.acceleration
 
@@ -3647,7 +3733,8 @@ class ControlOption:
             game.update()
             pos = pygame.mouse.get_pos()
             tempOption.creationPoints[1] = Vector2(
-                game.screenToReal(pos[0], game.x), game.screenToReal(pos[1], game.y)
+                game.screenToReal(pos[0], game.x), game.screenToReal(
+                    pos[1], game.y)
             )
 
             if coordinator.isMouseOn():
@@ -3657,7 +3744,8 @@ class ControlOption:
 
             coordinator.update(game)
             coordinator.draw(
-                game, tempOption, str(round(abs(self.additionForce)) / 10) + "N"
+                game, tempOption, str(
+                    round(abs(self.additionForce)) / 10) + "N"
             )
             self.additionForce = (
                 tempOption.creationPoints[1] - tempOption.creationPoints[0]

@@ -29,7 +29,8 @@ def count_code_stat(root_dir):
                         total_bytes += bytes_
                         file_stats.append((relpath, ext, lines, bytes_))
                         if ext not in ext_stats:
-                            ext_stats[ext] = {"count": 0, "lines": 0, "bytes": 0}
+                            ext_stats[ext] = {
+                                "count": 0, "lines": 0, "bytes": 0}
                         ext_stats[ext]["count"] += 1
                         ext_stats[ext]["lines"] += lines
                         ext_stats[ext]["bytes"] += bytes_
@@ -70,21 +71,16 @@ if __name__ == "__main__":
     count_width = 8
     print("\n按文件路径统计：")
     print(
-        format_field(header_name, path_width)
-        + " "
-        + format_field(header_type, type_width)
-        + " "
-        + format_field_right(header_lines, lines_width)
-        + " "
+        format_field(header_name, path_width) + " "
+        + format_field(header_type, type_width) + " "
+        + format_field_right(header_lines, lines_width) + " "
         + format_field_right(header_bytes, bytes_width)
     )
     print("-" * (path_width + type_width + lines_width + bytes_width + 3))
     for relpath, ext, l, b in file_stats:
         print(
-            format_field(relpath, path_width)
-            + " "
-            + format_field(ext, type_width)
-            + " "
+            format_field(relpath, path_width) + " "
+            + format_field(ext, type_width) + " "
             + f"{l:>{lines_width}} "
             + f"{b:>{bytes_width}}"
         )
@@ -92,12 +88,9 @@ if __name__ == "__main__":
     # 第二块：按文件类型统计
     print("\n按文件类型统计:")
     print(
-        format_field("文件类型", path_width)
-        + " "
-        + format_field("文件数", type_width)
-        + " "
-        + format_field_right(header_lines, lines_width)
-        + " "
+        format_field("文件类型", path_width) + " "
+        + format_field("文件数", type_width) + " "
+        + format_field_right(header_lines, lines_width) + " "
         + format_field_right(header_bytes, bytes_width)
     )
     print("-" * (path_width + type_width + lines_width + bytes_width + 3))
@@ -105,10 +98,8 @@ if __name__ == "__main__":
         ext_info = ext_stats[ext]
         ext_text = f"{ext} 文件"
         print(
-            format_field(ext_text, path_width)
-            + " "
-            + format_field(ext_info["count"], type_width)
-            + " "
+            format_field(ext_text, path_width) + " "
+            + format_field(ext_info["count"], type_width) + " "
             + f"{ext_info['lines']:>{lines_width}} "
             + f"{ext_info['bytes']:>{bytes_width}}"
         )
@@ -116,10 +107,8 @@ if __name__ == "__main__":
     # 第三块：合计
     total_text = "合计"
     print(
-        format_field(total_text, path_width)
-        + " "
-        + format_field(len(file_stats), type_width)
-        + " "
+        format_field(total_text, path_width) + " "
+        + format_field(len(file_stats), type_width) + " "
         + f"{lines:>{lines_width}} "
         + f"{bytes_:>{bytes_width}}"
     )

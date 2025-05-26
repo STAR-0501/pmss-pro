@@ -3,7 +3,8 @@ import openai
 import time
 import json
 
-config = json.load(open("config/siliconFlowConfig.json", "r", encoding="utf-8"))
+config = json.load(
+    open("config/siliconFlowConfig.json", "r", encoding="utf-8"))
 
 key = config["key"]
 
@@ -81,7 +82,7 @@ class AI:
         if message.startswith("~"):
             reasoner = True
             message = message[1:]
-            
+
         else:
             reasoner = False
 
@@ -91,7 +92,8 @@ class AI:
         try:
             # 发送带有流式输出的请求
             response = self.client.chat.completions.create(
-                model=(config["models"][0] if not reasoner else config["models"][1]),
+                model=(config["models"][0]
+                       if not reasoner else config["models"][1]),
                 messages=self.message,
                 stream=True,  # 启用流式输出
             )
