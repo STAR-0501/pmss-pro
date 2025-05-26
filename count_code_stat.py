@@ -59,7 +59,7 @@ def format_field_right(text, width):
 if __name__ == "__main__":
     root = os.path.dirname(os.path.abspath(__file__))
     file_stats, lines, bytes_, ext_stats = count_code_stat(root)
-    header_name = "文件名 / 文件路径"
+    header_name = "文件路径"
     header_type = "文件类型"
     header_lines = "行数"
     header_bytes = "字节数"
