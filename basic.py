@@ -399,28 +399,14 @@ class Coordinator:
         if not self.isMouseOn():
             degreeText = str(round(self.minDegree)) + "°"
             textSize = game.fontSmall.size(degreeText)
-            textX = (
-                game.realToScreen(self.position.x + (nowDirection.x / 3), game.x)
-                - textSize[0] / 3
-            )
-            textY = (
-                game.realToScreen(self.position.y + (nowDirection.y / 3), game.y)
-                - textSize[1] / 3
-            )
-            game.screen.blit(
-                game.fontSmall.render(degreeText, True, "black"), (textX, textY)
-            )
+            textX = (game.realToScreen(self.position.x + (nowDirection.x / 3), game.x) - textSize[0] / 3)
+            textY = (game.realToScreen(self.position.y + (nowDirection.y / 3), game.y)- textSize[1] / 3)
+            game.screen.blit(game.fontSmall.render(degreeText, True, "black"), (textX, textY))
 
         if text != "":
             textSize = game.fontSmall.size(text)
-            textX = (
-                game.realToScreen(self.position.x + (nowDirection.x * 2 / 3), game.x)
-                - textSize[0] * 2 / 3
-            )
-            textY = (
-                game.realToScreen(self.position.y + (nowDirection.y * 2 / 3), game.y)
-                - textSize[1] * 2 / 3
-            )
+            textX = (game.realToScreen(self.position.x + (nowDirection.x * 2 / 3), game.x)- textSize[0] * 2 / 3)
+            textY = (game.realToScreen(self.position.y + (nowDirection.y * 2 / 3), game.y)- textSize[1] * 2 / 3)
             game.screen.blit(game.fontSmall.render(text, True, "black"), (textX, textY))
 
 
@@ -671,9 +657,7 @@ class Ball(Element):
             drawRadius = game.realToScreen(currentRadius)
 
             # 创建临时surface实现透明度
-            tempSurface = pygame.Surface(
-                (drawRadius * 2, drawRadius * 2), pygame.SRCALPHA
-            )
+            tempSurface = pygame.Surface((drawRadius * 2, drawRadius * 2), pygame.SRCALPHA)
 
             pygame.draw.circle(
                 tempSurface,
@@ -703,6 +687,7 @@ class Ball(Element):
 
         if abs(self.velocity) == 0:
             cosine = 1
+            
         else:
             cosine = abs(self.velocity.y) / abs(self.velocity)
 
@@ -710,10 +695,7 @@ class Ball(Element):
         if lineLength < 1e-5:
             return self.velocity
 
-        self.displayedVelocity = (
-            self.velocity
-            + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor
-        )
+        self.displayedVelocity = (self.velocity + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor)
         self.displayedVelocityFactor = 1
 
         AP = self.position - line.start
@@ -724,11 +706,7 @@ class Ball(Element):
             closest = line.start + AB * projectionRatio
             edgeNormal = Vector2(-AB.y, AB.x).normalize()
             # 根据球的位置确定法线方向
-            normal = (
-                edgeNormal
-                if (self.position - closest).dot(edgeNormal) > 0
-                else -edgeNormal
-            )
+            normal = (edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal)
 
         else:  # 线段的情况
 
@@ -743,11 +721,7 @@ class Ball(Element):
             else:
                 closest = line.start + AB * projectionRatio
                 edgeNormal = Vector2(-AB.y, AB.x).normalize()
-                normal = (
-                    edgeNormal
-                    if (self.position - closest).dot(edgeNormal) > 0
-                    else -edgeNormal
-                )
+                normal = (edgeNormal if (self.position - closest).dot(edgeNormal) > 0 else -edgeNormal)
 
         # 位置修正
         overlap = self.radius - self.position.distance(closest)
@@ -764,8 +738,8 @@ class Ball(Element):
             # 将法向分量乘以 self.collisionFactor
             velocityNormalAfterRebound = self.velocity.dot(normal)
             self.velocity += normal * (
-                velocityNormalAfterRebound
-                * (
+                velocityNormalAfterRebound *
+                (
                     (
                         self.collisionFactor * line.collisionFactor
                         if not timeIsReversed
@@ -777,12 +751,9 @@ class Ball(Element):
 
             # 调整速度大小
             self.velocity = (
-                self.velocity.copy().normalize()
-                * abs(
-                    abs(self.velocity) ** 2
-                    - 2 * 98.1 * (1 - cosine**2) ** 0.5 * overlap
-                )
-                ** 0.5
+                self.velocity.copy().normalize() * abs(
+                    abs(self.velocity) ** 2 - 2 * 98.1 * (1 - cosine**2) ** 0.5 * overlap
+                ) ** 0.5
             )
 
         return self.velocity
@@ -802,19 +773,14 @@ class Ball(Element):
             # 使用随机方向避免零向量
             normal = Vector2(1, 0) if random() > 0.5 else Vector2(-1, 0)
             actualDistance = minDistance
+            
         else:
             normal = deltaPosition / actualDistance
 
-        self.displayedVelocity = (
-            self.velocity
-            + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor
-        )
+        self.displayedVelocity = (self.velocity + (self.displayedVelocity - self.velocity) * self.displayedVelocityFactor)
         self.displayedVelocityFactor = 1
 
-        ball.displayedVelocity = (
-            ball.velocity
-            + (ball.displayedVelocity - ball.velocity) * ball.displayedVelocityFactor
-        )
+        ball.displayedVelocity = (ball.velocity+ (ball.displayedVelocity - ball.velocity) * ball.displayedVelocityFactor)
         ball.displayedVelocityFactor = 1
 
         tangent = normal.vertical()
@@ -830,12 +796,8 @@ class Ball(Element):
         velocityTangent2 = originalVelocity2.dot(tangent)
 
         # 弹性碰撞公式
-        newVelocityNormal1 = (
-            (self.mass - ball.mass) * velocityNormal1 + 2 * ball.mass * velocityNormal2
-        ) / totalMass
-        newVelocityNormal2 = (
-            2 * self.mass * velocityNormal1 + (ball.mass - self.mass) * velocityNormal2
-        ) / totalMass
+        newVelocityNormal1 = ((self.mass - ball.mass) * velocityNormal1 + 2 * ball.mass * velocityNormal2) / totalMass
+        newVelocityNormal2 = (2 * self.mass * velocityNormal1 + (ball.mass - self.mass) * velocityNormal2) / totalMass
 
         # 应用碰撞因子到法向分量
         collisionFactor = self.collisionFactor * ball.collisionFactor
@@ -848,6 +810,7 @@ class Ball(Element):
 
         # 位置修正
         overlap = minDistance - actualDistance
+        
         if overlap > 0:
             # 无条件分离，防止穿透
             separation = normal * (overlap * 1.05)  # 增加分离系数
@@ -877,25 +840,20 @@ class Ball(Element):
                     # 对上下方向的球体施加不同的分离力
                     if gravityComponent > 0:  # 下方球体需要更强的向上分离力
                         self.velocity += (
-                            normal
-                            * (min_sep_speed * sepFactor + gravityBoost)
-                            * (ball.mass / totalMass)
+                            normal * (min_sep_speed * sepFactor + gravityBoost) * (ball.mass / totalMass)
                         )
+                        
                         ball.velocity -= (
-                            normal
-                            * (min_sep_speed * sepFactor)
-                            * (self.mass / totalMass)
+                            normal * (min_sep_speed * sepFactor) * (self.mass / totalMass)
                         )
+                        
                     else:  # 上方球体需要更强的向下分离力
                         self.velocity += (
-                            normal
-                            * (min_sep_speed * sepFactor)
-                            * (ball.mass / totalMass)
+                            normal * (min_sep_speed * sepFactor) * (ball.mass / totalMass)
                         )
+                        
                         ball.velocity -= (
-                            normal
-                            * (min_sep_speed * sepFactor + abs(gravityBoost))
-                            * (self.mass / totalMass)
+                            normal * (min_sep_speed * sepFactor + abs(gravityBoost)) * (self.mass / totalMass)
                         )
                 else:
                     # 水平方向的普通分离
@@ -982,6 +940,7 @@ class Ball(Element):
         newBall.displayedAcceleration = (
             self.displayedAcceleration + other.displayedAcceleration
         )
+        
         newBall.displayedVelocity = self.displayedVelocity + other.displayedVelocity
 
         return newBall
@@ -1035,14 +994,17 @@ class Wall(Element):
         isMoving = True
 
         while isMoving:
+            
             newWall.position = Vector2(
                 game.screenToReal(pygame.mouse.get_pos()[0], game.x),
                 game.screenToReal(pygame.mouse.get_pos()[1], game.y),
             )
+            
             newWall.draw(game)
             newWall.update(0.5)
             game.update()
             pygame.display.update()
+            
             for event in pygame.event.get():
 
                 if event.type == pygame.QUIT:
@@ -1095,6 +1057,7 @@ class Wall(Element):
         """处理顶点碰撞的响应"""
         # 计算穿透深度
         penetration = ball.radius - ball.position.distance(vertex)
+        
         if penetration > 0:
             # 位置修正
             ball.position += normal * penetration * 1.1
@@ -1130,6 +1093,7 @@ class Wall(Element):
             expand = 1  # 向外扩展
 
             highLightList = []
+            
             for vertex in self.vertexes:
 
                 # 获取中心到顶点的方向向量
@@ -1258,9 +1222,7 @@ class Rope(Element):
                 # 计算相对速度的阻尼力（减少振荡）
                 dampingFactor = 0.1 * self.collisionFactor  # 阻尼系数与碰撞因子相关
                 relativeVelocity = self.end.velocity - self.start.velocity
-                dampingForce = (
-                    direction * relativeVelocity.dot(direction) * dampingFactor
-                )
+                dampingForce = (direction * relativeVelocity.dot(direction) * dampingFactor)
 
                 # 应用力到两个球体（注意力的方向相反）
                 self.start.force(ropeForce + dampingForce, isNatural=True)
@@ -1374,9 +1336,7 @@ class Rope(Element):
                 # 如果绳索水平，则完全沿重力方向下垂
                 # 如果绳索垂直，则沿垂直方向下垂
                 dotWithHorizontal = abs(direction.dot(Vector2(1, 0)))
-                sagDir = perpendicular * dotWithHorizontal + gravityDir * (
-                    1 - dotWithHorizontal
-                )
+                sagDir = perpendicular * dotWithHorizontal + gravityDir * (1 - dotWithHorizontal)
                 sagDir = sagDir.normalize()
 
                 # 应用下垂
@@ -1450,9 +1410,7 @@ class Spring(Element):
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             # 计算相对速度的阻尼力
             relativeVelocity = self.end.velocity - self.start.velocity
-            dampingForce = (
-                direction * relativeVelocity.dot(direction) * self.dampingFactor
-            )
+            dampingForce = (direction * relativeVelocity.dot(direction) * self.dampingFactor)
 
             # 应用力到两个球体（注意力的方向相反）
             self.start.force(springForce + dampingForce, isNatural=True)
@@ -1581,18 +1539,18 @@ class Spring(Element):
 
         # 绘制弹簧线
         if len(points) > 1:
+            
             # 使用颜色变化来表示弹簧的形变状态
             if deformationRatio < 1.0:  # 压缩状态
                 # 压缩时颜色向红色过渡
                 drawColor = colorMiddle(self.color, "red", 1.0 - deformationRatio)
+                
             else:  # 拉伸状态
                 # 拉伸时颜色向蓝色过渡
                 stretchFactor = min(deformationRatio - 1.0, 1.0)  # 限制在0-1范围内
                 drawColor = colorMiddle(self.color, "blue", stretchFactor)
 
-            pygame.draw.lines(
-                game.screen, drawColor, False, points, max(1, int(self.width))
-            )
+            pygame.draw.lines(game.screen, drawColor, False, points, max(1, int(self.width)))
 
 
 class Rod(Element):
@@ -1651,9 +1609,7 @@ class Rod(Element):
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
             # 计算相对速度的阻尼力（减少振荡）
             relativeVelocity = self.end.velocity - self.start.velocity
-            dampingForce = (
-                direction * relativeVelocity.dot(direction) * self.dampingFactor
-            )
+            dampingForce = (direction * relativeVelocity.dot(direction) * self.dampingFactor)
 
             # 应用力到两个球体（注意力的方向相反）
             self.start.force(constraintForce + dampingForce, isNatural=True)
@@ -1669,8 +1625,10 @@ class Rod(Element):
                 if self.start.mass > 0 and self.end.mass > 0:
                     self.start.position += correction * (self.end.mass / totalMass)
                     self.end.position -= correction * (self.start.mass / totalMass)
+                    
                 elif self.start.mass > 0:  # 如果end是无限质量
                     self.start.position += correction
+                    
                 elif self.end.mass > 0:  # 如果start是无限质量
                     self.end.position -= correction
 
@@ -1753,15 +1711,18 @@ class Rod(Element):
 
         # 绘制轻杆线
         if len(points) > 1:
+            
             # 使用颜色变化来表示轻杆的状态
             if abs(deformationRatio - 1.0) < 0.01:  # 几乎保持原长
                 drawColor = self.color
+                
             elif deformationRatio < 1.0:  # 压缩状态
                 # 压缩时颜色向红色过渡
                 compressionFactor = min(
                     1.0 - deformationRatio, 0.5
                 )  # 限制在0-0.5范围内
                 drawColor = colorMiddle(self.color, "red", compressionFactor * 2)
+                
             else:  # 拉伸状态
                 # 拉伸时颜色向蓝色过渡
                 stretchFactor = min(deformationRatio - 1.0, 0.5)  # 限制在0-0.5范围内
@@ -1782,7 +1743,9 @@ class Rod(Element):
                 (points[0][0] + points[1][0]) // 2,
                 (points[0][1] + points[1][1]) // 2,
             )
+            
             markSize = max(3, int(rodWidth * 0.8))
+            
             pygame.draw.circle(
                 game.screen, colorMiddle(drawColor, "white", 0.3), midPoint, markSize
             )

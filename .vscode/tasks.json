@@ -6,7 +6,7 @@
         {
             "label": "black",
             "type": "shell",
-            "command": "black --preview ${workspaceFolder}",
+            "command": "black ${workspaceFolder}",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

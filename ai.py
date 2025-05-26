@@ -81,6 +81,7 @@ class AI:
         if message.startswith("~"):
             reasoner = True
             message = message[1:]
+            
         else:
             reasoner = False
 
