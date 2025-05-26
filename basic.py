@@ -1225,7 +1225,7 @@ class Rope(Element):
         return self.length < abs(self.start.getPosition() - self.end.getPosition())
 
     def calculateForce(self) -> bool:
-        """计算绳索约束并直接修改速度"""
+        """计算绳索力并应用到连接的物体上"""
         # 获取两端点位置
         startPos = self.start.getPosition()
         endPos = self.end.getPosition()
@@ -1244,29 +1244,31 @@ class Rope(Element):
         # 计算形变量（只考虑拉伸，绳索不会压缩）
         overlap = actualDistance - self.length
 
-        # 只有当绳索被拉伸时才进行约束
+        # 只有当绳索被拉伸时才施加力
         if overlap > 0:
-            # 直接修改速度而不是施加力
+            # 计算绳索拉力大小（可以视为非常大的弹簧系数）
+            stiffness = 1000.0  # 绳索刚度系数，比弹簧大得多
+            forceMagnitude = stiffness * overlap
+
+            # 计算绳索力向量
+            ropeForce = direction * forceMagnitude
+
+            # 应用绳索力到两端物体
             if isinstance(self.start, Ball) and isinstance(self.end, Ball):
-                # 计算相对速度在绳索方向上的分量
+                # 计算相对速度的阻尼力（减少振荡）
+                dampingFactor = 0.1 * self.collisionFactor  # 阻尼系数与碰撞因子相关
                 relativeVelocity = self.end.velocity - self.start.velocity
-                relativeVelocityAlongRope = relativeVelocity.dot(direction)
-                
-                # 如果相对速度使绳索继续拉伸，则需要约束
-                if relativeVelocityAlongRope > 0:
-                    # 计算质量比例
-                    totalMass = self.start.mass + self.end.mass
-                    massRatio1 = self.end.mass / totalMass
-                    massRatio2 = self.start.mass / totalMass
-                    
-                    # 直接修改速度，消除拉伸分量
-                    velocityCorrection = direction * relativeVelocityAlongRope
-                    self.start.velocity += velocityCorrection * massRatio1 * self.collisionFactor
-                    self.end.velocity -= velocityCorrection * massRatio2 * self.collisionFactor
+                dampingForce = (
+                    direction * relativeVelocity.dot(direction) * dampingFactor
+                )
+
+                # 应用力到两个球体（注意力的方向相反）
+                self.start.force(ropeForce + dampingForce, isNatural=True)
+                self.end.force(-ropeForce - dampingForce, isNatural=True)
 
                 # 位置修正（防止过度拉伸）
                 totalMass = self.start.mass + self.end.mass
-                separation = direction * (overlap * 0.1)  # 位置修正系数
+                separation = direction * (overlap * 0.05)  # 小幅度位置修正
 
                 # 按质量比例分配分离量
                 self.start.position += separation * (self.end.mass / totalMass)
@@ -1275,29 +1277,13 @@ class Rope(Element):
                 return True
 
             elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
-                # 只对球体进行速度约束
-                ballVelocityAlongRope = self.start.velocity.dot(-direction)
-                
-                if ballVelocityAlongRope > 0:
-                    # 消除球体在绳索方向上的速度分量
-                    velocityCorrection = direction * ballVelocityAlongRope
-                    self.start.velocity += velocityCorrection * self.collisionFactor
-                
-                # 位置修正
-                self.start.position += direction * (overlap * 0.1)
+                # 只对球体应用力
+                self.start.force(ropeForce, isNatural=True)
                 return True
 
             elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
-                # 只对球体进行速度约束
-                ballVelocityAlongRope = self.end.velocity.dot(direction)
-                
-                if ballVelocityAlongRope > 0:
-                    # 消除球体在绳索方向上的速度分量
-                    velocityCorrection = direction * ballVelocityAlongRope
-                    self.end.velocity -= velocityCorrection * self.collisionFactor
-                
-                # 位置修正
-                self.end.position -= direction * (overlap * 0.1)
+                # 只对球体应用力
+                self.end.force(-ropeForce, isNatural=True)
                 return True
 
         return False
