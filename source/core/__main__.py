@@ -3,7 +3,8 @@ from .ai_thread_loop import *
 import pygame
 import threading
 
-if __name__ == "__main__":
+
+def main():
     game: Game = Game()
 
     # 创建并启动AI线程

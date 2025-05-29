@@ -4,6 +4,7 @@ from .input_box import *
 import pygame
 import time
 
+
 class InputMenu(Element):
     """输入菜单界面类"""
 

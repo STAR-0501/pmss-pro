@@ -4,6 +4,7 @@ from .option import *
 import pygame
 import time
 
+
 class InputBox:
     """输入框控件类"""
 

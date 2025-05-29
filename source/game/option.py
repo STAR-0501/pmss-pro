@@ -1,5 +1,6 @@
 from ..basic import *
 
+
 class Option:
     """菜单选项类"""
 

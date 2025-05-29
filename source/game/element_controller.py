@@ -2,6 +2,7 @@ from ..basic import *
 from .control_option import *
 import pygame
 
+
 class ElementController:
     """右键菜单"""
 

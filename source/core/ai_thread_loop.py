@@ -5,6 +5,7 @@ from .command import *
 import re
 import json
 
+
 def AIThreadLoop(game: Game) -> None:
     """AI线程方法"""
     ai: AI = AI(game)

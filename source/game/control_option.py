@@ -2,6 +2,7 @@ from ..basic import *
 from .input_menu import *
 import pygame
 
+
 class ControlOption:
     """控制选项类"""
 

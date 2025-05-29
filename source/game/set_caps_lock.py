@@ -1,5 +1,6 @@
 import ctypes
 
+
 def setCapsLock(state: bool = True) -> None:
     """
     设置或取消CapsLock状态
