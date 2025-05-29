@@ -1,4 +1,5 @@
 from ..basic import *
+from .set_caps_lock import *
 
 
 class Option:
