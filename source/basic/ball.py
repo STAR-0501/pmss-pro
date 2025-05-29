@@ -336,7 +336,7 @@ class Ball(Element):
 
             # 保存原始速度大小
             originalSpeed = abs(self.velocity)
-
+            
             # 速度反射（保留切线分量）
             velocityNormal = self.velocity.dot(normal)
             self.velocity -= normal * (2 * velocityNormal)
@@ -354,11 +354,11 @@ class Ball(Element):
                     - 1
                 )
             )
-
+            
             # 恢复原始速度大小
             if abs(self.velocity) > 1e-5:  # 避免除以零
                 self.velocity = self.velocity.normalize() * originalSpeed
-
+            
             # 不再调整速度大小
             # 原代码：
             # self.velocity = (
@@ -423,19 +423,18 @@ class Ball(Element):
         # 重建速度向量（保持原始方向）
         newVelocity1 = tangent * velocityTangent1 + normal * newVelocityNormal1
         newVelocity2 = tangent * velocityTangent2 + normal * newVelocityNormal2
-
+        
         # 保持速度大小不变
         originalSpeed1 = abs(originalVelocity1)
         originalSpeed2 = abs(originalVelocity2)
-
-        # 确保速度大小精确等于原始速度大小
+        
         if abs(newVelocity1) > 1e-5:  # 避免除以零
-            self.velocity = newVelocity1 * (originalSpeed1 / abs(newVelocity1))
+            self.velocity = newVelocity1.normalize() * originalSpeed1
         else:
             self.velocity = newVelocity1
-
+            
         if abs(newVelocity2) > 1e-5:  # 避免除以零
-            ball.velocity = newVelocity2 * (originalSpeed2 / abs(newVelocity2))
+            ball.velocity = newVelocity2.normalize() * originalSpeed2
         else:
             ball.velocity = newVelocity2
 
