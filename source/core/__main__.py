@@ -1,10 +1,10 @@
-from source.core import *
-from source.game import *
-from source.ai import *
+from ..game import *
+from .ai_thread_loop import *
+import pygame
 import threading
 
 if __name__ == "__main__":
-    game: "Game" = Game()
+    game: Game = Game()
 
     # 创建并启动AI线程
     AIThread: threading.Thread = threading.Thread(

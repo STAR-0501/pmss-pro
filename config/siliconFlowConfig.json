@@ -1,7 +1,7 @@
 {
     "key": "sk-kceztlqyxifrxdqwfqwnmmlrbgpvjhrrtdqezhttlqmjnoxn",
     "models": [
-        "Qwen/Qwen3-235B-A22B",
+        "Pro/deepseek-ai/DeepSeek-V3",
         "Pro/deepseek-ai/DeepSeek-R1"
     ]
 }

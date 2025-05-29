@@ -1,4 +1,4 @@
-from basic import *
+from ..basic import *
 import openai
 import time
 import json
@@ -50,6 +50,7 @@ class AI:
 20. set environment [gravity | airResistance | collisionFactor] [value] 设置环境属性（gravity，airResistance，collisionFactor），gravity是重力系数，取值范围为0-1，0表示不受重力影响，1表示受正常重力影响；airResistance是空气阻力系数，取值范围为0-1，1表示不受空气阻力影响，0.4表示每秒阻力使速度减少为原来的0.4倍；collisionFactor是碰撞系数，取值范围为0-1，1表示碰撞后速度无损失，0.4表示碰撞后使速度减少为原来的0.4倍）
 
 注意事项：
+0. 每条命令部分请用<...>括起，一定要括起，否则导致命令无法执行
 1. 创建墙的四个顶点坐标必须时顺时针或逆时针，且四个点围成一个封闭矩形
 2. 每次用户输入需求时都会附带已有元素的属性，你可以用set命令修改属性，ballIndex或者wallIndex是指元素在列表中的索引号
 3. 每次用户输入需求时都会附带屏幕窗口两个对角在模拟世界中的坐标，你可以作为参考
