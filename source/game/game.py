@@ -11,6 +11,13 @@ import pickle
 import json
 import os
 import sys
+import multiprocessing
+import threading
+from shared_game_state import SharedGameState
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..core.ai_thread_loop import AIThreadLoop
 
 
 class Game:
@@ -98,6 +105,9 @@ class Game:
         self.settingsButton: SettingsButton = SettingsButton(0, 0, 50, 50)
         self.fpsSaver: list[float] = []
         self.tempFrames: int = 0
+        
+        # 多进程通信队列（用于向投影显示进程发送数据）
+        self.projection_queue: multiprocessing.Queue = None
         self.optionsList: list[dict] = []
         self.environmentOptions: list[dict] = []
         self.elements: dict[str, list[Element | Ball | Wall | Rope]] = {}
@@ -152,7 +162,7 @@ class Game:
         """退出游戏并取消大写锁定"""
         if not self.isChatting:
             setCapsLock(False)
-            self.saveGame("autosave")
+            self.savePreset("autosave")
             print("\n游戏退出")
             pygame.quit()
             sys.exit()
@@ -231,7 +241,7 @@ class Game:
 
     def showLoadedTip(self, filename: str) -> None:
         """显示加载游戏成功提示"""
-        self.loadGame(filename)
+        self.loadPreset(filename)
         loadedTipText = self.fontSmall.render(
             f"{self.gameName}加载成功", True, (0, 0, 0)
         )
@@ -249,48 +259,61 @@ class Game:
         self.lastTime = time.time()
         self.currentTime = time.time()
 
-    def saveGame(self, filename: str = "autosave") -> None:
-        """保存游戏数据"""
+    def savePreset(self, filename: str = "autosave", iconPath: str = None) -> None:
+        """保存预设数据"""
         for elementOption in self.elementMenu.options:
             elementOption.highLighted = False
 
-        # 创建一个新的字典，用于存储可序列化的属性
-        serializableDict = {"gameName": f"{int(time.time())}备份"}
+        # # 创建一个新的字典，用于存储可序列化的属性
+        # serializableDict = {"gameName": f"{int(time.time())}备份"}
 
         # serializableDict = {               #做预设用的
         #     "gameName" : f"单摆",
         #     "icon" : "static/simplePendulum.png"
         # }
 
-        # freeFall flatToss idealBevel basketball easterEgg
+        # # freeFall flatToss idealBevel basketball easterEgg
 
-        # 遍历 self.__dict__，排除不可序列化的对象
-        for attr, value in self.__dict__.items():
-            if (
-                attr != "screen"
-                and attr != "fpsSaver"
-                and attr != "icon"
-                and attr != "gameName"
-            ):
-                try:
-                    # 尝试序列化对象，如果成功则添加到 serializableDict 中
-                    pickle.dumps(value)
-                    serializableDict[attr] = value
+        # # 遍历 self.__dict__，排除不可序列化的对象
+        # for attr, value in self.__dict__.items():
+        #     if (
+        #         attr != "screen"
+        #         and attr != "fpsSaver"
+        #         and attr != "icon"
+        #         and attr != "gameName"
+        #     ):
+        #         try:
+        #             # 尝试序列化对象，如果成功则添加到 serializableDict 中
+        #             pickle.dumps(value)
+        #             serializableDict[attr] = value
 
-                except (pickle.PicklingError, TypeError):
-                    # 如果序列化失败，跳过该属性
-                    ...
+        #         except (pickle.PicklingError, TypeError):
+        #             # 如果序列化失败，跳过该属性
+        #             ...
+
+        data = {
+            "name": filename,
+            "icon": iconPath,
+            "attributes": {}
+        }
+        
+        for key, value in self.__dict__.items():
+            if isinstance(value, (int, float, str, list, tuple, dict)) and key != "fpsSaver" and key != "elements" and key != "groundElements" and key != "celestialElements" and key != "screen" and key != "projection_queue":
+                
+                data["attributes"][key] = value
+                
+        print(json.dumps(data, ensure_ascii=False, indent=4))
 
         os.makedirs("savefile", exist_ok=True)
 
         # 将可序列化的字典保存到文件
-        with open(f"savefile/{filename}.pkl", "wb") as f:
-            pickle.dump(serializableDict, f)
-            print(f"\n游戏数据保存成功：{filename}.pkl")
+        with open(f"savefile/{filename}.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+            print(f"\n游戏数据保存成功：{filename}.json")
             f.close()
 
-    def loadGame(self, filename: str = "autosave") -> None:
-        """加载游戏数据"""
+    def loadPreset(self, filename: str = "autosave") -> None:
+        """加载预设数据"""
         # 保存当前的 screen 属性
         currentScreen = getattr(self, "screen", None)
         currentExampleMenu = getattr(self, "exampleMenu", None)
@@ -487,13 +510,13 @@ class Game:
                                             self.undoLastElement()
 
                                         if event.key == pygame.K_g:
-                                            self.saveGame("manualsave")
+                                            self.savePreset("manualsave")
 
                                         if event.key == pygame.K_l:
-                                            self.loadGame("autosave")
+                                            self.loadPreset("autosave")
 
                                         if event.key == pygame.K_k:
-                                            self.loadGame("manualsave")
+                                            self.loadPreset("manualsave")
 
                                         if pygame.K_1 <= event.key <= pygame.K_9:
                                             self.showLoadedTip(
@@ -597,16 +620,16 @@ class Game:
                     self.openEditor(self.inputMenu)
 
                 if event.key == pygame.K_g:
-                    self.saveGame("manualsave")
+                    self.savePreset("manualsave")
 
                 if event.key == pygame.K_l:
-                    self.loadGame("autosave")
+                    self.loadPreset("autosave")
 
                 if event.key == pygame.K_k:
-                    self.loadGame("manualsave")
+                    self.loadPreset("manualsave")
 
                 if pygame.K_1 <= event.key <= pygame.K_9:
-                    self.loadGame(f"default/{str(event.key - pygame.K_0)}")
+                    self.loadPreset(f"default/{str(event.key - pygame.K_0)}")
                     loadedTipText = self.fontSmall.render(
                         f"{self.gameName}加载成功", True, (0, 0, 0)
                     )
@@ -778,8 +801,45 @@ class Game:
         else:
             self.isFloorIllegal = False
 
+        # 恢复原版渲染逻辑
+        self.renderOriginalGame()
+
+    def renderOriginalGame(self) -> None:
+        """渲染原版游戏画面"""
+        # 清空屏幕
         self.screen.fill(self.background)
+        
+        # 绘制设置按钮
         self.settingsButton.draw(self)
+        
+        # 绘制所有物理元素
+        for element in self.elements["all"]:
+            element.draw(self)
+        
+        # 绘制地板（如果不是天体模式且地板合法）
+        if not self.isCelestialBodyMode and not self.isFloorIllegal:
+            self.floor.draw(self)
+            
+        # 如果有投影队列，发送当前画面数据到投影进程
+        if self.projection_queue is not None:
+            try:
+                # 将surface转换为可序列化的格式
+                screen_copy = self.screen.copy()
+                surface_string = pygame.image.tostring(screen_copy, 'RGB')
+                surface_size = screen_copy.get_size()
+                surface_data = {
+                    'data': surface_string,
+                    'size': surface_size
+                }
+                
+                if not self.projection_queue.full():
+                    self.projection_queue.put_nowait(surface_data)
+            except Exception as e:
+                pass  # 忽略队列错误，继续游戏运行
+    
+    def setProjectionQueue(self, queue: multiprocessing.Queue) -> None:
+        """设置投影显示队列"""
+        self.projection_queue = queue
 
     def updateMenu(self) -> None:
         """更新菜单界面"""

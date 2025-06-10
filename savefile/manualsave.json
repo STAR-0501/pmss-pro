@@ -1,0 +1,259 @@
+{
+    "name": "manualsave",
+    "icon": null,
+    "attributes": {
+        "isPaused": false,
+        "isElementCreating": false,
+        "isMoving": false,
+        "isScreenMoving": false,
+        "isMassSetting": false,
+        "isCircularVelocityGetting": false,
+        "isCircularVelocityDirectionAnticlockwise": true,
+        "isCtrlPressing": false,
+        "isEditing": false,
+        "isElementControlling": false,
+        "isPressed": false,
+        "isDragging": false,
+        "isCelestialBodyMode": false,
+        "isModeChangingNaturally": false,
+        "isChatting": false,
+        "icon": "",
+        "screenSize": [
+            0,
+            0
+        ],
+        "mousePos": [
+            1227,
+            634
+        ],
+        "ratio": 4.545454545454545,
+        "lastRatio": 5,
+        "minLimitRatio": 1,
+        "maxLimitRatio": 15,
+        "x": 188.02000000000012,
+        "y": 221.82000000000005,
+        "lastX": 192.0,
+        "lastY": 20000000.0,
+        "currentTime": 1749530402.242685,
+        "lastTime": 1749530402.228781,
+        "fpsAverage": 75.82124413372098,
+        "fpsMinimum": 19.62936234936235,
+        "rightMove": 0,
+        "upMove": 0,
+        "speed": 1,
+        "circularVelocityFactor": 1,
+        "isFloorIllegal": false,
+        "background": "lightgrey",
+        "tempFrames": 0,
+        "optionsList": [
+            {
+                "type": "ball",
+                "name": "弹力球",
+                "attrs": [
+                    {
+                        "type": "mass",
+                        "value": 1,
+                        "min": 0.1,
+                        "max": 32767
+                    },
+                    {
+                        "type": "radius",
+                        "value": 5,
+                        "min": 1,
+                        "max": 1024
+                    },
+                    {
+                        "type": "color",
+                        "value": "RED",
+                        "min": "#000000",
+                        "max": "#FFFFFF"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "copy"
+                    },
+                    {
+                        "type": "delete"
+                    },
+                    {
+                        "type": "follow"
+                    },
+                    {
+                        "type": "showInfo"
+                    },
+                    {
+                        "type": "addVelocity"
+                    },
+                    {
+                        "type": "clearVelocity"
+                    },
+                    {
+                        "type": "addForce"
+                    },
+                    {
+                        "type": "clearForce"
+                    }
+                ]
+            },
+            {
+                "type": "wall",
+                "name": "墙",
+                "attrs": [
+                    {
+                        "type": "color",
+                        "value": "BLUE",
+                        "min": "#000000",
+                        "max": "#FFFFFF"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "copy"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            },
+            {
+                "type": "rope",
+                "name": "绳索",
+                "attrs": [
+                    {
+                        "type": "lengthLimit",
+                        "value": "0",
+                        "min": "0",
+                        "max": "2147483647"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            },
+            {
+                "type": "spring",
+                "name": "弹簧",
+                "attrs": [
+                    {
+                        "type": "lengthLimit",
+                        "value": "0",
+                        "min": "0",
+                        "max": "2147483647"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            },
+            {
+                "type": "rod",
+                "name": "轻杆",
+                "attrs": [
+                    {
+                        "type": "lengthLimit",
+                        "value": "0",
+                        "min": "0",
+                        "max": "2147483647"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            }
+        ],
+        "environmentOptions": [
+            {
+                "type": "gravity",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1000.0
+            },
+            {
+                "type": "airResistance",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 100.0
+            },
+            {
+                "type": "collisionFactor",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1.0
+            },
+            {
+                "type": "mode",
+                "value": 0,
+                "min": 0,
+                "max": 1
+            }
+        ],
+        "translation": {
+            "radius": "半径",
+            "mass": "质量",
+            "color": "颜色",
+            "lengthLimit": "长度限制",
+            "gravity": "重力加速度",
+            "airResistance": "空气阻力",
+            "collisionFactor": "碰撞系数",
+            "mode": "模式(按P键可切换)",
+            "attrEditor": "属性编辑",
+            "copy": "复制",
+            "delete": "删除",
+            "showInfo": "显示信息",
+            "follow": "视角跟随",
+            "addVelocity": "添加速度",
+            "clearVelocity": "清除速度",
+            "addForce": "添加力",
+            "clearForce": "清除所有外力"
+        },
+        "environmentOptionsCopy": [
+            {
+                "type": "gravity",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1000.0
+            },
+            {
+                "type": "airResistance",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 100.0
+            },
+            {
+                "type": "collisionFactor",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1.0
+            },
+            {
+                "type": "mode",
+                "value": 0,
+                "min": 0,
+                "max": 1
+            }
+        ],
+        "gameName": "1748509658备份"
+    }
+}
