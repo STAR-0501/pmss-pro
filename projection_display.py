@@ -70,7 +70,7 @@ def run_projection_display(projection_queue):
                 )
                 
                 # 创建全息投影效果
-                projection_screen.fill((0, 0, 0))  # 清空屏幕
+                projection_screen.fill((211, 211, 211))  # 清空屏幕，使用lightgrey背景
                 
                 # 计算投影面大小，保持原始画面的长宽比例
                 original_width, original_height = surface_size

@@ -23,8 +23,8 @@
             1080
         ],
         "mousePos": [
-            1892,
-            152
+            1903,
+            141
         ],
         "ratio": 5,
         "lastRatio": 5,
@@ -34,10 +34,10 @@
         "y": 216.0,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1749599698.0599165,
-        "lastTime": 1749599698.0499737,
-        "fpsAverage": 102.79142587984155,
-        "fpsMinimum": 51.34352621463809,
+        "currentTime": 1749635619.3586664,
+        "lastTime": 1749635619.3504658,
+        "fpsAverage": 113.84238847756461,
+        "fpsMinimum": 80.11888980153196,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,
