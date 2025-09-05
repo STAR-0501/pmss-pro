@@ -1357,6 +1357,10 @@ class Game:
         for rope in self.elements["rope"]:
             rope.calculateForce()  # 确保绳子两端位置正确
 
+        # 更新弹簧力，确保在球更新之前计算力
+        for spring in self.elements["spring"]:
+            spring.calculateForce()
+
         self.updateElements()
         self.updateMenu()
         if self.tempFrames > 0:

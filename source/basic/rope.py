@@ -8,7 +8,13 @@ import math
 
 
 class Rope(Element):
-    """绳索类，处理绳索的显示和物理效果"""
+    """绳索类，处理绳索的显示和物理效果
+    
+    绳索特性：
+    1. 不可伸长，只能拉紧或松弛
+    2. 只有在拉紧状态下才会产生张力
+    3. 松弛状态下会形成悬链线
+    """
 
     def __init__(
         self,
@@ -18,186 +24,177 @@ class Rope(Element):
         width: float,
         color: pygame.Color,
         collisionFactor: float = 1.0,
+        tensionStiffness: float = 5000.0,  # 张力刚度系数
+        dampingFactor: float = 0.2,  # 阻尼系数
     ) -> None:
         self.start: Ball | WallPosition = start
         self.end: Ball | WallPosition = end
         self.position: Vector2 = (start.getPosition() + end.getPosition()) / 2
-        self.length: float = length
+        self.length: float = length  # 绳索的固定长度
         self.width: float = width
         self.color: pygame.Color = color
         self.collisionFactor: float = collisionFactor
+        self.tensionStiffness: float = tensionStiffness  # 张力刚度系数
+        self.dampingFactor: float = dampingFactor  # 阻尼系数
         self.isLegal: bool = True
         self.type: str = "rope"
+        self.tension: float = 0.0  # 当前张力大小
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             self.isLegal = False
 
     def isReachingLimit(self) -> bool:
-        """判断绳索是否到达极限长度"""
-        return self.length < abs(self.start.getPosition() - self.end.getPosition())
-
-    def calculateForce(self) -> bool:
-        """计算绳索力并应用到连接的物体上"""
-        # 获取两端点位置
+        """判断绳索是否到达极限长度（被拉紧）"""
+        currentLength = self.getCurrentLength()
+        return currentLength >= self.length * 0.99  # 允许1%的误差
+    
+    def getCurrentLength(self) -> float:
+        """获取绳索当前长度"""
         startPos = self.start.getPosition()
         endPos = self.end.getPosition()
+        return startPos.distance(endPos)
+    
+    def getTension(self) -> float:
+        """获取当前张力大小"""
+        return self.tension
 
-        # 计算当前长度和方向
+    def calculateForce(self) -> bool:
+        """计算绳索力并应用到连接的物体上，优化过渡效果"""
+        startPos = self.start.getPosition()
+        endPos = self.end.getPosition()
         deltaPosition = endPos - startPos
         actualDistance = deltaPosition.magnitude()
 
-        # 防止除零错误
         if actualDistance < 0.001:
+            self.tension = 0.0
             return False
 
-        # 计算单位方向向量
         direction = deltaPosition / actualDistance
+        extension = actualDistance - self.length
+        self.tension = 0.0
 
-        # 计算形变量（只考虑拉伸，绳索不会压缩）
-        overlap = actualDistance - self.length
-
-        # 只有当绳索被拉伸时才施加力
-        if overlap > 0:
-            # 计算绳索拉力大小（可以视为非常大的弹簧系数）
-            stiffness = 1000.0  # 绳索刚度系数，比弹簧大得多
-            forceMagnitude = stiffness * overlap
-
-            # 计算绳索力向量
+        if extension > 0:
+            forceMagnitude = self.tensionStiffness * extension
+            self.tension = forceMagnitude
             ropeForce = direction * forceMagnitude
 
-            # 应用绳索力到两端物体
+            dampingForce = Vector2(0, 0)
             if isinstance(self.start, Ball) and isinstance(self.end, Ball):
-                # 计算相对速度的阻尼力（减少振荡）
-                dampingFactor = 0.1 * self.collisionFactor  # 阻尼系数与碰撞因子相关
                 relativeVelocity = self.end.velocity - self.start.velocity
-                dampingForce = (
-                    direction * relativeVelocity.dot(direction) * dampingFactor)
+                dampingComponent = relativeVelocity.dot(direction)
+                if dampingComponent > 0:
+                    dampingForce = direction * dampingComponent * self.dampingFactor
 
-                # 应用力到两个球体（注意力的方向相反）
+            if isinstance(self.start, Ball):
                 self.start.force(ropeForce + dampingForce, isNatural=True)
+            if isinstance(self.end, Ball):
                 self.end.force(-ropeForce - dampingForce, isNatural=True)
 
-                # 位置修正（防止过度拉伸）
+            # --- 优化的渐进式位置校正 ---
+            # 目标：使绳子在拉伸后能更自然、更快速地恢复原长，从而改善动画过渡
+            correction_ratio = min(0.8, (extension / self.length) * 2.0)
+            correction = direction * (extension * correction_ratio)
+
+            if isinstance(self.start, Ball) and isinstance(self.end, Ball):
                 totalMass = self.start.mass + self.end.mass
-                separation = direction * (overlap * 0.05)  # 小幅度位置修正
-
-                # 按质量比例分配分离量
-                self.start.position += separation * (self.end.mass / totalMass)
-                self.end.position -= separation * (self.start.mass / totalMass)
-
-                return True
-
-            elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
-                # 只对球体应用力
-                self.start.force(ropeForce, isNatural=True)
-                return True
-
-            elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
-                # 只对球体应用力
-                self.end.force(-ropeForce, isNatural=True)
-                return True
+                if totalMass > 0:
+                    start_correction = correction * (self.end.mass / totalMass)
+                    end_correction = correction * (self.start.mass / totalMass)
+                    self.start.position += start_correction
+                    self.end.position -= end_correction
+            elif isinstance(self.start, Ball):
+                self.start.position += correction
+            elif isinstance(self.end, Ball):
+                self.end.position -= correction
+            
+            return True
 
         return False
 
     def update(self, deltaTime: float) -> Self:
-        """更新绳索位置"""
+        """更新绳索位置和物理状态"""
         self.calculateForce()
-
         if isinstance(self.start, Ball) and isinstance(self.end, Ball):
-            ...
-
+            self.position = (self.start.position + self.end.position) / 2
         elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
+            self.position = (self.start.getPosition() + self.end.position) / 2
             self.start.update()
-
         elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
+            self.position = (self.start.position + self.end.getPosition()) / 2
             self.end.update()
-
         else:
-            ...
-
+            pass
         return self
 
     def draw(self, game) -> None:
-        """绘制绳索"""
+        """绘制绳索，实现拉紧（直线）和松弛（悬链线）之间的平滑过渡"""
         startPos = self.start.getPosition()
         endPos = self.end.getPosition()
         actualDistance = startPos.distance(endPos)
 
-        # 如果绳索被拉紧，直接画直线
-        if actualDistance >= self.length * 0.99:  # 允许1%的误差
-            pygame.draw.line(
-                game.screen,
-                self.color,
-                (
-                    game.realToScreen(startPos.x, game.x),
-                    game.realToScreen(startPos.y, game.y),
-                ),
-                (
-                    game.realToScreen(endPos.x, game.x),
-                    game.realToScreen(endPos.y, game.y),
-                ),
-                self.width,
-            )
+        screen_start = (game.realToScreen(startPos.x, game.x), game.realToScreen(startPos.y, game.y))
+        screen_end = (game.realToScreen(endPos.x, game.x), game.realToScreen(endPos.y, game.y))
+
+        if self.isReachingLimit():
+            drawColor = self.color
+            if self.tension > 0:
+                tensionFactor = min(self.tension / (self.tensionStiffness * 0.1), 1.0)
+                drawColor = colorMiddle(self.color, "red", tensionFactor * 0.7)
+            pygame.draw.line(game.screen, drawColor, screen_start, screen_end, self.width)
         else:
-            # 绘制悬链线
-            # 计算松弛程度
-            slack = self.length - actualDistance
-
-            # 计算方向向量
-            direction = endPos - startPos
-            if direction.magnitude() < 0.001:  # 防止除零错误
-                direction = Vector2(1, 0)
-            else:
-                direction = direction.normalize()
-
-            # 计算垂直方向
-            perpendicular = direction.vertical()
-
-            # 悬链线的最大下垂量，与松弛程度成正比
-            maxSag = min(slack * 0.5, self.length * 0.3)  # 限制最大下垂量
-
-            # 绘制多段线来近似悬链线
-            segments = 20  # 分段数量
+            num_segments = 24
             points = []
+            d = actualDistance
+            L = self.length
 
-            # 重力方向始终向下
-            gravityDir = Vector2(0, 1)  # 重力方向
+            if d < 1e-6: return
 
-            # 确保下垂方向始终有向下的分量
-            # 计算垂直方向与重力方向的点积
-            dotWithGravity = perpendicular.dot(gravityDir)
+            direction = (endPos - startPos).normalize()
+            gravityDir = Vector2(0, 1)
+            sagComponent = gravityDir - direction * direction.dot(gravityDir)
+            sagDir = sagComponent.normalize() if sagComponent.magnitude() > 1e-6 else direction.vertical()
 
-            # 如果垂直方向与重力方向点积为负，说明垂直方向向上，需要反转
-            if dotWithGravity < 0:
-                perpendicular = -perpendicular
+            a = 0.0
+            if L > d:
+                try:
+                    k = L / d
+                    z = math.sqrt(6 * (k - 1))
+                    for _ in range(5):
+                        if z < 1e-8: break
+                        if z > 700: z = 700; break
+                        sinh_z = math.sinh(z)
+                        cosh_z = math.cosh(z)
+                        f_z = sinh_z - k * z
+                        fp_z = cosh_z - k
+                        if abs(fp_z) < 1e-9: break
+                        z_new = z - f_z / fp_z
+                        if abs(z_new - z) < 1e-9: z = z_new; break
+                        z = z_new
+                    if z > 1e-8: a = d / (2 * z)
+                except (ValueError, OverflowError):
+                    a = 0.0
 
-            for i in range(segments + 1):
-                t = i / segments  # 参数 t 从 0 到 1
+            if a > 1e-6:
+                try:
+                    c = a * math.cosh(d / (2 * a))
+                    for i in range(num_segments + 1):
+                        t = i / num_segments
+                        x_local = d * (t - 0.5)
+                        y_local = c - a * math.cosh(x_local / a)
+                        basePos = startPos + direction * (d * t)
+                        finalPos = basePos + sagDir * y_local
+                        points.append((game.realToScreen(finalPos.x, game.x), game.realToScreen(finalPos.y, game.y)))
+                except (ValueError, OverflowError):
+                    a = 0.0
 
-                # 线性插值计算基础位置
-                basePos = startPos + direction * (actualDistance * t)
+            if a < 1e-6:
+                maxSag = math.sqrt(max(0, L*L - d*d)) / 2
+                for i in range(num_segments + 1):
+                    t = i / num_segments
+                    basePos = startPos + direction * (d * t)
+                    sag = maxSag * math.sin(math.pi * t)
+                    finalPos = basePos + sagDir * sag
+                    points.append((game.realToScreen(finalPos.x, game.x), game.realToScreen(finalPos.y, game.y)))
 
-                # 计算下垂量，使用正弦函数模拟悬链线形状
-                # 在中间位置下垂最大，两端为0
-                sag = maxSag * math.sin(math.pi * t)
-
-                # 计算下垂方向（重力方向和垂直方向的混合）
-                # 如果绳索水平，则完全沿重力方向下垂
-                # 如果绳索垂直，则沿垂直方向下垂
-                dotWithHorizontal = abs(direction.dot(Vector2(1, 0)))
-                sagDir = perpendicular * dotWithHorizontal + \
-                    gravityDir * (1 - dotWithHorizontal)
-                sagDir = sagDir.normalize()
-
-                # 应用下垂
-                finalPos = basePos + sagDir * sag
-
-                # 转换为屏幕坐标
-                screenX = game.realToScreen(finalPos.x, game.x)
-                screenY = game.realToScreen(finalPos.y, game.y)
-                points.append((screenX, screenY))
-
-            # 绘制多段线
             if len(points) > 1:
-                pygame.draw.lines(game.screen, self.color,
-                                  False, points, self.width)
+                pygame.draw.lines(game.screen, self.color, False, points, self.width)

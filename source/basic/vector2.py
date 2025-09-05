@@ -26,6 +26,13 @@ class Vector2:
         """向量数乘"""
         return Vector2(self.x * number, self.y * number)
 
+    def __rmul__(self, number: float) -> Self:
+        """向量数乘 (反向)
+        
+        实现标量在左侧的乘法，例如: 3 * vector
+        """
+        return self.__mul__(number)
+
     def __truediv__(self, number: float) -> Self:
         """向量数除"""
         return Vector2(self.x / number, self.y / number)

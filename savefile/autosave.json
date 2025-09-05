@@ -2,8 +2,8 @@
     "name": "autosave",
     "icon": null,
     "attributes": {
-        "isPaused": false,
-        "isElementCreating": false,
+        "isPaused": true,
+        "isElementCreating": true,
         "isMoving": false,
         "isScreenMoving": false,
         "isMassSetting": false,
@@ -23,8 +23,8 @@
             1080
         ],
         "mousePos": [
-            1903,
-            141
+            1887,
+            309
         ],
         "ratio": 5,
         "lastRatio": 5,
@@ -34,10 +34,10 @@
         "y": 216.0,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1749635619.3586664,
-        "lastTime": 1749635619.3504658,
-        "fpsAverage": 113.84238847756461,
-        "fpsMinimum": 80.11888980153196,
+        "currentTime": 1757040983.5765226,
+        "lastTime": 1757040983.5739942,
+        "fpsAverage": 388.472396900497,
+        "fpsMinimum": 199.92869059535727,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,

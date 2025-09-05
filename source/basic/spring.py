@@ -8,7 +8,13 @@ import math
 
 
 class Spring(Element):
-    """弹簧类，处理弹簧的显示和物理效果"""
+    """弹簧类，处理弹簧的显示和物理效果
+    
+    特性：
+    1. 遵循胡克定律：F = -k * x，其中k是弹簧刚度，x是形变量
+    2. 存储弹性势能：E = 0.5 * k * x^2
+    3. 考虑阻尼力：F_damping = -c * v，其中c是阻尼系数，v是相对速度
+    """
 
     def __init__(
         self,
@@ -31,63 +37,73 @@ class Spring(Element):
         self.isLegal: bool = True
         self.coilCount: int = 10  # 弹簧圈数
         self.type: str = "spring"
+        self.deformation: float = 0.0  # 当前形变量
+        self.potentialEnergy: float = 0.0  # 当前弹性势能
+        self.currentForce: float = 0.0  # 当前弹力大小
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             self.isLegal = False
 
     def calculateForce(self) -> bool:
-        """计算弹簧力并应用到连接的物体上"""
-        # 获取两端点位置
+        """计算弹簧力并应用到连接的物体上
+
+        根据胡克定律和阻尼效应，精确计算并施加力，确保物理模拟的准确性。
+        """
         startPos = self.start.getPosition()
         endPos = self.end.getPosition()
-
-        # 计算当前长度和方向
         deltaPosition = endPos - startPos
         currentLength = deltaPosition.magnitude()
 
-        # 防止除零错误
-        if currentLength < 0.001:
+        if currentLength < 1e-6:
+            self.deformation = 0.0
+            self.potentialEnergy = 0.0
+            self.currentForce = 0.0
             return False
 
-        # 计算单位方向向量
         direction = deltaPosition / currentLength
+        self.deformation = currentLength - self.restLength
+        
+        # 弹力 F = -k * x, x 是形变向量
+        # F_on_end = -stiffness * deformation * direction
+        # F_on_start = +stiffness * deformation * direction
+        forceMagnitude = self.stiffness * self.deformation
+        self.currentForce = forceMagnitude
+        self.potentialEnergy = 0.5 * self.stiffness * self.deformation**2
 
-        # 计算形变量（正值表示拉伸，负值表示压缩）
-        deformation = currentLength - self.restLength
+        springForceOnStart = direction * forceMagnitude
 
-        # 计算弹簧力大小 (F = -k * x)，其中k是弹簧系数，x是形变量
-        forceMagnitude = self.stiffness * deformation
+        # --- 统一且修正的阻尼力计算 ---
+        # 阻尼力 F_damping = -c * v_relative，其中 v_relative 是沿弹簧方向的相对速度
+        v_start = self.start.velocity if isinstance(self.start, Ball) else Vector2(0, 0)
+        v_end = self.end.velocity if isinstance(self.end, Ball) else Vector2(0, 0)
+        relative_velocity = v_end - v_start
+        v_rel_along_spring = relative_velocity.dot(direction)
+        
+        # 阻尼力与相对速度方向相反
+        dampingForceMagnitude = self.dampingFactor * v_rel_along_spring
+        dampingForceOnStart = direction * dampingForceMagnitude
 
-        # 计算弹簧力向量
-        springForce = direction * forceMagnitude
+        # --- 将力和阻尼施加到物体上 ---
+        if isinstance(self.start, Ball):
+            self.start.force(springForceOnStart + dampingForceOnStart, isNatural=True)
+        
+        if isinstance(self.end, Ball):
+            self.end.force(-(springForceOnStart + dampingForceOnStart), isNatural=True)
 
-        # 应用弹簧力到两端物体
-        if isinstance(self.start, Ball) and isinstance(self.end, Ball):
-            # 计算相对速度的阻尼力
-            relativeVelocity = self.end.velocity - self.start.velocity
-            dampingForce = (
-                direction * relativeVelocity.dot(direction) * self.dampingFactor)
-
-            # 应用力到两个球体（注意力的方向相反）
-            self.start.force(springForce + dampingForce, isNatural=True)
-            self.end.force(-springForce - dampingForce, isNatural=True)
-
-            return True
-
-        elif isinstance(self.start, Ball) and isinstance(self.end, WallPosition):
-            # 只对球体应用力
-            self.start.force(springForce, isNatural=True)
-            return True
-
-        elif isinstance(self.start, WallPosition) and isinstance(self.end, Ball):
-            # 只对球体应用力
-            self.end.force(-springForce, isNatural=True)
-            return True
-
-        return False
+        return True
 
     def update(self, deltaTime: float) -> Self:
-        """更新弹簧状态"""
+        """更新弹簧状态
+        
+        计算弹簧力、弹性势能，并更新弹簧位置
+        
+        Args:
+            deltaTime: 时间步长
+            
+        Returns:
+            Self: 返回自身实例，支持链式调用
+        """
+        # 计算弹簧力和弹性势能
         self.calculateForce()
 
         # 更新弹簧中心位置
@@ -102,13 +118,19 @@ class Spring(Element):
             self.position = (self.start.position + self.end.getPosition()) / 2
             self.end.update()
 
-        else:
-            ...
+        elif isinstance(self.start, WallPosition) and isinstance(self.end, WallPosition):
+            self.position = (self.start.getPosition() + self.end.getPosition()) / 2
+            self.start.update()
+            self.end.update()
 
         return self
 
     def draw(self, game) -> None:
-        """绘制弹簧"""
+        """绘制弹簧 - 固定频率振幅版本
+        
+        使用固定的正弦波频率和振幅，基于初始距离和物体半径均值
+        移除所有形变指示器，保持简洁的视觉效果
+        """
         startPos = self.start.getPosition()
         endPos = self.end.getPosition()
 
@@ -122,90 +144,131 @@ class Spring(Element):
 
         # 计算单位方向向量
         directionNorm = direction / currentLength
-
-        # 计算垂直方向
         perpendicular = directionNorm.vertical()
 
-        # 弹簧的振幅（弹簧的宽度）
-        amplitude = self.width * 2
-
-        # 计算形变比例（用于视觉效果）
+        # 固定振幅：基于两边物体的半径均值
+        startRadius = getattr(self.start, 'radius', self.width) if isinstance(self.start, Ball) else self.width
+        endRadius = getattr(self.end, 'radius', self.width) if isinstance(self.end, Ball) else self.width
+        meanRadius = (startRadius + endRadius) / 2
+        baseRadius = meanRadius * 0.8  # 使用固定振幅
         deformationRatio = currentLength / self.restLength
+        
+        # 平滑的形变限制（使用平滑过渡而非硬截断）
+        if deformationRatio < 0.3:
+            # 平滑过渡到最小长度
+            t = (deformationRatio - 0.1) / 0.2
+            deformationRatio = 0.3 + (deformationRatio - 0.3) * max(0, t)
+        elif deformationRatio > 4.0:
+            # 平滑过渡到最大长度
+            t = (4.5 - deformationRatio) / 0.5
+            deformationRatio = 4.0 + (deformationRatio - 4.0) * max(0, t)
 
-        # 调整振幅根据形变
-        if deformationRatio < 1.0:  # 压缩状态
-            amplitude *= 2.0 - deformationRatio  # 压缩时振幅增大
-        else:  # 拉伸状态
-            amplitude *= 1.0 / deformationRatio  # 拉伸时振幅减小
+        # 固定频率：基于初始自然长度和半径均值
+        startRadius = getattr(self.start, 'radius', self.width) if isinstance(self.start, Ball) else self.width
+        endRadius = getattr(self.end, 'radius', self.width) if isinstance(self.end, Ball) else self.width
+        meanRadius = (startRadius + endRadius) / 2
+        
+        # 固定频率：初始状态下的标准频率
+        fixedFrequency = 2 * math.pi * self.coilCount / self.restLength
+        actualCoils = self.coilCount  # 保持固定圈数
+        
+        # 绘制参数
+        lineWidth = max(1, int(self.width * 0.6))
+        
+        # 颜色设计 - 更平滑的渐变
+        baseColor = self.color
+        
+        # 确保baseColor是RGB元组格式
+        if isinstance(baseColor, str):
+            colorMap = {
+                "red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255),
+                "yellow": (255, 255, 0), "purple": (128, 0, 128), "orange": (255, 165, 0),
+                "black": (0, 0, 0), "white": (255, 255, 255), "gray": (128, 128, 128),
+                "cyan": (0, 255, 255), "magenta": (255, 0, 255)
+            }
+            baseColor = colorMap.get(baseColor.lower(), (120, 120, 120))
+        
+        # 平滑的颜色过渡
+        colorIntensity = min(1.0, abs(deformationRatio - 1.0) * 1.5)
+        if deformationRatio < 1.0:  # 压缩
+            # 从基础色到橙红色的平滑过渡
+            r = int(baseColor[0] + (255 - baseColor[0]) * colorIntensity * 0.7)
+            g = int(baseColor[1] * (1 - colorIntensity * 0.5))
+            b = int(baseColor[2] * (1 - colorIntensity * 0.8))
+        else:  # 拉伸
+            # 从基础色到蓝紫色的平滑过渡
+            r = int(baseColor[0] * (1 - colorIntensity * 0.5))
+            g = int(baseColor[1] + (200 - baseColor[1]) * colorIntensity * 0.7)
+            b = int(baseColor[2] + (255 - baseColor[2]) * colorIntensity * 0.7)
+        
+        drawColor = (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
 
-        # 弹簧的段数（圈数 * 2）
-        segments = self.coilCount * 2
-
-        # 绘制弹簧线
+        # 生成流畅的螺旋弹簧点
         points = []
-
-        # 添加起点
+        
+        # 起点
         screenStartX = game.realToScreen(startPos.x, game.x)
         screenStartY = game.realToScreen(startPos.y, game.y)
-        points.append((screenStartX, screenStartY))
-
-        # 弹簧的第一段直线部分（不扭曲的部分）
-        straightPart = min(currentLength * 0.15, self.restLength * 0.15)
-        coilStart = startPos + directionNorm * straightPart
-
-        # 添加弹簧开始扭曲的点
-        screenCoilStartX = game.realToScreen(coilStart.x, game.x)
-        screenCoilStartY = game.realToScreen(coilStart.y, game.y)
-        points.append((screenCoilStartX, screenCoilStartY))
-
-        # 弹簧的最后一段直线部分
-        coilEnd = endPos - directionNorm * straightPart
-
-        # 弹簧的扭曲部分长度
-        coilLength = (coilEnd - coilStart).magnitude()
-
-        # 生成弹簧的扭曲部分
-        for i in range(1, segments):
-            t = i / segments
-
-            # 沿弹簧方向的位置
-            basePos = coilStart + directionNorm * (coilLength * t)
-
-            # 计算正弦波形状（弹簧的扭曲）
-            # 使用正弦函数创建弹簧的波浪形状
-            waveOffset = amplitude * math.sin(t * math.pi * self.coilCount * 2)
-
-            # 应用波形偏移
-            finalPos = basePos + perpendicular * waveOffset
-
-            # 转换为屏幕坐标
+        
+        # 动态计算直线段长度（随长度自适应）
+        straightLength = min(currentLength * 0.08, 15)
+        
+        # 螺旋段起点
+        spiralStart = startPos + directionNorm * straightLength
+        spiralEnd = endPos - directionNorm * straightLength
+        spiralLength = max(0, (spiralEnd - spiralStart).magnitude())
+        
+        # 使用更多点确保平滑度
+        totalPoints = max(30, int(actualCoils * 12))
+        
+        # 生成平滑的螺旋路径
+        for i in range(totalPoints + 1):
+            t = i / totalPoints
+            
+            # 沿弹簧方向的基础位置
+            basePos = spiralStart + directionNorm * (spiralLength * t)
+            
+            # 螺旋相位（使用连续的实际线圈数）
+            phase = t * 2 * math.pi * actualCoils
+            
+            # 半径随长度微调（模拟真实弹簧的透视效果）
+            radiusVariation = 1.0 + math.sin(phase * 0.3) * 0.1
+            currentRadius = baseRadius * radiusVariation
+            
+            # 螺旋偏移
+            spiralX = math.cos(phase) * currentRadius
+            spiralY = math.sin(phase) * currentRadius
+            spiralOffset = perpendicular * spiralX + directionNorm.vertical() * spiralY
+            
+            # 添加自然的弹性弯曲
+            elasticity = 1.0 - abs(deformationRatio - 1.0) * 0.3
+            spiralOffset = spiralOffset * max(0.5, elasticity)
+            
+            # 最终位置
+            finalPos = basePos + spiralOffset
+            
             screenX = game.realToScreen(finalPos.x, game.x)
             screenY = game.realToScreen(finalPos.y, game.y)
+            
+            if i == 0:
+                # 包含直线连接段
+                points.append((screenStartX, screenStartY))
+                points.append((game.realToScreen(spiralStart.x, game.x), game.realToScreen(spiralStart.y, game.y)))
+            
             points.append((screenX, screenY))
+            
+            if i == totalPoints:
+                # 包含终点连接段
+                points.append((game.realToScreen(spiralEnd.x, game.x), game.realToScreen(spiralEnd.y, game.y)))
+                points.append((game.realToScreen(endPos.x, game.x), game.realToScreen(endPos.y, game.y)))
 
-        # 添加弹簧结束扭曲的点
-        screenCoilEndX = game.realToScreen(coilEnd.x, game.x)
-        screenCoilEndY = game.realToScreen(coilEnd.y, game.y)
-        points.append((screenCoilEndX, screenCoilEndY))
-
-        # 添加终点
-        screenEndX = game.realToScreen(endPos.x, game.x)
-        screenEndY = game.realToScreen(endPos.y, game.y)
-        points.append((screenEndX, screenEndY))
-
-        # 绘制弹簧线
+        # 使用抗锯齿绘制
         if len(points) > 1:
-
-            # 使用颜色变化来表示弹簧的形变状态
-            if deformationRatio < 1.0:  # 压缩状态
-                # 压缩时颜色向红色过渡
-                drawColor = colorMiddle(
-                    self.color, "red", 1.0 - deformationRatio)
-
-            else:  # 拉伸状态
-                # 拉伸时颜色向蓝色过渡
-                stretchFactor = min(deformationRatio - 1.0, 1.0)  # 限制在0-1范围内
-                drawColor = colorMiddle(self.color, "blue", stretchFactor)
-
-            pygame.draw.lines(game.screen, drawColor, False,
-                              points, max(1, int(self.width)))
+            # 主弹簧线
+            pygame.draw.lines(game.screen, drawColor, False, points, lineWidth)
+            
+            # 微妙的阴影效果
+            shadowOffset = 1
+            shadowPoints = [(x + shadowOffset, y + shadowOffset) for x, y in points]
+            shadowColor = tuple(max(0, c - 40) for c in drawColor)
+            pygame.draw.lines(game.screen, shadowColor, False, shadowPoints, max(1, lineWidth - 1))
