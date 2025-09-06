@@ -264,11 +264,15 @@ class Spring(Element):
 
         # 使用抗锯齿绘制
         if len(points) > 1:
-            # 主弹簧线
-            pygame.draw.lines(game.screen, drawColor, False, points, lineWidth)
-            
-            # 微妙的阴影效果
-            shadowOffset = 1
-            shadowPoints = [(x + shadowOffset, y + shadowOffset) for x, y in points]
-            shadowColor = tuple(max(0, c - 40) for c in drawColor)
-            pygame.draw.lines(game.screen, shadowColor, False, shadowPoints, max(1, lineWidth - 1))
+            # 使用抗锯齿线条提高视觉质量
+            pygame.draw.aalines(game.screen, drawColor, False, points)
+            # 叠加粗线增强立体感
+            if lineWidth > 1:
+                pygame.draw.lines(game.screen, drawColor, False, points, lineWidth)
+
+            # 在两端绘制连接圆点，突出金属连接件
+            end_radius = max(2, int(self.width * 1.2))
+            pygame.draw.circle(game.screen, drawColor, (screenStartX, screenStartY), end_radius)
+            end_screen_x = game.realToScreen(endPos.x, game.x)
+            end_screen_y = game.realToScreen(endPos.y, game.y)
+            pygame.draw.circle(game.screen, drawColor, (end_screen_x, end_screen_y), end_radius)

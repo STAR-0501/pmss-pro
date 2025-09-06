@@ -17,15 +17,23 @@ class InputBox:
         option: Option,
         target: Element,
         text: str = "",
+        font_size: int | None = None,
     ) -> None:
-        self.rect: pygame.Rect = pygame.Rect(x, y, width - 100, height)
-        self.colorInactive: pygame.Color = pygame.Color("lightskyblue3")
-        self.colorActive: pygame.Color = pygame.Color("dodgerblue2")
+        # 调整输入框大小，增加内边距
+        padding = 15
+        self.rect: pygame.Rect = pygame.Rect(x + padding, y + padding//2, width - 2*padding, height - padding)
+        self.colorInactive: pygame.Color = pygame.Color(100, 149, 237)  # 矢车菊蓝
+        self.colorActive: pygame.Color = pygame.Color(30, 144, 255)   # 道奇蓝
         self.color: pygame.Color = self.colorInactive
         self.text: str = text
-        self.font: pygame.font.Font = pygame.font.Font(None, int(height))
+        # 光标位置（字符索引）
+        self.cursor_pos: int = len(text)
+        # 如果未指定字体大小，则根据高度计算
+        if font_size is None:
+            font_size = int(height * 0.7)
+        self.font: pygame.font.Font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", font_size)
         self.textSurface: pygame.Surface = self.font.render(
-            self.text, True, self.color)
+            self.text, True, (25, 25, 112))  # 午夜蓝文字
         self.active: bool = False
         self.cursorVisible: bool = True
         self.cursorTimer: float = 0
@@ -33,6 +41,9 @@ class InputBox:
         self.target: Element = target
         self.active: bool = False
         self.isColorError: bool = False
+        
+        # 增加内边距，让文本框比文字稍高
+        self.padding = int(height * 0.15)
 
         if self.option["type"] != "color":
             self.min: float = float(self.option["min"])
@@ -44,7 +55,18 @@ class InputBox:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # 如果点击了输入框区域，激活输入框
             if self.rect.collidepoint(event.pos):
-                self.active = not self.active
+                self.active = True
+                # 根据点击位置计算光标索引
+                click_x = event.pos[0] - (self.rect.x + (self.rect.width - self.textSurface.get_width()) / 2)
+                click_x = max(0, click_x)
+                self.cursor_pos = 0
+                for i in range(len(self.text)+1):
+                    prefix_width = self.font.render(self.text[:i], True, self.color).get_width()
+                    if prefix_width >= click_x:
+                        self.cursor_pos = i
+                        break
+                else:
+                    self.cursor_pos = len(self.text)
             else:
                 self.active = False
             self.color = self.colorActive if self.active else self.colorInactive
@@ -70,7 +92,9 @@ class InputBox:
                     if self.option["type"] != "color":
 
                         if event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[:-1]
+                            if self.cursor_pos > 0:
+                                self.text = self.text[:self.cursor_pos-1] + self.text[self.cursor_pos:]
+                                self.cursor_pos -= 1
 
                         if (
                             event.unicode.isdigit()
@@ -79,13 +103,14 @@ class InputBox:
                         ):
 
                             try:
-                                self.text += event.unicode
+                                self.text = self.text[:self.cursor_pos] + event.unicode + self.text[self.cursor_pos:]
+                                self.cursor_pos += 1
 
-                                if float(self.text) < self.min:
-                                    self.text = str(self.min)
+                                # if float(self.text) < self.min:
+                                #     self.text = str(self.min)
 
-                                elif float(self.text) > self.max:
-                                    self.text = str(self.max)
+                                # elif float(self.text) > self.max:
+                                #     self.text = str(self.max)
 
                             except ValueError:
                                 self.text = self.text[:-1]
@@ -93,10 +118,13 @@ class InputBox:
                     else:
 
                         if event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[:-1]
+                            if self.cursor_pos > 0:
+                                self.text = self.text[:self.cursor_pos-1] + self.text[self.cursor_pos:]
+                                self.cursor_pos -= 1
 
                         if event.unicode.isalnum() or event.unicode == "#":
-                            self.text += event.unicode
+                            self.text = self.text[:self.cursor_pos] + event.unicode + self.text[self.cursor_pos:]
+                            self.cursor_pos += 1
 
                         self.isColorError = False
 
@@ -113,6 +141,13 @@ class InputBox:
 
             game.lastTime = game.currentTime
             game.currentTime = time.time()
+            # 方向键移动光标
+            if event.key == pygame.K_LEFT:
+                if self.cursor_pos > 0:
+                    self.cursor_pos -= 1
+            if event.key == pygame.K_RIGHT:
+                if self.cursor_pos < len(self.text):
+                    self.cursor_pos += 1
             self.textSurface = self.font.render(self.text, True, self.color)
 
     def attrUpdate(self, target: Element) -> None:
@@ -134,22 +169,35 @@ class InputBox:
 
     def draw(self, screen: pygame.Surface) -> None:
         """绘制输入框"""
+        # 绘制输入框背景
+        pygame.draw.rect(screen, (245, 245, 245), self.rect, border_radius=5)  # 背景填充
+        # 绘制输入框边框
+        pygame.draw.rect(screen, self.color, self.rect, 2, border_radius=5)
 
-        # 绘制输入框和文本
-        screen.blit(self.textSurface, (self.rect.x + 5, self.rect.y + 5))
-        pygame.draw.rect(screen, self.color, self.rect, 2)
+        # 计算文本在输入框内居中的位置（考虑内边距）
+        text_width = self.textSurface.get_width()
+        text_height = self.textSurface.get_height()
+        
+        # 水平居中：文本在输入框中央
+        text_x = self.rect.x + (self.rect.width - text_width) / 2
+        # 垂直居中：文本在输入框中央
+        text_y = self.rect.y + (self.rect.height - text_height) / 2
+        
+        # 绘制输入框和文本（居中显示）
+        screen.blit(self.textSurface, (text_x, text_y))
 
-        # 渲染光标
-        if self.active and self.cursorVisible:
-            cursorPos = (
-                self.font.render(self.text, True, self.color).get_width()
-                + self.rect.x
-                + 5
-            )
+        # 渲染光标（基于居中文本的位置），按时间闪烁
+        blink_speed_ms = 500  # 闪烁间隔
+        ticks = pygame.time.get_ticks()
+        if self.active and (ticks // blink_speed_ms) % 2 == 0:
+            # 根据光标索引计算前缀宽度
+            prefix_width = self.font.render(self.text[:self.cursor_pos], True, self.color).get_width()
+            cursor_x = text_x + prefix_width
+            cursor_y = self.rect.y + self.rect.height / 2
             pygame.draw.line(
                 screen,
                 self.color,
-                (cursorPos, self.rect.y + 5),
-                (cursorPos, self.rect.y + 27),
+                (cursor_x, cursor_y - 10),
+                (cursor_x, cursor_y + 10),
                 2,
             )

@@ -36,6 +36,7 @@ class Wall(Element):
 
         self.highLighted: bool = False
         self.type: str = "wall"
+        self.collisionFactor: float = 1.0
 
         self.attrs: list[dict] = []
         self.updateAttrsList()
@@ -45,6 +46,8 @@ class Wall(Element):
         if value != "":
             if key == "color":
                 self.color = value
+            elif key == "collisionFactor":
+                self.collisionFactor = float(value)
 
     def copy(self, game) -> None:
         """自我复制"""

@@ -1292,6 +1292,9 @@ class Game:
 
                 if option["type"] == "collisionFactor":
                     ball1.collisionFactor = float(option["value"])
+                    for wall in self.elements["wall"]:
+                        wall.collisionFactor = float(option["value"])
+                    self.floor.collisionFactor = float(option["value"])
 
         for wall in self.elements["wall"]:
             for ball in self.elements["ball"]:

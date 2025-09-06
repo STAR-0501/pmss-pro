@@ -78,6 +78,9 @@ class Ball(Element):
 
             if key == "mass":
                 self.mass = float(value)
+                
+            if key == "collisionFactor":
+                self.collisionFactor = float(value)
 
     def copy(self, game) -> None:
         """自我复制"""
@@ -275,7 +278,18 @@ class Ball(Element):
         """处理与墙体的碰撞反弹"""
         direction = self.position - wall.position
         self.position += direction * 0.1
-        self.velocity = self.velocity * 0
+        
+        # 计算墙体法线
+        normal = direction.normalize()
+        
+        # 速度反射（保留切线分量）
+        velocityNormal = self.velocity.dot(normal)
+        self.velocity -= normal * (2 * velocityNormal)
+        
+        # 应用碰撞因子
+        velocityNormalAfterRebound = self.velocity.dot(normal)
+        self.velocity += normal * (velocityNormalAfterRebound * (self.collisionFactor * wall.collisionFactor - 1))
+        
         return self.velocity
 
     def reboundByLine(
@@ -334,9 +348,6 @@ class Ball(Element):
             energyLossFactor = 1 + min(1, overlap / self.radius)
             self.position += normal * (overlap * energyLossFactor)
 
-            # 保存原始速度大小
-            originalSpeed = abs(self.velocity)
-            
             # 速度反射（保留切线分量）
             velocityNormal = self.velocity.dot(normal)
             self.velocity -= normal * (2 * velocityNormal)
@@ -354,10 +365,6 @@ class Ball(Element):
                     - 1
                 )
             )
-            
-            # 恢复原始速度大小
-            if abs(self.velocity) > 1e-5:  # 避免除以零
-                self.velocity = self.velocity.normalize() * originalSpeed
             
             # 不再调整速度大小
             # 原代码：
@@ -424,19 +431,9 @@ class Ball(Element):
         newVelocity1 = tangent * velocityTangent1 + normal * newVelocityNormal1
         newVelocity2 = tangent * velocityTangent2 + normal * newVelocityNormal2
         
-        # 保持速度大小不变
-        originalSpeed1 = abs(originalVelocity1)
-        originalSpeed2 = abs(originalVelocity2)
-        
-        if abs(newVelocity1) > 1e-5:  # 避免除以零
-            self.velocity = newVelocity1.normalize() * originalSpeed1
-        else:
-            self.velocity = newVelocity1
-            
-        if abs(newVelocity2) > 1e-5:  # 避免除以零
-            ball.velocity = newVelocity2.normalize() * originalSpeed2
-        else:
-            ball.velocity = newVelocity2
+        # 不再保持速度大小不变，让碰撞系数生效
+        self.velocity = newVelocity1
+        ball.velocity = newVelocity2
 
         # 位置修正
         overlap = minDistance - actualDistance
