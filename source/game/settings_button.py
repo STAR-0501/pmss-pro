@@ -20,42 +20,34 @@ class SettingsButton:
         )
 
     def draw(self, game: "Game") -> None:
-        """绘制设置按钮（圆角卡片 + 阴影 + 悬停缩放）"""
+        """绘制设置按钮（与右侧栏一致：悬停阴影 + 白色卡片 + 悬停放大）"""
         hover: bool = self.isMouseOn()
+        radius = int(self.width * 15 / 100)
 
-        # 阴影层
-        shadow_surf = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        pygame.draw.rect(
-            shadow_surf,
-            (0, 0, 0, 60),  # 半透明阴影
-            pygame.Rect(0, 0, self.width, self.height),
-            border_radius=int(min(self.width, self.height) / 2),
-        )
-        game.screen.blit(shadow_surf, (self.x + 3, self.y + 3))
+        # 阴影（仅悬停时显示，与右侧栏一致）
+        if hover:
+            shadow_surf = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+            pygame.draw.rect(
+                shadow_surf,
+                (0, 0, 0, 50),
+                pygame.Rect(0, 0, self.width, self.height),
+                border_radius=radius,
+            )
+            game.screen.blit(shadow_surf, (self.x + 4, self.y + 4))
 
-        # 背景卡片
-        card_surf = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        bg_color = (255, 255, 255, 235) if not hover else (255, 255, 255, 255)
-        border_color = (100, 149, 237, 255)  # 矢车菊蓝
+        # 背景卡片（纯白，无边框，与右侧栏一致）
         pygame.draw.rect(
-            card_surf,
-            bg_color,
-            pygame.Rect(0, 0, self.width, self.height),
-            border_radius=int(min(self.width, self.height) / 2),
+            game.screen,
+            (255, 255, 255),
+            pygame.Rect(self.x, self.y, self.width, self.height),
+            border_radius=radius,
         )
-        pygame.draw.rect(
-            card_surf,
-            border_color,
-            pygame.Rect(0, 0, self.width, self.height),
-            width=2,
-            border_radius=int(min(self.width, self.height) / 2),
-        )
-        game.screen.blit(card_surf, (self.x, self.y))
 
-        # 图标（悬停轻微放大）
-        scale_factor = 0.85 if not hover else 0.92
-        icon_w = int(self.width * scale_factor)
-        icon_h = int(self.height * scale_factor)
+        # 图标（与右侧栏悬停缩放系数一致：1.08；保留基础留白）
+        base_scale = 0.85
+        scale_factor = 1.08 if hover else 1.0
+        icon_w = int(self.width * base_scale * scale_factor)
+        icon_h = int(self.height * base_scale * scale_factor)
         icon_scaled = pygame.transform.smoothscale(self.originalIcon, (icon_w, icon_h))
 
         icon_x = self.x + (self.width - icon_w) / 2

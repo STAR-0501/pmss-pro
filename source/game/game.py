@@ -327,29 +327,38 @@ class Game:
                         # 添加绳索特殊属性
                         elif element.type == 'rope':
                             element_data.update({
-                                'id': id(element),
-                                'obj1_id': id(element.obj1),
-                                'obj2_id': id(element.obj2),
+                                'id': getattr(element, 'id', id(element)),
+                                'start_id': id(element.start),
+                                'end_id': id(element.end),
                                 'length': element.length,
-                                'k': element.k,
+                                'width': getattr(element, 'width', 1),
+                                'collisionFactor': getattr(element, 'collisionFactor', 1.0),
+                                'tensionStiffness': getattr(element, 'tensionStiffness', 5000.0),
+                                'dampingFactor': getattr(element, 'dampingFactor', 0.2),
                                 'color': str(element.color) if hasattr(element, 'color') else 'red'
                             })
                         # 添加弹簧特殊属性
                         elif element.type == 'spring':
                             element_data.update({
-                                'id': id(element),
-                                'obj1_id': id(element.obj1),
-                                'obj2_id': id(element.obj2),
-                                'length': element.length,
-                                'k': element.k,
+                                'id': getattr(element, 'id', id(element)),
+                                'start_id': id(element.start),
+                                'end_id': id(element.end),
+                                'restLength': getattr(element, 'restLength', getattr(element, 'length', 100)),
+                                'stiffness': getattr(element, 'stiffness', getattr(element, 'k', 1)),
+                                'width': getattr(element, 'width', 3),
+                                'dampingFactor': getattr(element, 'dampingFactor', 0.1),
                                 'color': str(element.color) if hasattr(element, 'color') else 'green'
                             })
                         # 添加轻杆特殊属性
                         elif element.type == 'rod':
                             element_data.update({
-                                'id': id(element),
-                                'obj1_id': id(element.obj1),
-                                'obj2_id': id(element.obj2),
+                                'id': getattr(element, 'id', id(element)),
+                                'start_id': id(element.start),
+                                'end_id': id(element.end),
+                                'length': getattr(element, 'restLength', 100),
+                                'width': getattr(element, 'width', 3),
+                                'dampingFactor': getattr(element, 'dampingFactor', 0.1),
+                                'stiffness': getattr(element, 'stiffness', 100000.0),
                                 'color': str(element.color) if hasattr(element, 'color') else 'blue'
                             })
                         elements_data[element_type].append(element_data)
@@ -428,6 +437,8 @@ class Game:
                             []
                         )
                         ball.acceleration = Vector2(ball_data["acceleration"][0], ball_data["acceleration"][1])
+                        if "id" in ball_data:
+                            ball.id = ball_data["id"]
                         self.elements["ball"].append(ball)
                         self.elements["all"].append(ball)
                     
@@ -480,61 +491,74 @@ class Game:
                     
                     # 重新创建绳索（需要连接已创建的球体或墙体）
                     for rope_data in elements_data.get("rope", []):
-                        obj1_id = rope_data.get("obj1_id")
-                        obj2_id = rope_data.get("obj2_id")
+                        start_id = rope_data.get("start_id") or rope_data.get("obj1_id")
+                        end_id = rope_data.get("end_id") or rope_data.get("obj2_id")
                         
                         # 从映射表中查找对应的对象
-                        obj1 = element_map.get(obj1_id)
-                        obj2 = element_map.get(obj2_id)
+                        start = element_map.get(start_id)
+                        end = element_map.get(end_id)
                         
                         # 如果找到两个对象，创建绳索
-                        if obj1 and obj2:
+                        if start and end:
                             rope = Rope(
-                                obj1,
-                                obj2,
+                                start,
+                                end,
                                 rope_data.get("length", 100),
-                                rope_data.get("k", 1),
-                                rope_data.get("color", "red")
+                                rope_data.get("width", 1),
+                                rope_data.get("color", "red"),
+                                rope_data.get("collisionFactor", 1.0),
+                                rope_data.get("tensionStiffness", 5000.0),
+                                rope_data.get("dampingFactor", 0.2)
                             )
+                            if 'id' in rope_data:
+                                rope.id = rope_data['id']
                             self.elements["rope"].append(rope)
                             self.elements["all"].append(rope)
                     
                     # 重新创建弹簧
                     for spring_data in elements_data.get("spring", []):
-                        obj1_id = spring_data.get("obj1_id")
-                        obj2_id = spring_data.get("obj2_id")
+                        start_id = spring_data.get("start_id") or spring_data.get("obj1_id")
+                        end_id = spring_data.get("end_id") or spring_data.get("obj2_id")
                         
                         # 从映射表中查找对应的对象
-                        obj1 = element_map.get(obj1_id)
-                        obj2 = element_map.get(obj2_id)
+                        start = element_map.get(start_id)
+                        end = element_map.get(end_id)
                         
                         # 如果找到两个对象，创建弹簧
-                        if obj1 and obj2:
+                        if start and end:
                             spring = Spring(
-                                obj1,
-                                obj2,
-                                spring_data.get("length", 100),
-                                spring_data.get("k", 1),
-                                spring_data.get("color", "green")
+                                start,
+                                end,
+                                spring_data.get("restLength", spring_data.get("length", 100)),
+                                spring_data.get("stiffness", spring_data.get("k", 1)),
+                                spring_data.get("width", 3),
+                                spring_data.get("color", "green"),
+                                spring_data.get("dampingFactor", 0.1)
                             )
+                            if 'id' in spring_data:
+                                spring.id = spring_data['id']
                             self.elements["spring"].append(spring)
                             self.elements["all"].append(spring)
                     
                     # 重新创建轻杆
                     for rod_data in elements_data.get("rod", []):
-                        obj1_id = rod_data.get("obj1_id")
-                        obj2_id = rod_data.get("obj2_id")
+                        start_id = rod_data.get("start_id") or rod_data.get("obj1_id")
+                        end_id = rod_data.get("end_id") or rod_data.get("obj2_id")
                         
                         # 从映射表中查找对应的对象
-                        obj1 = element_map.get(obj1_id)
-                        obj2 = element_map.get(obj2_id)
+                        start = element_map.get(start_id)
+                        end = element_map.get(end_id)
                         
                         # 如果找到两个对象，创建轻杆
-                        if obj1 and obj2:
+                        if start and end:
                             rod = Rod(
-                                obj1,
-                                obj2,
-                                rod_data.get("color", "blue")
+                                start,
+                                end,
+                                rod_data.get("length", 100),
+                                rod_data.get("width", 3),
+                                rod_data.get("color", "blue"),
+                                rod_data.get("dampingFactor", 0.1),
+                                rod_data.get("stiffness", 100000.0)
                             )
                             if 'id' in rod_data:
                                 rod.id = rod_data['id']
@@ -899,7 +923,10 @@ class Game:
         inputMenu.update(self)
         self.isEditing = True
         inputMenu.update(self)
+        _editor_bg_snapshot = self.screen.copy()
         while self.isEditing:
+            if _editor_bg_snapshot is not None:
+                self.screen.blit(_editor_bg_snapshot, (0, 0))
             inputMenu.draw(self)
             pygame.display.update()
             for event in pygame.event.get():
@@ -927,9 +954,19 @@ class Game:
                         or event.key == pygame.K_ESCAPE
                         or event.key == pygame.K_RETURN
                     ):
+                        # 在关闭面板前提交所有输入框的当前值
+                        try:
+                            inputMenu.commitAll(self)
+                        except Exception:
+                            ...
                         self.isEditing = False
 
                 inputMenu.updateBoxes(event, self)
+        # 兜底：若由输入框内部关闭编辑状态，退出循环后也再次提交一次
+        try:
+            inputMenu.commitAll(self)
+        except Exception:
+            ...
         self.updateFPS()
 
     def screenMove(self, event: pygame.event.Event) -> None:

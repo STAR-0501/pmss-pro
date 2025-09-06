@@ -1599,19 +1599,22 @@ class Option:
 
     def draw(self, game: "Game") -> None:
         """绘制选项界面"""
-        if self.highLighted:
-            pygame.draw.rect(
-                game.screen,
-                "yellow",
-                (self.x - 3, self.y - 3, self.width + 6, self.height + 6),
-                border_radius=int(self.width * 15 / 100),
-            )
+        # 悬停缩放效果（替代黄色边框）
+        hover = self.isMouseOn()
+        radius = int(self.width * 15 / 100)
 
+        # 与设置按钮一致的阴影风格（仅在悬停时显示）
+        if hover:
+            shadow = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+            pygame.draw.rect(shadow, (0, 0, 0, 50), shadow.get_rect(), border_radius=radius)
+            game.screen.blit(shadow, (self.x + 4, self.y + 4))
+
+        # 背景卡片
         pygame.draw.rect(
             game.screen,
             (255, 255, 255),
             (self.x, self.y, self.width, self.height),
-            border_radius=int(self.width * 15 / 100),
+            border_radius=radius,
         )
 
         if self.type == "ball":
@@ -1626,9 +1629,13 @@ class Option:
             else:
                 color = base_color
 
+            # 悬停缩放：整体内容按照 hover 轻微放大
+            hover = self.isMouseOn()
+            scale_factor = 1.0 if not hover else 1.08
+
             cx = self.x + self.width / 2
             cy = self.y + self.height / 2
-            r = min(self.width, self.height) / 3
+            r = min(self.width, self.height) / 3 * scale_factor
 
             circleNumber = 20
             for number in range(circleNumber):
@@ -1653,30 +1660,37 @@ class Option:
                     drawRadius,
                     0,
                 )
+                # 按 scale_factor 居中贴图
                 game.screen.blit(tempSurface, (cx - drawRadius, cy - drawRadius))
 
         if self.type == "wall":
+            hover = self.isMouseOn()
+            scale_factor = 1.0 if not hover else 1.08
+            rect_w = self.width * 8 / 10 * scale_factor
+            rect_h = self.height * 8 / 10 * scale_factor
+            rect_x = self.x + (self.width - rect_w) / 2
+            rect_y = self.y + (self.height - rect_h) / 2
             pygame.draw.rect(
                 game.screen,
                 self.attrs["color"],
                 (
-                    self.x + self.width / 10,
-                    self.y + self.height / 10,
-                    self.width * 8 / 10,
-                    self.height * 8 / 10,
+                    rect_x,
+                    rect_y,
+                    rect_w,
+                    rect_h,
                 ),
             )
 
         if self.type == "rope":
-            # 绘制一条类似0到2π的sin曲线
+            # 悬停缩放（放大振幅，保持居中）
+            hover = self.isMouseOn()
+            scale_factor = 1.0 if not hover else 1.08
             points = []
             for i in range(11):
                 x_pos = self.x + self.width * i / 10
-                y_pos = (
-                    self.y
-                    + self.height / 2
-                    + math.sin(i * math.pi / 5) * self.height / 4
-                )
+                y_center = self.y + self.height / 2
+                amplitude = (self.height / 4) * scale_factor
+                y_pos = y_center + math.sin(i * math.pi / 5) * amplitude
                 points.append((x_pos, y_pos))
 
             # 绘制曲线
@@ -1684,33 +1698,29 @@ class Option:
                 pygame.draw.lines(game.screen, "black", False, points, width=2)
 
         if self.type == "rod":
-            # 绘制一条直线
-            start_point = (self.x + self.width / 10, self.y + self.height / 2)
-            end_point = (self.x + self.width * 9 /
-                         10, self.y + self.height / 2)
-            pygame.draw.line(game.screen, "black",
-                             start_point, end_point, width=3)
+            # 悬停缩放（加长线段并保持居中）
+            hover = self.isMouseOn()
+            scale_factor = 1.0 if not hover else 1.08
+            line_len = self.width * 8 / 10 * scale_factor
+            cx = self.x + self.width / 2
+            y = self.y + self.height / 2
+            start_point = (cx - line_len / 2, y)
+            end_point = (cx + line_len / 2, y)
+            pygame.draw.line(game.screen, "black", start_point, end_point, width=3)
 
         if self.type == "spring":
+            hover = self.isMouseOn()
+            scale_factor = 1.0 if not hover else 1.08
             points = []
-            points.append((self.x + self.width / 10, self.y + self.height / 2))
+            y_center = self.y + self.height / 2
+            amplitude = (self.height / 4) * scale_factor
+            points.append((self.x + self.width / 10, y_center))
             segment_width = self.width * 8 / 10 / 8
             for i in range(8):
-                if i % 2 == 0:
-                    points.append(
-                        (
-                            self.x + self.width / 10 + segment_width * (i + 0.5),
-                            self.y + self.height / 4,
-                        )
-                    )
-                else:
-                    points.append(
-                        (
-                            self.x + self.width / 10 + segment_width * (i + 0.5),
-                            self.y + self.height * 3 / 4,
-                        )
-                    )
-            points.append((self.x + self.width * 9 / 10, self.y + self.height / 2))
+                x_i = self.x + self.width / 10 + segment_width * (i + 0.5)
+                y_i = y_center - amplitude if i % 2 == 0 else y_center + amplitude
+                points.append((x_i, y_i))
+            points.append((self.x + self.width * 9 / 10, y_center))
             if len(points) >= 2:
                 pygame.draw.lines(game.screen, "black", False, points, width=2)
 

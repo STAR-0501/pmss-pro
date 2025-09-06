@@ -1,8 +1,9 @@
 from ..basic import *
-from tkinter import messagebox
 from .option import *
 import pygame
 import time
+# from tkinter import messagebox
+# 移除 tkinter 弹窗，改用 pygame 窗口内美化弹窗
 
 
 class InputBox:
@@ -26,6 +27,8 @@ class InputBox:
         self.colorActive: pygame.Color = pygame.Color(30, 144, 255)   # 道奇蓝
         self.color: pygame.Color = self.colorInactive
         self.text: str = text
+        # 文本颜色：统一深蓝色
+        self.textColor: pygame.Color = pygame.Color(25, 25, 112)  # 午夜蓝
         # 光标位置（字符索引）
         self.cursor_pos: int = len(text)
         # 如果未指定字体大小，则根据高度计算
@@ -33,7 +36,7 @@ class InputBox:
             font_size = int(height * 0.7)
         self.font: pygame.font.Font = pygame.font.Font("static/HarmonyOS_Sans_SC_Medium.ttf", font_size)
         self.textSurface: pygame.Surface = self.font.render(
-            self.text, True, (25, 25, 112))  # 午夜蓝文字
+            self.text, True, self.textColor)
         self.active: bool = False
         self.cursorVisible: bool = True
         self.cursorTimer: float = 0
@@ -61,7 +64,7 @@ class InputBox:
                 click_x = max(0, click_x)
                 self.cursor_pos = 0
                 for i in range(len(self.text)+1):
-                    prefix_width = self.font.render(self.text[:i], True, self.color).get_width()
+                    prefix_width = self.font.render(self.text[:i], True, self.textColor).get_width()
                     if prefix_width >= click_x:
                         self.cursor_pos = i
                         break
@@ -82,9 +85,13 @@ class InputBox:
                         self.attrUpdate(self.target)
 
                     else:
-                        messagebox.showerror(
-                            "错误", "您输入的颜色不合法!!!\n请输入合法的颜色编号或名称!"
-                        )
+                        # 颜色不合法：在 pygame 窗口内展示美化弹窗，而不是系统弹窗
+                        # 结构: { type, title, message }
+                        game.uiModal = {
+                            "type": "error",
+                            "title": "错误",
+                            "message": "您输入的颜色不合法!!!\n请输入合法的颜色编号或名称!",
+                        }
                         game.isEditing = True
 
                 else:
@@ -148,7 +155,8 @@ class InputBox:
             if event.key == pygame.K_RIGHT:
                 if self.cursor_pos < len(self.text):
                     self.cursor_pos += 1
-            self.textSurface = self.font.render(self.text, True, self.color)
+            # 始终使用统一的文本颜色渲染
+            self.textSurface = self.font.render(self.text, True, self.textColor)
 
     def attrUpdate(self, target: Element) -> None:
         """更新目标属性"""
@@ -190,8 +198,8 @@ class InputBox:
         blink_speed_ms = 500  # 闪烁间隔
         ticks = pygame.time.get_ticks()
         if self.active and (ticks // blink_speed_ms) % 2 == 0:
-            # 根据光标索引计算前缀宽度
-            prefix_width = self.font.render(self.text[:self.cursor_pos], True, self.color).get_width()
+            # 根据光标索引计算前缀宽度（使用统一文本颜色计算）
+            prefix_width = self.font.render(self.text[:self.cursor_pos], True, self.textColor).get_width()
             cursor_x = text_x + prefix_width
             cursor_y = self.rect.y + self.rect.height / 2
             pygame.draw.line(

@@ -24,6 +24,8 @@ class InputMenu(Element):
         self.options: list[Option] = []
         self.inputBoxes: list[InputBox] = []
         self.target: Element = target
+        # 弹窗按钮区域（用于点击检测）
+        self.modalOkRect: pygame.Rect | None = None
 
     def update(self, game: "Game") -> None:
         """更新输入菜单布局"""
@@ -64,7 +66,21 @@ class InputMenu(Element):
         game.currentTime = time.time()
 
     def updateBoxes(self, event: pygame.event.Event, game: "Game") -> None:
-        """更新输入框状态"""
+        """更新输入框状态/处理弹窗事件"""
+        # 若有 UI 弹窗，优先处理弹窗并阻断下层输入
+        if getattr(game, "uiModal", None):
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.modalOkRect and self.modalOkRect.collidepoint(event.pos):
+                    game.uiModal = None
+                    return
+            if event.type == pygame.KEYDOWN and (
+                event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE or event.key == pygame.K_SPACE
+            ):
+                game.uiModal = None
+                return
+            # 其他事件直接吞掉
+            return
+        # 正常输入框事件
         for box in self.inputBoxes:
             box.handleEvent(event, game)
 
@@ -130,3 +146,111 @@ class InputMenu(Element):
 
             # 绘制输入框
             inputBox.draw(game.screen)
+
+        # 最后绘制 UI 弹窗（若存在），覆盖在最上面
+        if getattr(game, "uiModal", None):
+            self.drawModal(game)
+
+    # 新增：关闭面板时一次性提交所有输入框中的值
+    def commitAll(self, game: "Game") -> None:
+        for box in self.inputBoxes:
+            # 颜色字段尽量校验合法性，非法则忽略该项（保持原值）
+            if box.option.get("type") == "color":
+                try:
+                    if box.text != "":
+                        pygame.Color(box.text)
+                    box.attrUpdate(box.target)
+                except ValueError:
+                    # 非法颜色输入，跳过提交
+                    continue
+            else:
+                box.attrUpdate(box.target)
+
+    # 新增：美化的 pygame 内置弹窗绘制
+    def drawModal(self, game: "Game") -> None:
+        modal = getattr(game, "uiModal", None)
+        if not modal:
+            return
+        screen = game.screen
+        sw, sh = screen.get_width(), screen.get_height()
+
+        # 半透明遮罩
+        overlay = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 120))
+        screen.blit(overlay, (0, 0))
+
+        # 弹窗尺寸与位置
+        mw = min(int(sw * 0.5), 640)
+        mh = min(int(sh * 0.3), 280)
+        mx = (sw - mw) // 2
+        my = (sh - mh) // 2
+
+        # 阴影（深灰色半透明）
+        shadow_rect = pygame.Rect(mx + 6, my + 6, mw, mh)
+        shadow_surf = pygame.Surface((mw, mh), pygame.SRCALPHA)
+        pygame.draw.rect(shadow_surf, (64, 64, 64, 80), pygame.Rect(0, 0, mw, mh), border_radius=16)
+        screen.blit(shadow_surf, shadow_rect.topleft)
+
+        # 主体
+        bg = (255, 255, 255)
+        border = (30, 144, 255)  # 道奇蓝
+        body_rect = pygame.Rect(mx, my, mw, mh)
+        pygame.draw.rect(screen, bg, body_rect, border_radius=16)
+        pygame.draw.rect(screen, border, body_rect, width=3, border_radius=16)
+
+        # 标题与正文
+        title = modal.get("title", "提示")
+        message = modal.get("message", "")
+        title_color = (25, 25, 112)  # 午夜蓝
+        text_color = (25, 25, 112)
+        title_font = getattr(game, "fontBig", self.font)
+        msg_font = getattr(game, "fontSmall", self.font)
+
+        title_surf = title_font.render(title, True, title_color)
+        title_x = mx + (mw - title_surf.get_width()) // 2
+        title_y = my + 32  # 下移标题
+        screen.blit(title_surf, (title_x, title_y))
+
+        # 文本换行渲染
+        def wrap_text(txt: str, font: pygame.font.Font, max_width: int) -> list[str]:
+            lines: list[str] = []
+            for raw_line in txt.split("\n"):
+                words = list(raw_line)
+                buffer = ""
+                for ch in words:
+                    trial = buffer + ch
+                    if font.render(trial, True, text_color).get_width() <= max_width:
+                        buffer = trial
+                    else:
+                        if buffer:
+                            lines.append(buffer)
+                        buffer = ch
+                lines.append(buffer)
+            return lines
+
+        text_area_w = mw - 48
+        msg_lines = wrap_text(message, msg_font, text_area_w)
+        ty = my + 96  # 下移正文起始位置
+        for line in msg_lines:
+            surf = msg_font.render(line, True, text_color)
+            line_x = mx + (mw - surf.get_width()) // 2
+            screen.blit(surf, (line_x, ty))
+            ty += surf.get_height() + 8  # 略增行距
+
+        # 确定按钮
+        btn_w, btn_h = 120, 44
+        btn_x = mx + (mw - btn_w) // 2
+        btn_y = my + mh - btn_h - 18
+        self.modalOkRect = pygame.Rect(btn_x, btn_y, btn_w, btn_h)
+
+        mouse_pos = pygame.mouse.get_pos()
+        hovered = self.modalOkRect.collidepoint(mouse_pos)
+        btn_bg = (65, 105, 225) if not hovered else (72, 118, 255)  # 皇家蓝/亮
+        pygame.draw.rect(screen, btn_bg, self.modalOkRect, border_radius=12)
+        pygame.draw.rect(screen, border, self.modalOkRect, width=2, border_radius=12)
+        ok_surf = msg_font.render("确定", True, (255, 255, 255))
+        screen.blit(
+            ok_surf,
+            (self.modalOkRect.centerx - ok_surf.get_width() // 2,
+             self.modalOkRect.centery - ok_surf.get_height() // 2),
+        )
