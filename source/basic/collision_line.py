@@ -1,6 +1,8 @@
 from typing import Self
-from .vector2 import *
+
 import pygame
+
+from .vector2 import *
 
 
 class CollisionLine:

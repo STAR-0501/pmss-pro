@@ -1,6 +1,7 @@
+import pygame
+
 from ..basic import *
 from .control_option import *
-import pygame
 
 
 class ElementController:

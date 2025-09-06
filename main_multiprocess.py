@@ -6,12 +6,14 @@
 """
 
 import multiprocessing
-import pygame
 import threading
 import time
-from source.game.game import Game
-from source.core.ai_thread_loop import AIThreadLoop
+
+import pygame
+
 from projection_display import run_projection_display
+from source.core.ai_thread_loop import AIThreadLoop
+from source.game.game import Game
 
 
 def run_main_game(projection_queue):

@@ -1,7 +1,9 @@
-from typing import Self
-from .vector2 import *
 import math
+from typing import Self
+
 import pygame
+
+from .vector2 import *
 
 
 class Coordinator:

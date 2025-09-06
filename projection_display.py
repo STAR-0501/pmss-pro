@@ -5,9 +5,10 @@
 独立进程用于显示投影画面
 """
 
-import pygame
 import multiprocessing
 import time
+
+import pygame
 
 
 def run_projection_display(projection_queue):

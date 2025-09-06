@@ -1,7 +1,9 @@
+import threading
+
+import pygame
+
 from ..game import *
 from .ai_thread_loop import *
-import pygame
-import threading
 
 
 def main():

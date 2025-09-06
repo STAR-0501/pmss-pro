@@ -7,7 +7,7 @@
 import multiprocessing
 import threading
 import time
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 
 class SharedGameState:

@@ -1,5 +1,6 @@
-from ..basic import *
 import pygame
+
+from ..basic import *
 
 
 class SettingsButton:

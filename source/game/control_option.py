@@ -1,6 +1,7 @@
+import pygame
+
 from ..basic import *
 from .input_menu import *
-import pygame
 
 
 class ControlOption:

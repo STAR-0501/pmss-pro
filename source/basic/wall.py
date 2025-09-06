@@ -1,11 +1,13 @@
+import copy
 from typing import Self
+
+import pygame
+
 from .ball import *
 from .collision_line import *
 from .coordinator import *
 from .element import *
 from .vector2 import *
-import pygame
-import copy
 
 
 class Wall(Element):

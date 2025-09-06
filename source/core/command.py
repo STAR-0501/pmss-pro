@@ -1,7 +1,8 @@
+import json
+
+from ..ai import *
 from ..basic import *
 from ..game import *
-from ..ai import *
-import json
 
 modelList = json.loads(
     open("config/modelList.json", "r", encoding="utf-8").read())

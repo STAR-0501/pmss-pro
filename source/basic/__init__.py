@@ -7,5 +7,5 @@ from .rod import *
 from .rope import *
 from .spring import *
 from .vector2 import *
-from .wall_position import *
 from .wall import *
+from .wall_position import *

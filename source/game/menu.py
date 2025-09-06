@@ -1,6 +1,7 @@
+import pygame
+
 from ..basic import *
 from .option import *
-import pygame
 
 
 class Menu:

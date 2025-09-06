@@ -1,7 +1,9 @@
-from ..basic import *
-import openai
-import time
 import json
+import time
+
+import openai
+
+from ..basic import *
 
 config = json.load(
     open("config/siliconFlowConfig.json", "r", encoding="utf-8"))

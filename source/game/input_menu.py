@@ -1,8 +1,10 @@
-from ..basic import *
-from .option import *
-from .input_box import *
-import pygame
 import time
+
+import pygame
+
+from ..basic import *
+from .input_box import *
+from .option import *
 
 
 class InputMenu(Element):

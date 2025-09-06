@@ -1,20 +1,23 @@
 
+import json
+import multiprocessing
+import os
+import pickle
+import sys
+import threading
+import time
+from typing import TYPE_CHECKING
+
+import pygame
+
+from shared_game_state import SharedGameState
+
 from ..basic import *
 from .element_controller import *
 from .input_menu import *
 from .menu import *
 from .set_caps_lock import *
 from .settings_button import *
-import pygame
-import time
-import pickle
-import json
-import os
-import sys
-import multiprocessing
-import threading
-from shared_game_state import SharedGameState
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..core.ai_thread_loop import AIThreadLoop
@@ -419,13 +422,13 @@ class Game:
                     
                     # 恢复物理元素
                     from ..basic.ball import Ball
-                    from ..basic.wall import Wall
+                    from ..basic.rod import Rod
                     from ..basic.rope import Rope
                     from ..basic.spring import Spring
-                    from ..basic.rod import Rod
-                    from ..basic.wall_position import WallPosition
                     from ..basic.vector2 import Vector2
-                    
+                    from ..basic.wall import Wall
+                    from ..basic.wall_position import WallPosition
+
                     # 重新创建球体
                     for ball_data in elements_data.get("ball", []):
                         ball = Ball(

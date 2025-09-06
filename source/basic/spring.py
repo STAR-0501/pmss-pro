@@ -1,10 +1,12 @@
+import math
 from typing import Self
+
+import pygame
+
 from .ball import *
 from .element import *
-from .wall_position import *
 from .vector2 import *
-import pygame
-import math
+from .wall_position import *
 
 
 class Spring(Element):

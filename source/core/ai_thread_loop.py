@@ -1,9 +1,10 @@
+import json
+import re
+
+from ..ai import *
 from ..basic import *
 from ..game import *
-from ..ai import *
 from .command import *
-import re
-import json
 
 
 def AIThreadLoop(game: Game) -> None:
