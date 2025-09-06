@@ -318,9 +318,10 @@ class Game:
                         # 添加墙体特殊属性
                         elif element.type == 'wall':
                             element_data.update({
-                                'id': id(element),
-                                'start': [element.start.x, element.start.y],
-                                'end': [element.end.x, element.end.y],
+                                'id': getattr(element, 'id', id(element)),
+                                'vertexes': [[v.x, v.y] for v in getattr(element, 'vertexes', [])],
+                                'isLine': getattr(element, 'isLine', False),
+                                'collisionFactor': getattr(element, 'collisionFactor', 1.0),
                                 'color': str(element.color) if hasattr(element, 'color') else 'blue'
                             })
                         # 添加绳索特殊属性
@@ -365,7 +366,7 @@ class Game:
             if isinstance(value, (int, float, str, list, tuple, dict)) and key not in ["fpsSaver", "elements", "groundElements", "celestialElements", "screen", "projection_queue"]:
                 data["attributes"][key] = value
                 
-        print(json.dumps(data, ensure_ascii=False, indent=4))
+        # print(json.dumps(data, ensure_ascii=False, indent=4))
 
         os.makedirs("savefile", exist_ok=True)
 
@@ -430,13 +431,44 @@ class Game:
                         self.elements["ball"].append(ball)
                         self.elements["all"].append(ball)
                     
-                    # 重新创建墙体
+                    # 重新创建墙体（支持新旧两种格式）
                     for wall_data in elements_data.get("wall", []):
-                        wall = Wall(
-                            Vector2(wall_data["start"][0], wall_data["start"][1]),
-                            Vector2(wall_data["end"][0], wall_data["end"][1]),
-                            wall_data["color"]
-                        )
+                        color = wall_data.get("color", "blue")
+                        if "vertexes" in wall_data and isinstance(wall_data["vertexes"], list) and len(wall_data["vertexes"]) >= 4:
+                            vertexes = [Vector2(v[0], v[1]) for v in wall_data["vertexes"]]
+                            isLine = wall_data.get("isLine", False)
+                            wall = Wall(vertexes, color, isLine)
+                        elif "start" in wall_data and "end" in wall_data:
+                            # 兼容旧数据：根据起止点构造一条极细的墙体
+                            start = Vector2(wall_data["start"][0], wall_data["start"][1])
+                            end = Vector2(wall_data["end"][0], wall_data["end"][1])
+                            direction = end - start
+                            thickness = 1.0
+                            if abs(direction) == 0:
+                                # 退化为一个很小的方形
+                                half = thickness / 2
+                                vertexes = [
+                                    Vector2(start.x - half, start.y - half),
+                                    Vector2(start.x + half, start.y - half),
+                                    Vector2(start.x + half, start.y + half),
+                                    Vector2(start.x - half, start.y + half),
+                                ]
+                            else:
+                                normal = Vector2(-direction.y, direction.x)
+                                normal.normalize()
+                                offset = normal * (thickness / 2)
+                                vertexes = [
+                                    start + offset,
+                                    end + offset,
+                                    end - offset,
+                                    start - offset,
+                                ]
+                            wall = Wall(vertexes, color, True)
+                        else:
+                            # 数据不完整，跳过
+                            continue
+                        if 'id' in wall_data:
+                            wall.id = wall_data['id']
                         self.elements["wall"].append(wall)
                         self.elements["all"].append(wall)
                     
@@ -504,6 +536,8 @@ class Game:
                                 obj2,
                                 rod_data.get("color", "blue")
                             )
+                            if 'id' in rod_data:
+                                rod.id = rod_data['id']
                             self.elements["rod"].append(rod)
                             self.elements["all"].append(rod)
 

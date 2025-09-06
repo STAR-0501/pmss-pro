@@ -5,6 +5,7 @@ from .element import *
 from .vector2 import *
 import pygame
 import copy
+from random import random
 
 
 class Ball(Element):

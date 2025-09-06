@@ -1567,6 +1567,8 @@ class Option:
 
     def elementEdit(self, game: "Game", attrs: list) -> None:
         """打开编辑元素属性框"""
+        # 延迟导入以避免循环依赖
+        from .input_menu import InputMenu
         inputMenu = InputMenu(
             Vector2(game.screen.get_width() / 2, game.screen.get_height() / 2),
             game,
@@ -1613,12 +1615,45 @@ class Option:
         )
 
         if self.type == "ball":
-            pygame.draw.circle(
-                game.screen,
-                self.attrs["color"],
-                (self.x + self.width / 2, self.y + self.height / 2),
-                self.width / 3,
-            )
+            # 使用与实体小球一致的渐变绘制
+            # 解析颜色
+            base_color = self.attrs.get("color", (0, 0, 0))
+            if isinstance(base_color, str):
+                try:
+                    color = colorStringToTuple(base_color)
+                except Exception:
+                    color = (0, 0, 0)
+            else:
+                color = base_color
+
+            cx = self.x + self.width / 2
+            cy = self.y + self.height / 2
+            r = min(self.width, self.height) / 3
+
+            circleNumber = 20
+            for number in range(circleNumber):
+                ratio = number / (circleNumber - 1)
+                currentRadius = r * (1 - ratio)
+
+                mixRatio = ratio
+                red = int(color[0] + (255 - color[0]) * mixRatio * 0.5)
+                green = int(color[1] + (255 - color[1]) * mixRatio * 0.5)
+                blue = int(color[2] + (255 - color[2]) * mixRatio * 0.5)
+                alpha = int(255 * (1 - ratio * 0.5))
+
+                drawRadius = int(currentRadius)
+                if drawRadius <= 0:
+                    continue
+
+                tempSurface = pygame.Surface((drawRadius * 2, drawRadius * 2), pygame.SRCALPHA)
+                pygame.draw.circle(
+                    tempSurface,
+                    (red, green, blue, alpha),
+                    (drawRadius, drawRadius),
+                    drawRadius,
+                    0,
+                )
+                game.screen.blit(tempSurface, (cx - drawRadius, cy - drawRadius))
 
         if self.type == "wall":
             pygame.draw.rect(
