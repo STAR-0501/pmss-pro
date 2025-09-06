@@ -1657,58 +1657,37 @@ class Option:
                              start_point, end_point, width=3)
 
         if self.type == "spring":
-            # 绘制一条折线（弹簧形状）
             points = []
-            # 起点
             points.append((self.x + self.width / 10, self.y + self.height / 2))
-
-            # 中间的折线部分（弹簧形状）
             segment_width = self.width * 8 / 10 / 8
             for i in range(8):
                 if i % 2 == 0:
                     points.append(
                         (
-                            self.x + self.width / 10 +
-                            segment_width * (i + 0.5),
+                            self.x + self.width / 10 + segment_width * (i + 0.5),
                             self.y + self.height / 4,
                         )
                     )
                 else:
                     points.append(
                         (
-                            self.x + self.width / 10 +
-                            segment_width * (i + 0.5),
+                            self.x + self.width / 10 + segment_width * (i + 0.5),
                             self.y + self.height * 3 / 4,
                         )
                     )
-
-            # 终点
-            points.append((self.x + self.width * 9 /
-                          10, self.y + self.height / 2))
-
-            # 绘制折线
+            points.append((self.x + self.width * 9 / 10, self.y + self.height / 2))
             if len(points) >= 2:
                 pygame.draw.lines(game.screen, "black", False, points, width=2)
 
         if self.type == "example":
-
             try:
                 icon = pygame.image.load(self.attrs["icon"]).convert_alpha()
-
-                # 调整图片大小以适应给定的宽度和高度
-                scaled_icon = pygame.transform.scale(
-                    icon, (self.width, self.height))
-
-                # 计算图片的中心位置
+                scaled_icon = pygame.transform.smoothscale(icon, (int(self.width), int(self.height)))
                 icon_x = self.x + self.width / 2 - scaled_icon.get_width() / 2
                 icon_y = self.y + self.height / 2 - scaled_icon.get_height() / 2
-
-                # 绘制调整大小后的图片
                 game.screen.blit(scaled_icon, (icon_x, icon_y))
-
             except KeyError:
                 ...
-
             except FileNotFoundError:
                 ...
 

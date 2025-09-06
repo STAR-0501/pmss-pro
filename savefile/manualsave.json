@@ -19,25 +19,25 @@
         "isChatting": false,
         "icon": "",
         "screenSize": [
-            0,
-            0
+            1920,
+            1080
         ],
         "mousePos": [
-            1227,
-            634
+            1902,
+            138
         ],
-        "ratio": 4.545454545454545,
+        "ratio": 5,
         "lastRatio": 5,
         "minLimitRatio": 1,
         "maxLimitRatio": 15,
-        "x": 188.02000000000012,
-        "y": 221.82000000000005,
+        "x": 192.0,
+        "y": 216.0,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1749530402.242685,
-        "lastTime": 1749530402.228781,
-        "fpsAverage": 75.82124413372098,
-        "fpsMinimum": 19.62936234936235,
+        "currentTime": 1757171175.7170463,
+        "lastTime": 1757171175.7140603,
+        "fpsAverage": 387.69375586634686,
+        "fpsMinimum": 228.68458644566817,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,
@@ -253,7 +253,52 @@
                 "min": 0,
                 "max": 1
             }
+        ]
+    },
+    "elements": {
+        "ball": [
+            {
+                "type": "ball",
+                "position": [
+                    -74.0,
+                    -94.00631446214402
+                ],
+                "id": 3285297856048,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    0.0,
+                    122.49364814758619
+                ],
+                "acceleration": [
+                    0,
+                    98.1
+                ]
+            },
+            {
+                "type": "ball",
+                "position": [
+                    29.55525398254398,
+                    -119.65837601341443
+                ],
+                "id": 3285297895792,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    1.6000000000000227,
+                    100.50729868412091
+                ],
+                "acceleration": [
+                    0,
+                    98.1
+                ]
+            }
         ],
-        "gameName": "1748509658备份"
+        "wall": [],
+        "rope": [],
+        "spring": [],
+        "rod": []
     }
 }

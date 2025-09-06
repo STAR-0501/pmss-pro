@@ -44,12 +44,20 @@ class Menu:
         )
 
     def draw(self, game: "Game") -> None:
-        """绘制菜单界面"""
-        pygame.draw.rect(
-            game.screen,
-            (220, 220, 220),
-            (self.x, self.y, self.width, self.height),
-            border_radius=int(self.width * 15 / 100),
-        )
+        """绘制菜单界面（圆角卡片 + 阴影 + 统一配色）"""
+        rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        radius = int(self.width * 15 / 100)
+
+        # 阴影
+        shadow = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(shadow, (0, 0, 0, 50), shadow.get_rect(), border_radius=radius)
+        game.screen.blit(shadow, (rect.x + 4, rect.y + 4))
+
+        # 背景卡片
+        pygame.draw.rect(game.screen, (250, 250, 252), rect, border_radius=radius)
+        # 边框
+        pygame.draw.rect(game.screen, (100, 149, 237), rect, width=2, border_radius=radius)
+
+        # 选项
         for option in self.options:
             option.draw(game)

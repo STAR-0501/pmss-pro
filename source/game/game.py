@@ -291,15 +291,78 @@ class Game:
         #             # 如果序列化失败，跳过该属性
         #             ...
 
+        # 保存物理元素
+        elements_data = {}
+        for element_type, elements in self.elements.items():
+            if element_type != "all" and element_type != "controlling":
+                elements_data[element_type] = []
+                for element in elements:
+                    if hasattr(element, 'to_dict'):
+                        elements_data[element_type].append(element.to_dict())
+                    else:
+                        # 基本元素的序列化
+                        element_data = {
+                            'type': element.type,
+                            'position': [element.position.x, element.position.y] if hasattr(element, 'position') else None
+                        }
+                        # 添加球体特殊属性
+                        if element.type == 'ball':
+                            element_data.update({
+                                'id': id(element),
+                                'mass': element.mass,
+                                'radius': element.radius,
+                                'color': str(element.color) if hasattr(element, 'color') else 'black',
+                                'velocity': [element.velocity.x, element.velocity.y],
+                                'acceleration': [element.acceleration.x, element.acceleration.y]
+                            })
+                        # 添加墙体特殊属性
+                        elif element.type == 'wall':
+                            element_data.update({
+                                'id': id(element),
+                                'start': [element.start.x, element.start.y],
+                                'end': [element.end.x, element.end.y],
+                                'color': str(element.color) if hasattr(element, 'color') else 'blue'
+                            })
+                        # 添加绳索特殊属性
+                        elif element.type == 'rope':
+                            element_data.update({
+                                'id': id(element),
+                                'obj1_id': id(element.obj1),
+                                'obj2_id': id(element.obj2),
+                                'length': element.length,
+                                'k': element.k,
+                                'color': str(element.color) if hasattr(element, 'color') else 'red'
+                            })
+                        # 添加弹簧特殊属性
+                        elif element.type == 'spring':
+                            element_data.update({
+                                'id': id(element),
+                                'obj1_id': id(element.obj1),
+                                'obj2_id': id(element.obj2),
+                                'length': element.length,
+                                'k': element.k,
+                                'color': str(element.color) if hasattr(element, 'color') else 'green'
+                            })
+                        # 添加轻杆特殊属性
+                        elif element.type == 'rod':
+                            element_data.update({
+                                'id': id(element),
+                                'obj1_id': id(element.obj1),
+                                'obj2_id': id(element.obj2),
+                                'color': str(element.color) if hasattr(element, 'color') else 'blue'
+                            })
+                        elements_data[element_type].append(element_data)
+
         data = {
             "name": filename,
             "icon": iconPath,
-            "attributes": {}
+            "attributes": {},
+            "elements": elements_data
         }
         
+        # 保存基本属性（排除复杂对象）
         for key, value in self.__dict__.items():
-            if isinstance(value, (int, float, str, list, tuple, dict)) and key != "fpsSaver" and key != "elements" and key != "groundElements" and key != "celestialElements" and key != "screen" and key != "projection_queue":
-                
+            if isinstance(value, (int, float, str, list, tuple, dict)) and key not in ["fpsSaver", "elements", "groundElements", "celestialElements", "screen", "projection_queue"]:
                 data["attributes"][key] = value
                 
         print(json.dumps(data, ensure_ascii=False, indent=4))
@@ -312,80 +375,176 @@ class Game:
             print(f"\n游戏数据保存成功：{filename}.json")
             f.close()
 
+
+
     def loadPreset(self, filename: str = "autosave") -> None:
-        """加载预设数据"""
-        # 保存当前的 screen 属性
+        """加载存档，优先使用 JSON"""
+        # 运行时必须保留的对象
         currentScreen = getattr(self, "screen", None)
         currentExampleMenu = getattr(self, "exampleMenu", None)
         currentElementMenu = getattr(self, "elementMenu", None)
         currentFloor = getattr(self, "floor", None)
 
+        json_path = f"savefile/{filename}.json"
+
+
         try:
+            # 读取数据
+            if os.path.exists(json_path):
+                print(f"\n正在加载游戏数据：{filename}.json")
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    attributes = data.get("attributes", {})
+                    elements_data = data.get("elements", {})
+                    
+                    # 清空现有元素
+                    for element_list in self.elements.values():
+                        element_list.clear()
+                    
+                    # 恢复基本属性
+                    self.__dict__.update(attributes)
+                    # 确保ratio正确应用
+                    if hasattr(self, 'ratio') and self.ratio > 0:
+                        self.lastRatio = self.ratio
+                    
+                    # 恢复物理元素
+                    from ..basic.ball import Ball
+                    from ..basic.wall import Wall
+                    from ..basic.rope import Rope
+                    from ..basic.spring import Spring
+                    from ..basic.rod import Rod
+                    from ..basic.wall_position import WallPosition
+                    from ..basic.vector2 import Vector2
+                    
+                    # 重新创建球体
+                    for ball_data in elements_data.get("ball", []):
+                        ball = Ball(
+                            Vector2(ball_data["position"][0], ball_data["position"][1]),
+                            ball_data["radius"],
+                            ball_data["color"],
+                            ball_data["mass"],
+                            Vector2(ball_data["velocity"][0], ball_data["velocity"][1]),
+                            []
+                        )
+                        ball.acceleration = Vector2(ball_data["acceleration"][0], ball_data["acceleration"][1])
+                        self.elements["ball"].append(ball)
+                        self.elements["all"].append(ball)
+                    
+                    # 重新创建墙体
+                    for wall_data in elements_data.get("wall", []):
+                        wall = Wall(
+                            Vector2(wall_data["start"][0], wall_data["start"][1]),
+                            Vector2(wall_data["end"][0], wall_data["end"][1]),
+                            wall_data["color"]
+                        )
+                        self.elements["wall"].append(wall)
+                        self.elements["all"].append(wall)
+                    
+                    # 创建元素ID映射表
+                    element_map = {}
+                    for element in self.elements["all"]:
+                        if hasattr(element, 'id'):
+                            element_map[element.id] = element
+                    
+                    # 重新创建绳索（需要连接已创建的球体或墙体）
+                    for rope_data in elements_data.get("rope", []):
+                        obj1_id = rope_data.get("obj1_id")
+                        obj2_id = rope_data.get("obj2_id")
+                        
+                        # 从映射表中查找对应的对象
+                        obj1 = element_map.get(obj1_id)
+                        obj2 = element_map.get(obj2_id)
+                        
+                        # 如果找到两个对象，创建绳索
+                        if obj1 and obj2:
+                            rope = Rope(
+                                obj1,
+                                obj2,
+                                rope_data.get("length", 100),
+                                rope_data.get("k", 1),
+                                rope_data.get("color", "red")
+                            )
+                            self.elements["rope"].append(rope)
+                            self.elements["all"].append(rope)
+                    
+                    # 重新创建弹簧
+                    for spring_data in elements_data.get("spring", []):
+                        obj1_id = spring_data.get("obj1_id")
+                        obj2_id = spring_data.get("obj2_id")
+                        
+                        # 从映射表中查找对应的对象
+                        obj1 = element_map.get(obj1_id)
+                        obj2 = element_map.get(obj2_id)
+                        
+                        # 如果找到两个对象，创建弹簧
+                        if obj1 and obj2:
+                            spring = Spring(
+                                obj1,
+                                obj2,
+                                spring_data.get("length", 100),
+                                spring_data.get("k", 1),
+                                spring_data.get("color", "green")
+                            )
+                            self.elements["spring"].append(spring)
+                            self.elements["all"].append(spring)
+                    
+                    # 重新创建轻杆
+                    for rod_data in elements_data.get("rod", []):
+                        obj1_id = rod_data.get("obj1_id")
+                        obj2_id = rod_data.get("obj2_id")
+                        
+                        # 从映射表中查找对应的对象
+                        obj1 = element_map.get(obj1_id)
+                        obj2 = element_map.get(obj2_id)
+                        
+                        # 如果找到两个对象，创建轻杆
+                        if obj1 and obj2:
+                            rod = Rod(
+                                obj1,
+                                obj2,
+                                rod_data.get("color", "blue")
+                            )
+                            self.elements["rod"].append(rod)
+                            self.elements["all"].append(rod)
 
-            if filename == "" and os.path.exists("savefile/autosave.pkl"):
-                filename = "autosave"
+            else:
+                print(f"\n未找到存档：{filename}.json")
+                return
 
-            print(f"\n正在加载游戏数据：{filename}.pkl")
+            # 恢复关键对象，避免引用丢失
+            if currentScreen is not None:
+                self.screen = currentScreen
+            if currentExampleMenu is not None:
+                self.exampleMenu = currentExampleMenu
+            if currentElementMenu is not None:
+                self.elementMenu.x = currentElementMenu.x
+                self.elementMenu.y = currentElementMenu.y
+                self.elementMenu.width = currentElementMenu.width
+                self.elementMenu.height = currentElementMenu.height
+                for i in range(len(currentElementMenu.options)):
+                    self.elementMenu.options[i].x = currentElementMenu.options[i].x
+                    self.elementMenu.options[i].y = currentElementMenu.options[i].y
+                    self.elementMenu.options[i].width = currentElementMenu.options[i].width
+                    self.elementMenu.options[i].height = currentElementMenu.options[i].height
+            if currentFloor is not None:
+                self.floor = currentFloor
 
-            with open(f"savefile/{filename}.pkl", "rb") as f:
-                # 加载序列化的字典
-                serializableDict = pickle.load(f)
+            # 重置部分状态与时间戳
+            self.rightMove = 0
+            self.upMove = 0
+            self.lastTime = time.time()
+            self.currentTime = time.time()
+            print("\n游戏数据加载成功")
+        except Exception as e:
+            print(f"加载存档失败：{e}")
 
-                # 更新 self.__dict__，只更新可序列化的属性
-                self.__dict__.update(serializableDict)
+    def saveGame(self, filename: str = "autosave", iconPath: str | None = None) -> None:
+        """对外统一的保存接口（JSON 格式）"""
+        self.savePreset(filename, iconPath)
 
-                # 恢复 screen 属性
-                if currentScreen is not None:
-                    self.screen = currentScreen
-
-                if currentExampleMenu is not None:
-                    self.exampleMenu = currentExampleMenu
-
-                if currentElementMenu is not None:
-                    self.elementMenu.x = currentElementMenu.x
-                    self.elementMenu.y = currentElementMenu.y
-                    self.elementMenu.width = currentElementMenu.width
-                    self.elementMenu.height = currentElementMenu.height
-
-                    for i in range(len(currentElementMenu.options)):
-                        self.elementMenu.options[i].x = currentElementMenu.options[i].x
-                        self.elementMenu.options[i].y = currentElementMenu.options[i].y
-                        self.elementMenu.options[i].width = currentElementMenu.options[
-                            i
-                        ].width
-                        self.elementMenu.options[i].height = currentElementMenu.options[
-                            i
-                        ].height
-
-                if currentFloor is not None:
-                    self.floor = currentFloor
-
-                # 恢复坐标系统相关参数
-                self.x = serializableDict.get(
-                    "x", self.screen.get_width() / 2 / self.ratio
-                )
-                self.y = serializableDict.get(
-                    "y", self.screen.get_height() / self.ratio
-                )
-                self.ratio = serializableDict.get("ratio", 5)
-
-                # 重置移动控制状态
-                self.rightMove = 0
-                self.upMove = 0
-
-                self.lastTime = time.time()
-                self.currentTime = time.time()
-                print("\n游戏数据加载成功")
-                f.close()
-
-        except FileNotFoundError:
-            ...
-
-        except IndexError:
-            ...
-
-        except PermissionError:
-            ...
+    def loadGame(self, filename: str = "autosave") -> None:
+        """对外统一的读取接口，内部调用 loadPreset"""
+        self.loadPreset(filename)
 
     def setAttr(self, key: str, value: str) -> None:
         """设置环境属性"""

@@ -23,26 +23,26 @@
             1080
         ],
         "mousePos": [
-            1249,
-            386
+            1899,
+            303
         ],
-        "ratio": 0.9892233445006748,
+        "ratio": 5,
         "lastRatio": 5,
         "minLimitRatio": 1,
         "maxLimitRatio": 15,
-        "x": 420.6914730330924,
-        "y": 724.982112551839,
+        "x": 218.0,
+        "y": 220.40000000000026,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1757166112.321001,
-        "lastTime": 1757166112.3165615,
-        "fpsAverage": 205.46453326399427,
-        "fpsMinimum": 81.5917208108003,
+        "currentTime": 1757172029.897704,
+        "lastTime": 1757172029.888573,
+        "fpsAverage": 110.25189443922811,
+        "fpsMinimum": 66.01668398023105,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,
         "circularVelocityFactor": 1,
-        "isFloorIllegal": true,
+        "isFloorIllegal": false,
         "background": "lightgrey",
         "tempFrames": 0,
         "optionsList": [
@@ -254,5 +254,32 @@
                 "max": 1
             }
         ]
+    },
+    "elements": {
+        "ball": [
+            {
+                "type": "ball",
+                "position": [
+                    -67.8161872863765,
+                    -71.48292812377393
+                ],
+                "id": 1744475036016,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -2.3999999999999773,
+                    -116.2972294330603
+                ],
+                "acceleration": [
+                    0,
+                    98.1
+                ]
+            }
+        ],
+        "wall": [],
+        "rope": [],
+        "spring": [],
+        "rod": []
     }
 }
