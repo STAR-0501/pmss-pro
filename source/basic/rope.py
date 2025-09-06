@@ -46,7 +46,7 @@ class Rope(Element):
     def isReachingLimit(self) -> bool:
         """判断绳索是否到达极限长度（被拉紧）"""
         currentLength = self.getCurrentLength()
-        return currentLength >= self.length * 0.99  # 允许1%的误差
+        return currentLength >= self.length * 0.999  # 更严格的阈值，减少突然切换
     
     def getCurrentLength(self) -> float:
         """获取绳索当前长度"""
@@ -135,66 +135,150 @@ class Rope(Element):
         screen_start = (game.realToScreen(startPos.x, game.x), game.realToScreen(startPos.y, game.y))
         screen_end = (game.realToScreen(endPos.x, game.x), game.realToScreen(endPos.y, game.y))
 
-        if self.isReachingLimit():
+        # 计算过渡因子，实现平滑过渡效果
+        transition_factor = min(max((actualDistance / self.length - 0.99) / 0.01, 0.0), 1.0)
+        
+        if transition_factor >= 1.0 or self.isReachingLimit():
+            # 完全拉直状态
             drawColor = self.color
             if self.tension > 0:
                 tensionFactor = min(self.tension / (self.tensionStiffness * 0.1), 1.0)
                 drawColor = colorMiddle(self.color, "red", tensionFactor * 0.7)
             pygame.draw.line(game.screen, drawColor, screen_start, screen_end, self.width)
+        elif transition_factor <= 0.0:
+            # 完全松弛状态，绘制悬链线
+            self._drawCatenary(game, startPos, endPos, actualDistance)
         else:
-            num_segments = 24
-            points = []
-            d = actualDistance
-            L = self.length
+            # 混合状态，结合直线和悬链线
+            self._drawTransitionRope(game, startPos, endPos, actualDistance, transition_factor)
 
-            if d < 1e-6: return
+    def _drawCatenary(self, game, startPos: Vector2, endPos: Vector2, actualDistance: float) -> None:
+        """绘制悬链线"""
+        num_segments = 24
+        points = []
+        d = actualDistance
+        L = self.length
 
-            direction = (endPos - startPos).normalize()
-            gravityDir = Vector2(0, 1)
-            sagComponent = gravityDir - direction * direction.dot(gravityDir)
-            sagDir = sagComponent.normalize() if sagComponent.magnitude() > 1e-6 else direction.vertical()
+        if d < 1e-6: return
 
-            a = 0.0
-            if L > d:
-                try:
-                    k = L / d
-                    z = math.sqrt(6 * (k - 1))
-                    for _ in range(5):
-                        if z < 1e-8: break
-                        if z > 700: z = 700; break
-                        sinh_z = math.sinh(z)
-                        cosh_z = math.cosh(z)
-                        f_z = sinh_z - k * z
-                        fp_z = cosh_z - k
-                        if abs(fp_z) < 1e-9: break
-                        z_new = z - f_z / fp_z
-                        if abs(z_new - z) < 1e-9: z = z_new; break
-                        z = z_new
-                    if z > 1e-8: a = d / (2 * z)
-                except (ValueError, OverflowError):
-                    a = 0.0
+        direction = (endPos - startPos).normalize()
+        gravityDir = Vector2(0, 1)
+        sagComponent = gravityDir - direction * direction.dot(gravityDir)
+        sagDir = sagComponent.normalize() if sagComponent.magnitude() > 1e-6 else direction.vertical()
 
-            if a > 1e-6:
-                try:
-                    c = a * math.cosh(d / (2 * a))
-                    for i in range(num_segments + 1):
-                        t = i / num_segments
-                        x_local = d * (t - 0.5)
-                        y_local = c - a * math.cosh(x_local / a)
-                        basePos = startPos + direction * (d * t)
-                        finalPos = basePos + sagDir * y_local
-                        points.append((game.realToScreen(finalPos.x, game.x), game.realToScreen(finalPos.y, game.y)))
-                except (ValueError, OverflowError):
-                    a = 0.0
+        a = 0.0
+        if L > d:
+            try:
+                k = L / d
+                z = math.sqrt(6 * (k - 1))
+                for _ in range(5):
+                    if z < 1e-8: break
+                    if z > 700: z = 700; break
+                    sinh_z = math.sinh(z)
+                    cosh_z = math.cosh(z)
+                    f_z = sinh_z - k * z
+                    fp_z = cosh_z - k
+                    if abs(fp_z) < 1e-9: break
+                    z_new = z - f_z / fp_z
+                    if abs(z_new - z) < 1e-9: z = z_new; break
+                    z = z_new
+                if z > 1e-8: a = d / (2 * z)
+            except (ValueError, OverflowError):
+                a = 0.0
 
-            if a < 1e-6:
-                maxSag = math.sqrt(max(0, L*L - d*d)) / 2
+        if a > 1e-6:
+            try:
+                c = a * math.cosh(d / (2 * a))
                 for i in range(num_segments + 1):
                     t = i / num_segments
+                    x_local = d * (t - 0.5)
+                    y_local = c - a * math.cosh(x_local / a)
                     basePos = startPos + direction * (d * t)
-                    sag = maxSag * math.sin(math.pi * t)
-                    finalPos = basePos + sagDir * sag
+                    finalPos = basePos + sagDir * y_local
                     points.append((game.realToScreen(finalPos.x, game.x), game.realToScreen(finalPos.y, game.y)))
+            except (ValueError, OverflowError):
+                a = 0.0
 
-            if len(points) > 1:
-                pygame.draw.lines(game.screen, self.color, False, points, self.width)
+        if a < 1e-6:
+            maxSag = math.sqrt(max(0, L*L - d*d)) / 2
+            for i in range(num_segments + 1):
+                t = i / num_segments
+                basePos = startPos + direction * (d * t)
+                sag = maxSag * math.sin(math.pi * t)
+                finalPos = basePos + sagDir * sag
+                points.append((game.realToScreen(finalPos.x, game.x), game.realToScreen(finalPos.y, game.y)))
+
+        if len(points) > 1:
+            pygame.draw.lines(game.screen, self.color, False, points, self.width)
+
+    def _drawTransitionRope(self, game, startPos: Vector2, endPos: Vector2, actualDistance: float, transition_factor: float) -> None:
+        """绘制过渡状态的绳索"""
+        # 在过渡状态下，我们通过插值方式混合直线和悬链线
+        num_segments = 24
+        points = []
+        d = actualDistance
+        L = self.length
+
+        if d < 1e-6: return
+
+        direction = (endPos - startPos).normalize()
+        gravityDir = Vector2(0, 1)
+        sagComponent = gravityDir - direction * direction.dot(gravityDir)
+        sagDir = sagComponent.normalize() if sagComponent.magnitude() > 1e-6 else direction.vertical()
+
+        # 计算悬链线点
+        catenary_points = []
+        a = 0.0
+        if L > d:
+            try:
+                k = L / d
+                z = math.sqrt(6 * (k - 1))
+                for _ in range(5):
+                    if z < 1e-8: break
+                    if z > 700: z = 700; break
+                    sinh_z = math.sinh(z)
+                    cosh_z = math.cosh(z)
+                    f_z = sinh_z - k * z
+                    fp_z = cosh_z - k
+                    if abs(fp_z) < 1e-9: break
+                    z_new = z - f_z / fp_z
+                    if abs(z_new - z) < 1e-9: z = z_new; break
+                    z = z_new
+                if z > 1e-8: a = d / (2 * z)
+            except (ValueError, OverflowError):
+                a = 0.0
+
+        if a > 1e-6:
+            try:
+                c = a * math.cosh(d / (2 * a))
+                for i in range(num_segments + 1):
+                    t = i / num_segments
+                    x_local = d * (t - 0.5)
+                    y_local = c - a * math.cosh(x_local / a)
+                    basePos = startPos + direction * (d * t)
+                    finalPos = basePos + sagDir * y_local
+                    catenary_points.append(finalPos)
+            except (ValueError, OverflowError):
+                a = 0.0
+
+        if a < 1e-6 or len(catenary_points) == 0:
+            maxSag = math.sqrt(max(0, L*L - d*d)) / 2
+            for i in range(num_segments + 1):
+                t = i / num_segments
+                basePos = startPos + direction * (d * t)
+                sag = maxSag * math.sin(math.pi * t)
+                finalPos = basePos + sagDir * sag
+                catenary_points.append(finalPos)
+
+        # 通过插值生成过渡点
+        for i in range(num_segments + 1):
+            t = i / num_segments
+            catenary_point = catenary_points[i]
+            linear_point = startPos + direction * (d * t)
+            
+            # 根据过渡因子插值
+            interpolated_point = linear_point * transition_factor + catenary_point * (1 - transition_factor)
+            points.append((game.realToScreen(interpolated_point.x, game.x), game.realToScreen(interpolated_point.y, game.y)))
+
+        if len(points) > 1:
+            pygame.draw.lines(game.screen, self.color, False, points, self.width)
