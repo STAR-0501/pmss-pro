@@ -2,7 +2,6 @@
 import json
 import multiprocessing
 import os
-import pickle
 import sys
 import threading
 import time
@@ -1090,9 +1089,8 @@ class Game:
                 for file in filenames:
 
                     try:
-                        tempFile = open(os.path.join(dirpath, file), "rb")
-                        data = pickle.load(tempFile)
-                        tempFile.close()
+                        with open(os.path.join(dirpath, file), "r", encoding="utf-8") as tempFile:
+                            data = json.load(tempFile)
 
                         example = {
                             "name": data["gameName"],
@@ -1106,9 +1104,8 @@ class Game:
                         examples.append(example)
 
                     except KeyError:
-                        tempFile = open(os.path.join(dirpath, file), "rb")
-                        data = pickle.load(tempFile)
-                        tempFile.close()
+                        with open(os.path.join(dirpath, file), "r", encoding="utf-8") as tempFile:
+                            data = json.load(tempFile)
 
                         example = {
                             "name": os.path.basename(dirpath),

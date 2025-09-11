@@ -1,6 +1,7 @@
 from ..basic import *
 from .set_caps_lock import *
 
+import time
 
 class Option:
     """菜单选项类"""
@@ -1549,7 +1550,7 @@ class Option:
 
     def exampleCreate(self, game: "Game") -> None:
         attrs = copy.deepcopy(self.attrs)
-        attrs["path"] = attrs["path"].replace(".pkl", "")
+        attrs["path"] = attrs["path"].replace(".json", "")
         game.loadGame(attrs["path"])
         loadedTipText = game.fontSmall.render(
             f"{game.gameName}加载成功", True, (0, 0, 0)
@@ -1603,8 +1604,8 @@ class Option:
         hover = self.isMouseOn()
         radius = int(self.width * 15 / 100)
 
-        # 与设置按钮一致的阴影风格（仅在悬停时显示）
-        if hover:
+        # 与设置按钮一致的阴影风格（悬停时或使用中时显示）
+        if hover or self.selected or self.highLighted:
             shadow = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
             pygame.draw.rect(shadow, (0, 0, 0, 50), shadow.get_rect(), border_radius=radius)
             game.screen.blit(shadow, (self.x + 4, self.y + 4))
