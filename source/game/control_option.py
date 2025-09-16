@@ -207,8 +207,9 @@ class ControlOption:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(
-                            f"default/{str(event.key - pygame.K_0)}")
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.showLoadedTip(preset_file)
 
                     if event.key == pygame.K_ESCAPE:
                         isAdding = False
@@ -311,20 +312,25 @@ class ControlOption:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.loadGame(f"default/{str(event.key - pygame.K_0)}")
-                        loadedTipText = game.fontSmall.render(
-                            f"{game.gameName}加载成功", True, (0, 0, 0)
-                        )
-                        loadedTipRect = loadedTipText.get_rect(
-                            center=(
-                                game.screen.get_width() / 2,
-                                game.screen.get_height() / 2,
+                        # 防止连续按键时延迟叠加
+                        current_time = time.time()
+                        if current_time - game.lastLoadTime < 0.5:
+                            continue
+                        
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.loadGame(preset_file)
+                            game.loadedTipText = game.fontSmall.render(
+                                f"{game.gameName} 加载成功", True, (0, 0, 0)
                             )
-                        )
-                        game.screen.blit(loadedTipText, loadedTipRect)
-                        game.update()
-                        pygame.display.update()
-                        time.sleep(0.5)
+                            game.loadedTipRect = game.loadedTipText.get_rect(
+                                center=(
+                                    game.screen.get_width() / 2,
+                                    game.screen.get_height() / 2,
+                                )
+                            )
+                            game.tipDisplayEndTime = current_time + 1.5  # 显示1.5秒
+                            game.lastLoadTime = current_time
                         game.lastTime = time.time()
                         game.currentTime = time.time()
 

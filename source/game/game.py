@@ -44,6 +44,7 @@ class Game:
         self.isModeChangingNaturally: bool = False
         self.isChatting: bool = False
         self.icon: str = ""
+        self.gameName: str = "未命名"
 
         try:
             with open("config/screenSize.txt", "r", encoding="utf-8") as f:
@@ -86,6 +87,10 @@ class Game:
         self.exampleMenu: Menu = None
         self.currentTime: float = time.time()
         self.lastTime: float = self.currentTime
+        self.lastLoadTime: float = 0  # 上次加载预设的时间，用于防止连续按键延迟叠加
+        self.tipDisplayEndTime: float = 0  # 提示文字显示结束时间
+        self.loadedTipText = None  # 当前显示的提示文字
+        self.loadedTipRect = None  # 当前显示的提示文字位置
         self.fpsAverage: float = 0
         self.fpsMinimum: float = 0
         self.rightMove: int = 0
@@ -159,6 +164,33 @@ class Game:
         self.inputMenu.update(self)
 
         self.test()
+
+    def getPresetFileByIndex(self, index: int) -> str:
+        """根据索引获取按字典序排序的预设文件名"""
+        try:
+            default_dir = "savefile/default"
+            if not os.path.exists(default_dir):
+                return None
+            
+            # 获取所有.json文件并按字典序排序
+            json_files = []
+            for file in os.listdir(default_dir):
+                if file.endswith('.json'):
+                    json_files.append(file)
+            
+            json_files.sort()  # 字典序排序
+            
+            # 索引从1开始，转换为数组索引
+            if 1 <= index <= len(json_files):
+                # 返回不带.json后缀的文件名，因为loadPreset会自动添加
+                filename = json_files[index - 1]
+                if filename.endswith('.json'):
+                    filename = filename[:-5]  # 移除.json后缀
+                return f"default/{filename}"
+            
+            return None
+        except Exception:
+            return None
 
     def exit(self) -> None:
         """退出游戏并取消大写锁定"""
@@ -243,21 +275,22 @@ class Game:
 
     def showLoadedTip(self, filename: str) -> None:
         """显示加载游戏成功提示"""
+        current_time = time.time()
+        if current_time - self.lastLoadTime < 0.5:
+            return
+            
         self.loadPreset(filename)
-        loadedTipText = self.fontSmall.render(
-            f"{self.gameName}加载成功", True, (0, 0, 0)
+        self.loadedTipText = self.fontSmall.render(
+            f"{self.gameName} 加载成功", True, (0, 0, 0)
         )
-        loadedTipRect = loadedTipText.get_rect(
+        self.loadedTipRect = self.loadedTipText.get_rect(
             center=(
                 self.screen.get_width() / 2,
                 self.screen.get_height() / 2,
             )
         )
-
-        self.update()
-        self.screen.blit(loadedTipText, loadedTipRect)
-        pygame.display.update()
-        time.sleep(0.5)
+        self.tipDisplayEndTime = current_time + 1.5  # 显示1.5秒
+        self.lastLoadTime = current_time
         self.lastTime = time.time()
         self.currentTime = time.time()
 
@@ -384,13 +417,13 @@ class Game:
         # 将可序列化的字典保存到文件
         with open(f"savefile/{filename}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-            print(f"\n游戏数据保存成功：{filename}.json")
+            print(f"\n预设数据保存成功：{filename}.json")
             f.close()
 
 
 
     def loadPreset(self, filename: str = "autosave") -> None:
-        """加载存档，优先使用 JSON"""
+        """加载预设，优先使用 JSON"""
         # 运行时必须保留的对象
         currentScreen = getattr(self, "screen", None)
         currentExampleMenu = getattr(self, "exampleMenu", None)
@@ -403,7 +436,7 @@ class Game:
         try:
             # 读取数据
             if os.path.exists(json_path):
-                print(f"\n正在加载游戏数据：{filename}.json")
+                print(f"\n正在加载预设数据：{filename}.json")
                 with open(json_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     attributes = data.get("attributes", {})
@@ -568,7 +601,7 @@ class Game:
                             self.elements["all"].append(rod)
 
             else:
-                print(f"\n未找到存档：{filename}.json")
+                print(f"\n未找到预设：{filename}.json")
                 return
 
             # 恢复关键对象，避免引用丢失
@@ -594,9 +627,9 @@ class Game:
             self.upMove = 0
             self.lastTime = time.time()
             self.currentTime = time.time()
-            print("\n游戏数据加载成功")
+            print("\n预设数据加载成功")
         except Exception as e:
-            print(f"加载存档失败：{e}")
+            print(f"加载预设失败：{e}")
 
     def saveGame(self, filename: str = "autosave", iconPath: str | None = None) -> None:
         """对外统一的保存接口（JSON 格式）"""
@@ -738,9 +771,9 @@ class Game:
                                             self.loadPreset("manualsave")
 
                                         if pygame.K_1 <= event.key <= pygame.K_9:
-                                            self.showLoadedTip(
-                                                f"default/{str(event.key - pygame.K_0)}"
-                                            )
+                                            preset_file = self.getPresetFileByIndex(event.key - pygame.K_0)
+                                            if preset_file:
+                                                self.showLoadedTip(preset_file)
 
                                         if event.key == pygame.K_r:
                                             self.elements["all"].clear()
@@ -848,21 +881,25 @@ class Game:
                     self.loadPreset("manualsave")
 
                 if pygame.K_1 <= event.key <= pygame.K_9:
-                    self.loadPreset(f"default/{str(event.key - pygame.K_0)}")
-                    loadedTipText = self.fontSmall.render(
-                        f"{self.gameName}加载成功", True, (0, 0, 0)
-                    )
-                    loadedTipRect = loadedTipText.get_rect(
-                        center=(
-                            self.screen.get_width() / 2,
-                            self.screen.get_height() / 2,
+                    # 防止连续按键时延迟叠加
+                    current_time = time.time()
+                    if current_time - self.lastLoadTime < 0.5:
+                        continue
+                    
+                    preset_file = self.getPresetFileByIndex(event.key - pygame.K_0)
+                    if preset_file:
+                        self.loadPreset(preset_file)
+                        self.loadedTipText = self.fontSmall.render(
+                            f"{self.gameName} 加载成功", True, (0, 0, 0)
                         )
-                    )
-
-                    self.update()
-                    self.screen.blit(loadedTipText, loadedTipRect)
-                    pygame.display.update()
-                    time.sleep(0.5)
+                        self.loadedTipRect = self.loadedTipText.get_rect(
+                            center=(
+                                self.screen.get_width() / 2,
+                                self.screen.get_height() / 2,
+                            )
+                        )
+                        self.tipDisplayEndTime = current_time + 1.5  # 显示1.5秒
+                        self.lastLoadTime = current_time
                     self.lastTime = time.time()
                     self.currentTime = time.time()
 
@@ -1051,6 +1088,17 @@ class Game:
         # 绘制地板（如果不是天体模式且地板合法）
         if not self.isCelestialBodyMode and not self.isFloorIllegal:
             self.floor.draw(self)
+        
+        # 绘制加载提示文字（如果在显示时间内）
+        current_time = time.time()
+        if (self.loadedTipText is not None and 
+            self.loadedTipRect is not None and 
+            current_time < self.tipDisplayEndTime):
+            self.screen.blit(self.loadedTipText, self.loadedTipRect)
+        elif current_time >= self.tipDisplayEndTime:
+            # 清除过期的提示文字
+            self.loadedTipText = None
+            self.loadedTipRect = None
             
         # 如果有投影队列，发送当前画面数据到投影进程
         if self.projection_queue is not None:
@@ -1092,8 +1140,11 @@ class Game:
                         with open(os.path.join(dirpath, file), "r", encoding="utf-8") as tempFile:
                             data = json.load(tempFile)
 
+                        # 尝试从attributes中获取gameName，如果没有则使用顶层的gameName
+                        game_name = data.get("attributes", {}).get("gameName") or data.get("gameName", data.get("name", "未命名"))
+
                         example = {
-                            "name": data["gameName"],
+                            "name": game_name,
                             "type": "example",
                             "attrs": [
                                 {"type": "path", "value": "default/" + file},

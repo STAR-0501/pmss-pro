@@ -613,8 +613,9 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(
-                            f"default/{str(event.key - pygame.K_0)}")
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.showLoadedTip(preset_file)
 
                     if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
                         game.isMassSetting = True
@@ -882,8 +883,9 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(
-                            f"default/{str(event.key - pygame.K_0)}")
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.showLoadedTip(preset_file)
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -1086,8 +1088,9 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(
-                            f"default/{str(event.key - pygame.K_0)}")
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.showLoadedTip(preset_file)
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -1293,8 +1296,9 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(
-                            f"default/{str(event.key - pygame.K_0)}")
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.showLoadedTip(preset_file)
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -1509,8 +1513,9 @@ class Option:
                         game.loadGame("manualsave")
 
                     if pygame.K_1 <= event.key <= pygame.K_9:
-                        game.showLoadedTip(
-                            f"default/{str(event.key - pygame.K_0)}")
+                        preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
+                        if preset_file:
+                            game.showLoadedTip(preset_file)
 
                     if event.key == pygame.K_SPACE:
                         game.isPaused = not game.isPaused
@@ -1549,20 +1554,22 @@ class Option:
                             game.CelestialBodyMode()
 
     def exampleCreate(self, game: "Game") -> None:
+        # 防止连续按键时延迟叠加
+        current_time = time.time()
+        if current_time - game.lastLoadTime < 0.5:
+            return
+        
         attrs = copy.deepcopy(self.attrs)
         attrs["path"] = attrs["path"].replace(".json", "")
         game.loadGame(attrs["path"])
-        loadedTipText = game.fontSmall.render(
-            f"{game.gameName}加载成功", True, (0, 0, 0)
+        game.loadedTipText = game.fontSmall.render(
+            f"{game.gameName} 加载成功", True, (0, 0, 0)
         )
-        loadedTipRect = loadedTipText.get_rect(
+        game.loadedTipRect = game.loadedTipText.get_rect(
             center=(game.screen.get_width() / 2, game.screen.get_height() / 2)
         )
-
-        game.update()
-        game.screen.blit(loadedTipText, loadedTipRect)
-        pygame.display.update()
-        time.sleep(0.5)
+        game.tipDisplayEndTime = current_time + 1.5  # 显示1.5秒
+        game.lastLoadTime = current_time
         game.lastTime = time.time()
         game.currentTime = time.time()
 
