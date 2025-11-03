@@ -38,6 +38,8 @@ class Rod(Element):
         self.isLegal: bool = True
         self.type: str = "rod"
         
+        self.id = randint(0, 100000000)
+        
         # 弹簧力
         self.currentForce: float = 0.0
         
@@ -258,7 +260,7 @@ class Rod(Element):
             dampingForce = direction * dampingForceMagnitude
             
             # 只对球体应用力
-            self.start.force(constraintForce + dampingForce, isNatural=True)
+            self.start.force(springForceOnStart + dampingForce, isNatural=True)
             
             # 位置修正（强制保持长度）
             self.start.position += direction * self.deformation
@@ -273,7 +275,7 @@ class Rod(Element):
             dampingForce = -direction * dampingForceMagnitude
             
             # 只对球体应用力
-            self.end.force(-constraintForce + dampingForce, isNatural=True)
+            self.end.force(-springForceOnStart + dampingForce, isNatural=True)
             
             # 位置修正（强制保持长度）
             self.end.position -= direction * self.deformation

@@ -42,6 +42,8 @@ class Spring(Element):
         self.deformation: float = 0.0  # 当前形变量
         self.potentialEnergy: float = 0.0  # 当前弹性势能
         self.currentForce: float = 0.0  # 当前弹力大小
+        
+        self.id = randint(0, 100000000)
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             self.isLegal = False

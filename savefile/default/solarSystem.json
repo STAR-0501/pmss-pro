@@ -1,8 +1,8 @@
 {
-    "name": "basketball",
-    "icon": "static/basketball.png",
+    "name": "solarSystem",
+    "icon": "static/solarSystem.png",
     "attributes": {
-        "isPaused": true,
+        "isPaused": false,
         "isElementCreating": false,
         "isMoving": false,
         "isScreenMoving": false,
@@ -14,39 +14,39 @@
         "isElementControlling": false,
         "isPressed": false,
         "isDragging": false,
-        "isCelestialBodyMode": false,
+        "isCelestialBodyMode": true,
         "isModeChangingNaturally": false,
         "isChatting": false,
         "icon": "",
-        "gameName": "篮球",
+        "gameName": "太阳系",
         "screenSize": [
             1920,
             1080
         ],
         "mousePos": [
-            1090,
-            765
+            1327,
+            474
         ],
-        "ratio": 2.822369650268886,
-        "lastRatio": 5,
-        "minLimitRatio": 1,
-        "maxLimitRatio": 15,
-        "x": 248.62464497687088,
-        "y": 327.23901177548464,
-        "lastX": 192.0,
-        "lastY": 20000000.0,
-        "currentTime": 1758879068.7363694,
-        "lastTime": 1758879068.728555,
+        "ratio": 0.21528382156712225,
+        "lastRatio": 0.6142298678683613,
+        "minLimitRatio": 0.01,
+        "maxLimitRatio": 10,
+        "x": 4647.638598148684,
+        "y": 20004062.98304052,
+        "lastX": 193.99999999999991,
+        "lastY": 216.39999999999998,
+        "currentTime": 1761730094.3079174,
+        "lastTime": 1761730094.2988021,
         "lastLoadTime": 0,
         "tipDisplayEndTime": 0,
-        "fpsAverage": 146.99452965288927,
-        "fpsMinimum": 96.44295240285123,
+        "fpsAverage": 117.4617054477115,
+        "fpsMinimum": 75.1856021223963,
         "rightMove": 0,
         "upMove": 0,
-        "speed": 1,
+        "speed": 0.20000000000000015,
         "circularVelocityFactor": 1,
         "isFloorIllegal": false,
-        "background": "lightgrey",
+        "background": "darkgrey",
         "tempFrames": 0,
         "optionsList": [
             {
@@ -189,13 +189,13 @@
         "environmentOptions": [
             {
                 "type": "gravity",
-                "value": 1.0,
+                "value": "0",
                 "min": 0.0,
                 "max": 1000.0
             },
             {
                 "type": "airResistance",
-                "value": 1.0,
+                "value": "1",
                 "min": 0.0,
                 "max": 100.0
             },
@@ -207,7 +207,7 @@
             },
             {
                 "type": "mode",
-                "value": 0,
+                "value": 1,
                 "min": 0,
                 "max": 1
             }
@@ -234,13 +234,13 @@
         "environmentOptionsCopy": [
             {
                 "type": "gravity",
-                "value": 1.0,
+                "value": "0",
                 "min": 0.0,
                 "max": 1000.0
             },
             {
                 "type": "airResistance",
-                "value": 1.0,
+                "value": "1",
                 "min": 0.0,
                 "max": 100.0
             },
@@ -252,181 +252,83 @@
             },
             {
                 "type": "mode",
-                "value": 0,
+                "value": 1,
                 "min": 0,
                 "max": 1
             }
-        ]
+        ],
+        "name": "manualsave"
     },
     "elements": {
         "ball": [
             {
                 "type": "ball",
                 "position": [
-                    53.603661623129284,
-                    -88.78292653578684
+                    705.9046339506214,
+                    -20001559.244589496
                 ],
-                "id": 2086903196752,
-                "mass": 1.0,
-                "radius": 5.0,
+                "id": 51168435,
+                "mass": 1000000.0,
+                "radius": 500.0,
                 "color": "ORANGE",
                 "velocity": [
-                    0.0,
-                    0.6253012418746949
+                    -72.43603291937804,
+                    -33.01671894696909
                 ],
                 "acceleration": [
-                    0,
-                    98.1
-                ]
+                    170.71169280623462,
+                    268.6215283913066
+                ],
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    1656.6833221881814,
+                    -20000063.152102817
+                ],
+                "id": 38401326,
+                "mass": 10000.0,
+                "radius": 40.0,
+                "color": "LIGHTBLUE",
+                "velocity": [
+                    6462.10464521065,
+                    -4031.081814663546
+                ],
+                "acceleration": [
+                    -17072.50782904352,
+                    -26868.537889269614
+                ],
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    1623.4174995794078,
+                    -20000157.839746013
+                ],
+                "id": 71885430,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "GREY",
+                "velocity": [
+                    3617.740559315469,
+                    -2834.30350064058
+                ],
+                "acceleration": [
+                    13385.484200556908,
+                    63850.501389555226
+                ],
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
             }
         ],
-        "wall": [
-            {
-                "type": "wall",
-                "position": [
-                    -153.89999999999998,
-                    -74.38026222390576
-                ],
-                "id": 2086902460368,
-                "vertexes": [
-                    [
-                        -157.6,
-                        -147.6
-                    ],
-                    [
-                        -157.6,
-                        -1.1605244478115253
-                    ],
-                    [
-                        -150.2,
-                        -1.1605244478115253
-                    ],
-                    [
-                        -150.2,
-                        -147.6
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -148.5,
-                    -136.1
-                ],
-                "id": 2086902461008,
-                "vertexes": [
-                    [
-                        -152.6,
-                        -138.6
-                    ],
-                    [
-                        -144.4,
-                        -138.6
-                    ],
-                    [
-                        -144.4,
-                        -133.6
-                    ],
-                    [
-                        -152.6,
-                        -133.6
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -118.4,
-                    -135.2
-                ],
-                "id": 2086902835680,
-                "vertexes": [
-                    [
-                        -122.50000000000007,
-                        -137.7
-                    ],
-                    [
-                        -114.30000000000001,
-                        -137.7
-                    ],
-                    [
-                        -114.30000000000001,
-                        -132.7
-                    ],
-                    [
-                        -122.50000000000007,
-                        -132.7
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -145.5,
-                    -127.80000000000001
-                ],
-                "id": 2086902835072,
-                "vertexes": [
-                    [
-                        -144.6,
-                        -138.4
-                    ],
-                    [
-                        -144.6,
-                        -117.2
-                    ],
-                    [
-                        -146.4,
-                        -117.2
-                    ],
-                    [
-                        -146.4,
-                        -138.4
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -121.6,
-                    -127.0
-                ],
-                "id": 2086903126864,
-                "vertexes": [
-                    [
-                        -120.69999999999999,
-                        -137.5999999999999
-                    ],
-                    [
-                        -120.69999999999999,
-                        -116.39999999999999
-                    ],
-                    [
-                        -122.5,
-                        -116.39999999999999
-                    ],
-                    [
-                        -122.5,
-                        -137.5999999999999
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            }
-        ],
+        "wall": [],
         "rope": [],
         "spring": [],
         "rod": []

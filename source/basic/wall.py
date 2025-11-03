@@ -40,6 +40,8 @@ class Wall(Element):
         self.type: str = "wall"
         self.collisionFactor: float = 1.0
 
+
+        self.id = randint(0, 100000000)
         self.attrs: list[dict] = []
         self.updateAttrsList()
 

@@ -5,6 +5,7 @@ import os
 import sys
 import threading
 import time
+import pickle
 from typing import TYPE_CHECKING
 
 import pygame
@@ -115,6 +116,7 @@ class Game:
         
         # 多进程通信队列（用于向投影显示进程发送数据）
         self.projection_queue: multiprocessing.Queue = None
+        self.shared_state = None
         self.optionsList: list[dict] = []
         self.environmentOptions: list[dict] = []
         self.elements: dict[str, list[Element | Ball | Wall | Rope]] = {}
@@ -164,6 +166,8 @@ class Game:
         self.inputMenu.update(self)
 
         self.test()
+
+    
 
     def getPresetFileByIndex(self, index: int) -> str:
         """根据索引获取按字典序排序的预设文件名"""
@@ -294,6 +298,7 @@ class Game:
         self.lastTime = time.time()
         self.currentTime = time.time()
 
+  
     def savePreset(self, filename: str = "autosave", iconPath: str = None) -> None:
         """保存预设数据"""
         for elementOption in self.elementMenu.options:
@@ -329,7 +334,7 @@ class Game:
         # 保存物理元素
         elements_data = {}
         for element_type, elements in self.elements.items():
-            if element_type != "all" and element_type != "controlling":
+            if element_type != "controlling":
                 elements_data[element_type] = []
                 for element in elements:
                     if hasattr(element, 'to_dict'):
@@ -343,7 +348,7 @@ class Game:
                         # 添加球体特殊属性
                         if element.type == 'ball':
                             element_data.update({
-                                'id': id(element),
+                                'id': element.id,
                                 'mass': element.mass,
                                 'radius': element.radius,
                                 'color': str(element.color) if hasattr(element, 'color') else 'black',
@@ -353,18 +358,25 @@ class Game:
                         # 添加墙体特殊属性
                         elif element.type == 'wall':
                             element_data.update({
-                                'id': getattr(element, 'id', id(element)),
+                                'id': getattr(element, 'id', element.id),
                                 'vertexes': [[v.x, v.y] for v in getattr(element, 'vertexes', [])],
                                 'isLine': getattr(element, 'isLine', False),
                                 'collisionFactor': getattr(element, 'collisionFactor', 1.0),
                                 'color': str(element.color) if hasattr(element, 'color') else 'blue'
                             })
+
                         # 添加绳索特殊属性
                         elif element.type == 'rope':
+                            # 处理WallPosition的保存
+                            if hasattr(element, 'start') and hasattr(element.start, 'wallPosition'):
+                                element_data['start_id'] = element.start.wallPosition.id
+                            if hasattr(element, 'end') and hasattr(element.end, 'wallPosition'):
+                                element_data['end_id'] = element.end.wallPosition.id
+                            
                             element_data.update({
-                                'id': getattr(element, 'id', id(element)),
-                                'start_id': id(element.start),
-                                'end_id': id(element.end),
+                                'id': element.id,
+                                'start_id': element.start.id,
+                                'end_id': element.end.id,
                                 'length': element.length,
                                 'width': getattr(element, 'width', 1),
                                 'collisionFactor': getattr(element, 'collisionFactor', 1.0),
@@ -372,12 +384,13 @@ class Game:
                                 'dampingFactor': getattr(element, 'dampingFactor', 0.2),
                                 'color': str(element.color) if hasattr(element, 'color') else 'red'
                             })
+
                         # 添加弹簧特殊属性
                         elif element.type == 'spring':
                             element_data.update({
-                                'id': getattr(element, 'id', id(element)),
-                                'start_id': id(element.start),
-                                'end_id': id(element.end),
+                                'id': getattr(element, 'id', element.id),
+                                'start_id': element.start.id,
+                                'end_id': element.end.id,
                                 'restLength': getattr(element, 'restLength', getattr(element, 'length', 100)),
                                 'stiffness': getattr(element, 'stiffness', getattr(element, 'k', 1)),
                                 'width': getattr(element, 'width', 3),
@@ -396,10 +409,17 @@ class Game:
                                 'stiffness': getattr(element, 'stiffness', 100000.0),
                                 'color': str(element.color) if hasattr(element, 'color') else 'blue'
                             })
+                        # 添加显示信息和跟随状态属性
+                        element_data.update({
+                            'isShowingInfo': getattr(element, 'isShowingInfo', False),
+                            'infoText': getattr(element, 'infoText', None),
+                            'isFollowing': getattr(element, 'isFollowing', False)
+                        })
                         elements_data[element_type].append(element_data)
 
         data = {
             "name": filename,
+            "icon": self.icon,
             "icon": iconPath,
             "attributes": {},
             "elements": elements_data
@@ -421,7 +441,6 @@ class Game:
             f.close()
 
 
-
     def loadPreset(self, filename: str = "autosave") -> None:
         """加载预设，优先使用 JSON"""
         # 运行时必须保留的对象
@@ -429,9 +448,9 @@ class Game:
         currentExampleMenu = getattr(self, "exampleMenu", None)
         currentElementMenu = getattr(self, "elementMenu", None)
         currentFloor = getattr(self, "floor", None)
+        
 
         json_path = f"savefile/{filename}.json"
-
 
         try:
             # 读取数据
@@ -440,6 +459,8 @@ class Game:
                 with open(json_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     attributes = data.get("attributes", {})
+                    self.name = data.get("name", "default")
+                    self.icon = data.get("icon", "static/default.png")
                     elements_data = data.get("elements", {})
                     
                     # 清空现有元素
@@ -461,6 +482,8 @@ class Game:
                     from ..basic.wall import Wall
                     from ..basic.wall_position import WallPosition
 
+                    print(elements_data)
+
                     # 重新创建球体
                     for ball_data in elements_data.get("ball", []):
                         ball = Ball(
@@ -472,8 +495,10 @@ class Game:
                             []
                         )
                         ball.acceleration = Vector2(ball_data["acceleration"][0], ball_data["acceleration"][1])
-                        if "id" in ball_data:
-                            ball.id = ball_data["id"]
+                        ball.isShowingInfo = ball_data.get("isShowingInfo", False)
+                        ball.isFollowing = ball_data.get("isFollowing", False)
+                        print(ball_data["id"])
+                        ball.id = ball_data["id"]
                         self.elements["ball"].append(ball)
                         self.elements["all"].append(ball)
                     
@@ -519,20 +544,25 @@ class Game:
                         self.elements["all"].append(wall)
                     
                     # 创建元素ID映射表
-                    element_map = {}
-                    for element in self.elements["all"]:
-                        if hasattr(element, 'id'):
-                            element_map[element.id] = element
+                    # element_map = {}
+                    # for element in self.elements["all"]:
+                    #     if hasattr(element, 'id'):
+                    #         element_map[element.id] = element
                     
                     # 重新创建绳索（需要连接已创建的球体或墙体）
                     for rope_data in elements_data.get("rope", []):
                         start_id = rope_data.get("start_id") or rope_data.get("obj1_id")
                         end_id = rope_data.get("end_id") or rope_data.get("obj2_id")
                         
-                        # 从映射表中查找对应的对象
-                        start = element_map.get(start_id)
-                        end = element_map.get(end_id)
-                        
+                        for element in self.elements["all"]:
+                            if hasattr(element, 'id') and element.id == start_id:
+                                start = element
+                            if hasattr(element, 'id') and element.id == end_id:
+                                end = element
+
+                        print("start", start)
+                        print("end", end)
+
                         # 如果找到两个对象，创建绳索
                         if start and end:
                             rope = Rope(
@@ -1121,6 +1151,9 @@ class Game:
         """设置投影显示队列"""
         self.projection_queue = queue
 
+    def set_shared_state(self, state: SharedGameState) -> None:
+        self.shared_state = state
+
     def updateMenu(self) -> None:
         """更新菜单界面"""
         width, height = self.screen.get_size()
@@ -1646,6 +1679,7 @@ class Game:
             spring.calculateForce()
 
         self.updateElements()
+        self.update_shared_state()
         self.updateMenu()
         if self.tempFrames > 0:
             self.tempFrames -= 1
@@ -1758,3 +1792,41 @@ class Game:
             for ball in self.elements["ball"]:
                 ball.gravitation = False
                 ball.naturalForces.clear()
+
+    def update_shared_state(self):
+        if self.shared_state is None:
+            return
+
+        balls_data = [
+            {
+                'x': ball.position.x,
+                'y': ball.position.y,
+                'radius': ball.radius,
+                'mass': ball.mass,
+                'color': ball.color
+            }
+            for ball in self.elements['ball']
+        ]
+
+        walls_data = [
+            {
+                'vertices': [(v.x, v.y) for v in wall.vertexes],
+                'color': wall.color
+            }
+            for wall in self.elements['wall']
+        ]
+
+        if not self.isCelestialBodyMode and not self.isFloorIllegal:
+            floor_data = {
+                'vertices': [(v.x, v.y) for v in self.floor.vertexes],
+                'color': self.floor.color
+            }
+            walls_data.append(floor_data)
+
+        self.shared_state.update_balls(balls_data)
+        self.shared_state.update_walls(walls_data)
+        self.shared_state.update_view_state(
+            self.x, self.y, self.ratio, str(self.background) if isinstance(self.background, pygame.Color) else self.background
+        )
+        self.shared_state.set_celestial_mode(self.isCelestialBodyMode)
+        self.shared_state.increment_frame()

@@ -13,6 +13,8 @@ class WallPosition:
 
         self.x = wall.position.x + position.x
         self.y = wall.position.y + position.y
+        
+        self.id = randint(0, 100000000)
 
     def getPosition(self) -> Vector2:
         """获取墙体位置"""

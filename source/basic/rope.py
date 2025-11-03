@@ -41,6 +41,8 @@ class Rope(Element):
         self.isLegal: bool = True
         self.type: str = "rope"
         self.tension: float = 0.0  # 当前张力大小
+        
+        self.id = randint(0, 100000000)
 
         if isinstance(start, WallPosition) and isinstance(end, WallPosition):
             self.isLegal = False

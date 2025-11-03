@@ -46,6 +46,8 @@ class Ball(Element):
         self.isFollowing: bool = False
         self.isShowingInfo: bool = False
         self.attrs: list[dict] = []
+        
+        self.id = randint(0, 100000000)
         self.updateAttrsList()
 
     def isPosOn(self, game, pos: Vector2) -> bool:

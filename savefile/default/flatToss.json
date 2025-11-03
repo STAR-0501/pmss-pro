@@ -1,6 +1,6 @@
 {
-    "name": "basketball",
-    "icon": "static/basketball.png",
+    "name": "flatToss",
+    "icon": "static/flatToss.png",
     "attributes": {
         "isPaused": true,
         "isElementCreating": false,
@@ -18,29 +18,29 @@
         "isModeChangingNaturally": false,
         "isChatting": false,
         "icon": "",
-        "gameName": "篮球",
+        "gameName": "平抛运动",
         "screenSize": [
             1920,
             1080
         ],
         "mousePos": [
-            1090,
-            765
+            1049,
+            550
         ],
-        "ratio": 2.822369650268886,
-        "lastRatio": 5,
+        "ratio": 4.132231404958677,
+        "lastRatio": 4.132231404958677,
         "minLimitRatio": 1,
         "maxLimitRatio": 15,
-        "x": 248.62464497687088,
-        "y": 327.23901177548464,
+        "x": 242.13648284886438,
+        "y": 230.25993247674896,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1758879068.7363694,
-        "lastTime": 1758879068.728555,
+        "currentTime": 1761731820.099054,
+        "lastTime": 1761731820.0907328,
         "lastLoadTime": 0,
         "tipDisplayEndTime": 0,
-        "fpsAverage": 146.99452965288927,
-        "fpsMinimum": 96.44295240285123,
+        "fpsAverage": 117.35384618459268,
+        "fpsMinimum": 80.45391594575413,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,
@@ -189,25 +189,25 @@
         "environmentOptions": [
             {
                 "type": "gravity",
-                "value": 1.0,
+                "value": "1.0",
                 "min": 0.0,
                 "max": 1000.0
             },
             {
                 "type": "airResistance",
-                "value": 1.0,
+                "value": "1.0",
                 "min": 0.0,
                 "max": 100.0
             },
             {
                 "type": "collisionFactor",
-                "value": 1.0,
+                "value": "0",
                 "min": 0.0,
                 "max": 1.0
             },
             {
                 "type": "mode",
-                "value": 0,
+                "value": "0",
                 "min": 0,
                 "max": 1
             }
@@ -234,197 +234,120 @@
         "environmentOptionsCopy": [
             {
                 "type": "gravity",
-                "value": 1.0,
+                "value": "1.0",
                 "min": 0.0,
                 "max": 1000.0
             },
             {
                 "type": "airResistance",
-                "value": 1.0,
+                "value": "1.0",
                 "min": 0.0,
                 "max": 100.0
             },
             {
                 "type": "collisionFactor",
-                "value": 1.0,
+                "value": "0",
                 "min": 0.0,
                 "max": 1.0
             },
             {
                 "type": "mode",
-                "value": 0,
+                "value": "0",
                 "min": 0,
                 "max": 1
             }
-        ]
+        ],
+        "name": "manualsave"
     },
     "elements": {
         "ball": [
             {
                 "type": "ball",
                 "position": [
-                    53.603661623129284,
-                    -88.78292653578684
+                    -129.78310764978337,
+                    -117.26427367859829
                 ],
-                "id": 2086903196752,
-                "mass": 1.0,
-                "radius": 5.0,
-                "color": "ORANGE",
+                "id": 42704036,
+                "mass": 100000.0,
+                "radius": 3.0,
+                "color": "RED",
                 "velocity": [
-                    0.0,
-                    0.6253012418746949
+                    0.3578605816320491,
+                    0.41405356552468486
                 ],
                 "acceleration": [
                     0,
                     98.1
-                ]
+                ],
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
             }
         ],
         "wall": [
             {
                 "type": "wall",
                 "position": [
-                    -153.89999999999998,
-                    -74.38026222390576
+                    -124.28248284886473,
+                    -102.48393247674913
                 ],
-                "id": 2086902460368,
+                "id": 26692722,
                 "vertexes": [
                     [
-                        -157.6,
-                        -147.6
+                        -138.24323457924646,
+                        -114.8757113383478
                     ],
                     [
-                        -157.6,
-                        -1.1605244478115253
+                        -114.04323457924643,
+                        -86.8757113383478
                     ],
                     [
-                        -150.2,
-                        -1.1605244478115253
+                        -110.32173111848302,
+                        -90.09215361515047
                     ],
                     [
-                        -150.2,
-                        -147.6
+                        -134.52173111848305,
+                        -118.09215361515051
                     ]
                 ],
                 "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
+                "collisionFactor": 0.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
             },
             {
                 "type": "wall",
                 "position": [
-                    -148.5,
-                    -136.1
+                    -87.01448284886473,
+                    -88.93193247674914
                 ],
-                "id": 2086902461008,
+                "id": 44770659,
                 "vertexes": [
                     [
-                        -152.6,
-                        -138.6
+                        -113.41524041375291,
+                        -86.83193247674913
                     ],
                     [
-                        -144.4,
-                        -138.6
+                        -60.613725283976564,
+                        -86.83193247674913
                     ],
                     [
-                        -144.4,
-                        -133.6
+                        -60.613725283976564,
+                        -91.03193247674916
                     ],
                     [
-                        -152.6,
-                        -133.6
+                        -113.41524041375291,
+                        -91.03193247674916
                     ]
                 ],
                 "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -118.4,
-                    -135.2
-                ],
-                "id": 2086902835680,
-                "vertexes": [
-                    [
-                        -122.50000000000007,
-                        -137.7
-                    ],
-                    [
-                        -114.30000000000001,
-                        -137.7
-                    ],
-                    [
-                        -114.30000000000001,
-                        -132.7
-                    ],
-                    [
-                        -122.50000000000007,
-                        -132.7
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -145.5,
-                    -127.80000000000001
-                ],
-                "id": 2086902835072,
-                "vertexes": [
-                    [
-                        -144.6,
-                        -138.4
-                    ],
-                    [
-                        -144.6,
-                        -117.2
-                    ],
-                    [
-                        -146.4,
-                        -117.2
-                    ],
-                    [
-                        -146.4,
-                        -138.4
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -121.6,
-                    -127.0
-                ],
-                "id": 2086903126864,
-                "vertexes": [
-                    [
-                        -120.69999999999999,
-                        -137.5999999999999
-                    ],
-                    [
-                        -120.69999999999999,
-                        -116.39999999999999
-                    ],
-                    [
-                        -122.5,
-                        -116.39999999999999
-                    ],
-                    [
-                        -122.5,
-                        -137.5999999999999
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY"
+                "collisionFactor": 0.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
             }
         ],
         "rope": [],

@@ -2,6 +2,7 @@ from typing import Self
 
 import pygame
 
+from random import randint 
 from .vector2 import *
 
 gravityFactor = 5e4  # 添加引力常数调节参数

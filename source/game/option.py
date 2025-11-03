@@ -1252,6 +1252,7 @@ class Option:
                                             )
                                             wallPosition = WallPosition(
                                                 element, pos)
+                                            game.elements["all"].append(wallPosition)
                                             chosenElement[1] = wallPosition
                                         clickNum += 1
 
@@ -1742,6 +1743,8 @@ class Option:
             except KeyError:
                 ...
             except FileNotFoundError:
+                ...
+            except TypeError:
                 ...
 
     def createElement(self, game: "Game", pos: Vector2) -> None:
