@@ -989,6 +989,10 @@ class Game:
 
     def openEditor(self, inputMenu) -> None:
         """打开参数编辑器"""
+        # 确保每次打开编辑器时，inputMenu.options都反映environmentOptions的最新状态
+        # 使用深拷贝，避免直接修改environmentOptions
+        import copy
+        inputMenu.options = copy.deepcopy(self.environmentOptions)
         inputMenu.update(self)
         self.isEditing = True
         inputMenu.update(self)
@@ -1026,6 +1030,8 @@ class Game:
                         # 在关闭面板前提交所有输入框的当前值
                         try:
                             inputMenu.commitAll(self)
+                            # 将修改后的值更新回environmentOptions
+                            self.environmentOptions = copy.deepcopy(inputMenu.options)
                         except Exception:
                             ...
                         self.isEditing = False
@@ -1034,6 +1040,8 @@ class Game:
         # 兜底：若由输入框内部关闭编辑状态，退出循环后也再次提交一次
         try:
             inputMenu.commitAll(self)
+            # 将修改后的值更新回environmentOptions
+            self.environmentOptions = copy.deepcopy(inputMenu.options)
         except Exception:
             ...
         self.updateFPS()
