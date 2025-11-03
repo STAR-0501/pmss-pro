@@ -41,6 +41,8 @@ class Rope(Element):
         self.isLegal: bool = True
         self.type: str = "rope"
         self.tension: float = 0.0  # 当前张力大小
+        self.last_sag_direction: Vector2 = Vector2(0, 1)  # 记录上一帧的下垂方向
+        self.sag_direction_smooth_factor: float = 0.05  # 方向平滑过渡因子
         
         self.id = randint(0, 100000000)
 
@@ -168,7 +170,20 @@ class Rope(Element):
         direction = (endPos - startPos).normalize()
         gravityDir = Vector2(0, 1)
         sagComponent = gravityDir - direction * direction.dot(gravityDir)
-        sagDir = sagComponent.normalize() if sagComponent.magnitude() > 1e-6 else direction.vertical()
+        
+        # 计算新的下垂方向
+        new_sag_dir = sagComponent.normalize() if sagComponent.magnitude() > 1e-6 else direction.vertical()
+        
+        # 平滑过渡到新方向
+        if self.last_sag_direction.magnitude() > 0:
+            lerp_factor = self.sag_direction_smooth_factor
+            self.last_sag_direction = (
+                self.last_sag_direction * (1 - lerp_factor) + new_sag_dir * lerp_factor
+            ).normalize()
+            sagDir = self.last_sag_direction
+        else:
+            sagDir = new_sag_dir
+            self.last_sag_direction = new_sag_dir
 
         a = 0.0
         if L > d:

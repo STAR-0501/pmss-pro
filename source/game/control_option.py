@@ -320,16 +320,18 @@ class ControlOption:
                         preset_file = game.getPresetFileByIndex(event.key - pygame.K_0)
                         if preset_file:
                             game.loadGame(preset_file)
-                            game.loadedTipText = game.fontSmall.render(
+                            loadedTipText = game.fontSmall.render(
                                 f"{game.gameName} 加载成功", True, (0, 0, 0)
                             )
-                            game.loadedTipRect = game.loadedTipText.get_rect(
+                            loadedTipRect = loadedTipText.get_rect(
                                 center=(
                                     game.screen.get_width() / 2,
                                     game.screen.get_height() / 2,
                                 )
                             )
-                            game.tipDisplayEndTime = current_time + 1.5  # 显示1.5秒
+                            game.screen.blit(loadedTipText, loadedTipRect)
+                            game.update()
+                            pygame.display.update()
                             game.lastLoadTime = current_time
                         game.lastTime = time.time()
                         game.currentTime = time.time()
