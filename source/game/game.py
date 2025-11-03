@@ -345,6 +345,9 @@ class Game:
                             'type': element.type,
                             'position': [element.position.x, element.position.y] if hasattr(element, 'position') else None
                         }
+                        
+
+
                         # 添加球体特殊属性
                         if element.type == 'ball':
                             element_data.update({
@@ -384,6 +387,15 @@ class Game:
                                 'dampingFactor': getattr(element, 'dampingFactor', 0.2),
                                 'color': str(element.color) if hasattr(element, 'color') else 'red'
                             })
+
+                        # 添加WallPosition属性
+                        elif hasattr(element, 'wallPosition'):
+                            element_data['wallPosition'] = {
+                                'id': element.wallPosition.id,
+                                'position': [element.wallPosition.position.x, element.wallPosition.position.y],
+                                'wall_id': element.wallPosition.wall.id,
+                                'deltaPosition': [element.wallPosition.deltaPosition.x, element.wallPosition.deltaPosition.y]
+                            }
 
                         # 添加弹簧特殊属性
                         elif element.type == 'spring':
@@ -482,7 +494,6 @@ class Game:
                     from ..basic.wall import Wall
                     from ..basic.wall_position import WallPosition
 
-                    print(elements_data)
 
                     # 重新创建球体
                     for ball_data in elements_data.get("ball", []):
@@ -542,6 +553,19 @@ class Game:
                             wall.id = wall_data['id']
                         self.elements["wall"].append(wall)
                         self.elements["all"].append(wall)
+
+                    # wallPosition
+                    for wallPosition_data in elements_data.get("wallPosition", []):
+                        wallPosition = WallPosition(
+                            self.elements["wall"][wallPosition_data["wall_id"]],
+                            Vector2(wallPosition_data["position"][0], wallPosition_data["position"][1]),
+                        )
+                        wallPosition.wall = self.elements["wall"][wallPosition_data["wall_id"]]
+                        wallPosition.deltaPosition = Vector2(wallPosition_data["deltaPosition"][0], wallPosition_data["deltaPosition"][1])
+
+                        self.elements["wallPosition"].append(wallPosition)
+                        self.elements["all"].append(wallPosition)
+                        
                     
                     # 创建元素ID映射表
                     # element_map = {}
