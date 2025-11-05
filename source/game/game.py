@@ -120,7 +120,8 @@ class Game:
         self.optionsList: list[dict] = []
         self.environmentOptions: list[dict] = []
         self.elements: dict[str, list[Element | Ball | Wall | Rope]] = {}
-
+        self.wall_positions: list[WallPosition] = []
+        
         self.groundElements: dict[str, list[Element | Ball | Wall | Rope]] = {
             "all": [],
             "ball": [],
@@ -331,6 +332,23 @@ class Game:
         #             # 如果序列化失败，跳过该属性
         #             ...
 
+        wall_positions_data = []
+        # print(self.elements)
+        for rope in self.elements["rope"]:
+            if isinstance(rope.start, WallPosition):
+                wall_positions_data.append({
+                    "id": rope.start.id,
+                    "wall_id": rope.start.wall.id,
+                    "pos": [rope.start.position.x, rope.start.position.y],
+                })
+                
+            if isinstance(rope.end, WallPosition):
+                wall_positions_data.append({
+                    "id": rope.end.id,
+                    "wall_id": rope.end.wall.id,
+                    "pos": [rope.end.deltaPosition.x, rope.end.deltaPosition.y],
+                })
+
         # 保存物理元素
         elements_data = {}
         for element_type, elements in self.elements.items():
@@ -434,7 +452,8 @@ class Game:
             "icon": self.icon,
             "icon": iconPath,
             "attributes": {},
-            "elements": elements_data
+            "elements": elements_data,
+            "wall_position": wall_positions_data
         }
         
         # 保存基本属性（排除复杂对象）
@@ -474,6 +493,7 @@ class Game:
                     self.name = data.get("name", "default")
                     self.icon = data.get("icon", "static/default.png")
                     elements_data = data.get("elements", {})
+                    wall_position_data = data.get("wall_position", [])
                     
                     # 清空现有元素
                     for element_list in self.elements.values():
@@ -508,7 +528,7 @@ class Game:
                         ball.acceleration = Vector2(ball_data["acceleration"][0], ball_data["acceleration"][1])
                         ball.isShowingInfo = ball_data.get("isShowingInfo", False)
                         ball.isFollowing = ball_data.get("isFollowing", False)
-                        print(ball_data["id"])
+                        # print(ball_data["id"])
                         ball.id = ball_data["id"]
                         self.elements["ball"].append(ball)
                         self.elements["all"].append(ball)
@@ -555,16 +575,18 @@ class Game:
                         self.elements["all"].append(wall)
 
                     # wallPosition
-                    for wallPosition_data in elements_data.get("wallPosition", []):
+                    for wall_position in wall_position_data:
+                        for wall in self.elements["wall"]:
+                            if wall.id == wall_position["wall_id"]:
+                                break
                         wallPosition = WallPosition(
-                            self.elements["wall"][wallPosition_data["wall_id"]],
-                            Vector2(wallPosition_data["position"][0], wallPosition_data["position"][1]),
+                            wall,
+                            Vector2(wall_position["pos"][0] + wall.position.x, wall_position["pos"][1] + wall.position.y),
                         )
-                        wallPosition.wall = self.elements["wall"][wallPosition_data["wall_id"]]
-                        wallPosition.deltaPosition = Vector2(wallPosition_data["deltaPosition"][0], wallPosition_data["deltaPosition"][1])
+                        wallPosition.id = wall_position["id"]
+                        wallPosition.deltaPosition = Vector2(wall_position["pos"][0], wall_position["pos"][1])
 
-                        self.elements["wallPosition"].append(wallPosition)
-                        self.elements["all"].append(wallPosition)
+                        self.wall_positions.append(wallPosition)
                         
                     
                     # 创建元素ID映射表
@@ -574,6 +596,7 @@ class Game:
                     #         element_map[element.id] = element
                     
                     # 重新创建绳索（需要连接已创建的球体或墙体）
+                    # print(self.wall_positions[0].id)
                     for rope_data in elements_data.get("rope", []):
                         start_id = rope_data.get("start_id") or rope_data.get("obj1_id")
                         end_id = rope_data.get("end_id") or rope_data.get("obj2_id")
@@ -581,11 +604,25 @@ class Game:
                         for element in self.elements["all"]:
                             if hasattr(element, 'id') and element.id == start_id:
                                 start = element
+                                # print("start", start.id)
                             if hasattr(element, 'id') and element.id == end_id:
                                 end = element
+                                # print("end", end.id)
+                        
+                        # print(start_id, end_id)
+                        # print(self.wall_positions[0].id)
+                        # print(start_id)
+                        # print(end_id)
+                        for wall_position in self.wall_positions:
+                            if wall_position.id == start_id:
+                                start = wall_position
+                                # print("start", start.id) 
+                            if wall_position.id == end_id:
+                                end = wall_position
+                                # print("end", end.id)
 
-                        print("start", start)
-                        print("end", end)
+                        # print("start", start.id)
+                        # print("end", end)
 
                         # 如果找到两个对象，创建绳索
                         if start and end:
@@ -682,7 +719,7 @@ class Game:
             self.lastTime = time.time()
             self.currentTime = time.time()
             print("\n预设数据加载成功")
-        except Exception as e:
+        except pygame.error as e:
             print(f"加载预设失败：{e}")
 
     def saveGame(self, filename: str = "autosave", iconPath: str | None = None) -> None:
