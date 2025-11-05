@@ -458,7 +458,8 @@ class Game:
         
         # 保存基本属性（排除复杂对象）
         for key, value in self.__dict__.items():
-            if isinstance(value, (int, float, str, list, tuple, dict)) and key not in ["fpsSaver", "elements", "groundElements", "celestialElements", "screen", "projection_queue"]:
+            # print(key, value)
+            if isinstance(value, (int, float, str, list, tuple, dict)) and key not in ["fpsSaver", "elements", "groundElements", "celestialElements", "screen", "projection_queue", "wall_positions"]:
                 data["attributes"][key] = value
                 
         # print(json.dumps(data, ensure_ascii=False, indent=4))
@@ -467,6 +468,7 @@ class Game:
 
         # 将可序列化的字典保存到文件
         with open(f"savefile/{filename}.json", "w", encoding="utf-8") as f:
+            # print(data)
             json.dump(data, f, ensure_ascii=False, indent=4)
             print(f"\n预设数据保存成功：{filename}.json")
             f.close()
