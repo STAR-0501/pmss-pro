@@ -1054,8 +1054,8 @@ class Game:
         """打开参数编辑器"""
         # 确保每次打开编辑器时，inputMenu.options都反映environmentOptions的最新状态
         # 使用深拷贝，避免直接修改environmentOptions
-        import copy
-        inputMenu.options = copy.deepcopy(self.environmentOptions)
+        # import copy
+        # inputMenu.options = copy.deepcopy(self.environmentOptions)
         inputMenu.update(self)
         self.isEditing = True
         inputMenu.update(self)
@@ -1094,7 +1094,7 @@ class Game:
                         try:
                             inputMenu.commitAll(self)
                             # 将修改后的值更新回environmentOptions
-                            self.environmentOptions = copy.deepcopy(inputMenu.options)
+                            # self.environmentOptions = copy.deepcopy(inputMenu.options)
                         except Exception:
                             ...
                         self.isEditing = False
@@ -1104,7 +1104,7 @@ class Game:
         try:
             inputMenu.commitAll(self)
             # 将修改后的值更新回environmentOptions
-            self.environmentOptions = copy.deepcopy(inputMenu.options)
+            # self.environmentOptions = copy.deepcopy(inputMenu.options)
         except Exception:
             ...
         self.updateFPS()
