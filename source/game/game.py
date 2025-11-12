@@ -1411,8 +1411,9 @@ class Game:
         deltaTime = self.currentTime - self.lastTime
         for element in self.elements["all"]:
             element.draw(self)
-            if not self.isPaused or self.tempFrames > 0:
-                element.update(deltaTime * self.speed)
+            # element.update(...) 为了实现电场力效果挪到了下面，bug待发现
+            # if not self.isPaused or self.tempFrames > 0:
+            #     element.update(deltaTime * self.speed)
 
         for ball in self.elements["ball"]:
 
@@ -1652,6 +1653,10 @@ class Game:
 
                         if ball1.gravitation and ball2.gravitation:
                             ball1.gravitate(ball2)
+                        if ball1.electricCharge and ball2.electricCharge:
+                            ball1.electricForce(ball2)
+                            # print(ball1.acceleration.toTuple())
+                            # ball1.update(deltaTime * self.speed)
 
             except ValueError as e:
                 ...
@@ -1680,7 +1685,12 @@ class Game:
                     for wall in self.elements["wall"]:
                         wall.collisionFactor = float(option["value"])
                     self.floor.collisionFactor = float(option["value"])
-
+        
+        for element in self.elements["all"]:
+            # element.draw(self)
+            if not self.isPaused or self.tempFrames > 0:
+                element.update(deltaTime * self.speed)
+        
         for wall in self.elements["wall"]:
             for ball in self.elements["ball"]:
                 wall.checkVertexCollision(ball)
@@ -1721,7 +1731,7 @@ class Game:
                     element.position.x = self.screenToReal(pos[0], self.x)
                     element.position.y = self.screenToReal(pos[1], self.y)
 
-                element.update(deltaTime * self.speed)
+                # element.update(deltaTime * self.speed)
 
         self.updateFPS()
 

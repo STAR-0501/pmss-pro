@@ -7,6 +7,7 @@
     "gravity": "重力加速度",
     "airResistance": "空气阻力",
     "collisionFactor": "碰撞系数",
+    "electricCharge": "电荷",
     "mode": "模式(按P键可切换)",
     
     "attrEditor": "属性编辑",

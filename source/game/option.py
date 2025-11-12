@@ -266,6 +266,7 @@ class Option:
         radius = float(self.attrs["radius"])
         color = self.attrs["color"]
         mass = float(self.attrs["mass"])
+        electricCharge = float(self.attrs["electricCharge"])
         ball = None
         self.selected = True
         self.highLighted = True
@@ -367,6 +368,7 @@ class Option:
                     ZERO,
                     [ZERO],
                     True,
+                    electricCharge=electricCharge,
                 )
                 self.creationPoints = [ball.position, ball.position]
                 ball.draw(game)
@@ -457,6 +459,8 @@ class Option:
                                 mass,
                                 ZERO,
                                 [ZERO],
+                                True,
+                                electricCharge=electricCharge,
                             )
 
                     elif (
@@ -504,6 +508,7 @@ class Option:
                             * 2,
                             [],
                             gravitation=game.isCelestialBodyMode,
+                            electricCharge=electricCharge,
                         )
                         maximumGravitationBall = game.findMaximumGravitationBall(
                             ball)
