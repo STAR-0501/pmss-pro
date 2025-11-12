@@ -550,7 +550,7 @@ class Ball(Element):
         direction = deltaPos.normalize() if distance > 0 else ZERO
 
         # 完整电力公式（含距离缩放）
-        forceMagnitude = self.electricCharge * other.electricCharge / (
+        forceMagnitude = electrostaticFactor * self.electricCharge * other.electricCharge / (
             distance**2 + 1e-6
         )
         force = direction * forceMagnitude  # 正确的吸引方向

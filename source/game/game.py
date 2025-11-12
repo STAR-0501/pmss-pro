@@ -1454,6 +1454,19 @@ class Game:
                     + massTipsText.get_height()
                 )
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
+                
+                electricChargeTipsText = self.fontBig.render(
+                    f"电荷：{ball.electricCharge: .1f}", True, "darkgreen"
+                )
+                electricChargeTipsTextRect = electricChargeTipsText.get_rect()
+                electricChargeTipsTextRect.x = self.screen.get_width() / 2
+                electricChargeTipsTextRect.y = (
+                    self.screen.get_height() / 50
+                    + followingTipsText.get_height()
+                    + massTipsText.get_height()
+                    + radiusTipsText.get_height()
+                )
+                self.screen.blit(electricChargeTipsText, electricChargeTipsTextRect)
 
                 ballPos = ball.position
                 tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
@@ -1537,6 +1550,18 @@ class Game:
                     massTipsText.get_height()
                 )
                 self.screen.blit(massTipsText, massTipsTextRect)
+                
+                electricChargeTipsText = self.fontSmall.render(
+                    f"电荷：{ball.electricCharge: .1f}", True, "darkgreen"
+                )
+                electricChargeTipsTextRect = electricChargeTipsText.get_rect()
+                electricChargeTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
+                electricChargeTipsTextRect.y = (
+                    self.realToScreen(ballPos.y, self.y) +
+                    massTipsText.get_height() +
+                    electricChargeTipsText.get_height()
+                )
+                self.screen.blit(electricChargeTipsText, electricChargeTipsTextRect)
 
                 tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
 
