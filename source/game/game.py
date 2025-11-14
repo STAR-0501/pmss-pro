@@ -1054,8 +1054,8 @@ class Game:
         """打开参数编辑器"""
         # 确保每次打开编辑器时，inputMenu.options都反映environmentOptions的最新状态
         # 使用深拷贝，避免直接修改environmentOptions
-        import copy
-        inputMenu.options = copy.deepcopy(self.environmentOptions)
+        # import copy
+        # inputMenu.options = copy.deepcopy(self.environmentOptions)
         inputMenu.update(self)
         self.isEditing = True
         inputMenu.update(self)
@@ -1094,7 +1094,7 @@ class Game:
                         try:
                             inputMenu.commitAll(self)
                             # 将修改后的值更新回environmentOptions
-                            self.environmentOptions = copy.deepcopy(inputMenu.options)
+                            # self.environmentOptions = copy.deepcopy(inputMenu.options)
                         except Exception:
                             ...
                         self.isEditing = False
@@ -1104,7 +1104,7 @@ class Game:
         try:
             inputMenu.commitAll(self)
             # 将修改后的值更新回environmentOptions
-            self.environmentOptions = copy.deepcopy(inputMenu.options)
+            # self.environmentOptions = copy.deepcopy(inputMenu.options)
         except Exception:
             ...
         self.updateFPS()
@@ -1411,8 +1411,9 @@ class Game:
         deltaTime = self.currentTime - self.lastTime
         for element in self.elements["all"]:
             element.draw(self)
-            if not self.isPaused or self.tempFrames > 0:
-                element.update(deltaTime * self.speed)
+            # element.update(...) 为了实现电场力效果挪到了下面，bug待发现
+            # if not self.isPaused or self.tempFrames > 0:
+            #     element.update(deltaTime * self.speed)
 
         for ball in self.elements["ball"]:
 
@@ -1453,6 +1454,19 @@ class Game:
                     + massTipsText.get_height()
                 )
                 self.screen.blit(radiusTipsText, radiusTipsTextRect)
+                
+                electricChargeTipsText = self.fontBig.render(
+                    f"电荷：{ball.electricCharge: .1f}", True, "darkgreen"
+                )
+                electricChargeTipsTextRect = electricChargeTipsText.get_rect()
+                electricChargeTipsTextRect.x = self.screen.get_width() / 2
+                electricChargeTipsTextRect.y = (
+                    self.screen.get_height() / 50
+                    + followingTipsText.get_height()
+                    + massTipsText.get_height()
+                    + radiusTipsText.get_height()
+                )
+                self.screen.blit(electricChargeTipsText, electricChargeTipsTextRect)
 
                 ballPos = ball.position
                 tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
@@ -1536,6 +1550,18 @@ class Game:
                     massTipsText.get_height()
                 )
                 self.screen.blit(massTipsText, massTipsTextRect)
+                
+                electricChargeTipsText = self.fontSmall.render(
+                    f"电荷：{ball.electricCharge: .1f}", True, "darkgreen"
+                )
+                electricChargeTipsTextRect = electricChargeTipsText.get_rect()
+                electricChargeTipsTextRect.x = self.realToScreen(ballPos.x, self.x)
+                electricChargeTipsTextRect.y = (
+                    self.realToScreen(ballPos.y, self.y) +
+                    massTipsText.get_height() +
+                    electricChargeTipsText.get_height()
+                )
+                self.screen.blit(electricChargeTipsText, electricChargeTipsTextRect)
 
                 tempOption = Option(ZERO, ZERO, "temp", [], self.elementMenu)
 
@@ -1652,6 +1678,10 @@ class Game:
 
                         if ball1.gravitation and ball2.gravitation:
                             ball1.gravitate(ball2)
+                        if ball1.electricCharge and ball2.electricCharge:
+                            ball1.electricForce(ball2)
+                            # print(ball1.acceleration.toTuple())
+                            # ball1.update(deltaTime * self.speed)
 
             except ValueError as e:
                 ...
@@ -1680,7 +1710,12 @@ class Game:
                     for wall in self.elements["wall"]:
                         wall.collisionFactor = float(option["value"])
                     self.floor.collisionFactor = float(option["value"])
-
+        
+        for element in self.elements["all"]:
+            # element.draw(self)
+            if not self.isPaused or self.tempFrames > 0:
+                element.update(deltaTime * self.speed)
+        
         for wall in self.elements["wall"]:
             for ball in self.elements["ball"]:
                 wall.checkVertexCollision(ball)
@@ -1721,7 +1756,7 @@ class Game:
                     element.position.x = self.screenToReal(pos[0], self.x)
                     element.position.y = self.screenToReal(pos[1], self.y)
 
-                element.update(deltaTime * self.speed)
+                # element.update(deltaTime * self.speed)
 
         self.updateFPS()
 

@@ -6,6 +6,7 @@ from random import randint
 from .vector2 import *
 
 gravityFactor = 5e4  # 添加引力常数调节参数
+electrostaticFactor = 1e3  # 添加静电常数调节参数
 
 
 class Element:

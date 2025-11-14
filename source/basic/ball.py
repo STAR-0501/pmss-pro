@@ -24,6 +24,7 @@ class Ball(Element):
         gravity: float = 1,
         collisionFactor: float = 1,
         gravitation: bool = False,
+        electricCharge: float = 0,
     ) -> None:
         self.position: Vector2 = position
         self.radius: float = radius
@@ -46,6 +47,7 @@ class Ball(Element):
         self.isFollowing: bool = False
         self.isShowingInfo: bool = False
         self.attrs: list[dict] = []
+        self.electricCharge: float = electricCharge
         
         self.id = randint(0, 100000000)
         self.updateAttrsList()
@@ -86,6 +88,9 @@ class Ball(Element):
                 
             if key == "collisionFactor":
                 self.collisionFactor = float(value)
+                
+            if key == "electricCharge":
+                self.electricCharge = float(value)
 
     def copy(self, game) -> None:
         """自我复制"""
@@ -160,7 +165,7 @@ class Ball(Element):
         for force in self.naturalForces:
             self.acceleration += force / self.mass
 
-        self.acceleration += Vector2(0, 98.1 * self.gravity)
+        self.acceleration += Vector2(0, 98.6 * self.gravity)
         return self.acceleration
 
     def force(self, force: Vector2, isNatural: bool = False) -> Vector2:
@@ -190,6 +195,7 @@ class Ball(Element):
             {"type": "radius", "value": self.radius, "min": 1, "max": 1024},
             {"type": "color", "value": self.color,
                 "min": "#000000", "max": "#FFFFFF"},
+            {"type": "electricCharge", "value": self.electricCharge, "min": -1000000, "max": 1000000},
         ]
 
     def update(self, deltaTime: float) -> Self:
@@ -375,7 +381,7 @@ class Ball(Element):
             # 原代码：
             # self.velocity = (
             #     self.velocity.copy().normalize() * abs(
-            #         abs(self.velocity) ** 2 - 2 * 98.1 *
+            #         abs(self.velocity) ** 2 - 2 * 98.6 *
             #         (1 - cosine**2) ** 0.5 * overlap
             #     ) ** 0.5
             # )
@@ -502,6 +508,10 @@ class Ball(Element):
                         normal * min_sep_speed * sepFactor *
                         (self.mass / totalMass)
                     )
+        
+        newElectricCharge = (self.electricCharge + ball.electricCharge) / 2
+        self.electricCharge = newElectricCharge
+        ball.electricCharge = newElectricCharge
 
         return self.velocity
 
@@ -525,6 +535,30 @@ class Ball(Element):
         # 应用作用力时考虑质量分配
         self.force(force, isNatural=True)
         other.force(-force, isNatural=True)
+
+        return force
+
+    def electricForce(self, other: Self) -> Vector2:
+        """计算球与球之间的电力"""
+        minDistance = 1  # 防止距离过近导致力过大
+
+        # 计算实际距离
+        deltaPos = self.position - other.position
+        distance = max(abs(deltaPos), minDistance)
+
+        # 计算电力方向（保证单位向量稳定性）
+        direction = deltaPos.normalize() if distance > 0 else ZERO
+
+        # 完整电力公式（含距离缩放）
+        forceMagnitude = electrostaticFactor * self.electricCharge * other.electricCharge / (
+            distance**2 + 1e-6
+        )
+        force = direction * forceMagnitude  # 正确的吸引方向
+
+        # 应用作用力时考虑质量分配
+        self.force(force, isNatural=True)
+        other.force(-force, isNatural=True)
+        # print(self.acceleration.x, self.acceleration.y)
 
         return force
 
@@ -568,6 +602,7 @@ class Ball(Element):
             totalVelocity,
             totalForce,
             gravitation=game.isCelestialBodyMode,
+            electricCharge=self.electricCharge + other.electricCharge,
         )
 
         if self.isFollowing or other.isFollowing:
