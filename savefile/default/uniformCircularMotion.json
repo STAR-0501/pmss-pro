@@ -1,8 +1,11 @@
+
+
+
 {
-    "name": "idealBevel",
-    "icon": "static/idealBevel.png",
+    "name": "uniformCircularMotion",
+    "icon": "static/uniformCircularMotion.png",
     "attributes": {
-        "isPaused": true,
+        "isPaused": false,
         "isElementCreating": false,
         "isMoving": false,
         "isScreenMoving": false,
@@ -13,34 +16,34 @@
         "isEditing": false,
         "isElementControlling": false,
         "isPressed": false,
-        "isDragging": false,
+        "isDragging": true,
         "isCelestialBodyMode": false,
         "isModeChangingNaturally": false,
         "isChatting": false,
         "icon": "",
-        "gameName": "伽利略理想斜面",
+        "gameName": "匀速圆周运动",
         "screenSize": [
             1920,
             1080
         ],
         "mousePos": [
-            1428,
-            721
+            1353,
+            421
         ],
-        "ratio": 3.415067276825352,
-        "lastRatio": 3.1046066152957743,
+        "ratio": 2.5657905911535326,
+        "lastRatio": 1.1969602468458167,
         "minLimitRatio": 1,
         "maxLimitRatio": 15,
-        "x": 362.689616719585,
-        "y": 262.7056824073013,
+        "x": 434.12454371091104,
+        "y": 479.976293129622,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1762732135.6631203,
-        "lastTime": 1762732135.6538842,
-        "lastLoadTime": 1762731976.545718,
-        "tipDisplayEndTime": 1762731978.045718,
-        "fpsAverage": 120.03452817398117,
-        "fpsMinimum": 85.79765167941741,
+        "currentTime": 1762473167.0453434,
+        "lastTime": 1762473167.0371885,
+        "lastLoadTime": 1762473152.7130127,
+        "tipDisplayEndTime": 1762473154.2130127,
+        "fpsAverage": 123.8514392848617,
+        "fpsMinimum": 94.10176792605223,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,
@@ -184,30 +187,30 @@
                         "type": "delete"
                     }
                 ]
-            } 
+            }
         ],
         "environmentOptions": [
             {
                 "type": "gravity",
-                "value": "1.0",
+                "value": 1.0,
                 "min": 0.0,
                 "max": 1000.0
             },
             {
                 "type": "airResistance",
-                "value": "1",
+                "value": 1.0,
                 "min": 0.0,
                 "max": 100.0
             },
             {
                 "type": "collisionFactor",
-                "value": "1",
+                "value": 1.0,
                 "min": 0.0,
                 "max": 1.0
             },
             {
                 "type": "mode",
-                "value": "0",
+                "value": 0,
                 "min": 0,
                 "max": 1
             }
@@ -234,51 +237,83 @@
         "environmentOptionsCopy": [
             {
                 "type": "gravity",
-                "value": "1.0",
+                "value": 1.0,
                 "min": 0.0,
                 "max": 1000.0
             },
             {
                 "type": "airResistance",
-                "value": "1",
+                "value": 1.0,
                 "min": 0.0,
                 "max": 100.0
             },
             {
                 "type": "collisionFactor",
-                "value": "1",
+                "value": 1.0,
                 "min": 0.0,
                 "max": 1.0
             },
             {
                 "type": "mode",
-                "value": "0",
+                "value": 0,
                 "min": 0,
                 "max": 1
             }
         ],
-        "name": "idealBevel"
+        "name": "manualsave"
     },
     "elements": {
         "all": [
             {
                 "type": "ball",
                 "position": [
-                    62.66087247499325,
-                    -110.93176180507643
+                    -91.23243379467915,
+                    -207.223296021621
                 ],
-                "id": 1961287137616,
+                "id": 83589484,
                 "mass": 1.0,
                 "radius": 5.0,
-                "color": "ORANGE",
+                "color": "RED",
                 "velocity": [
-                    0.09424442454036774,
-                    -0.9383883930347996
+                    366.3557877193404,
+                    265.6577788617916
                 ],
                 "acceleration": [
                     0,
                     98.1
                 ],
+                "isShowingInfo": true,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "wall",
+                "position": [
+                    -45.35650035561008,
+                    -266.7997829135621
+                ],
+                "id": 79139297,
+                "vertexes": [
+                    [
+                        -49.26664820426582,
+                        -270.8906920044712
+                    ],
+                    [
+                        -41.44635250695435,
+                        -270.8906920044712
+                    ],
+                    [
+                        -41.44635250695435,
+                        -262.708873822653
+                    ],
+                    [
+                        -49.26664820426582,
+                        -262.708873822653
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 1.0,
+                "color": "BLUE",
                 "isShowingInfo": false,
                 "infoText": null,
                 "isFollowing": false
@@ -286,95 +321,50 @@
             {
                 "type": "wall",
                 "position": [
-                    -25.687101369155187,
-                    -56.75196643298751
+                    -49.09650035561009,
+                    -271.41978291356213
                 ],
-                "id": 1961287599760,
+                "id": 40398217,
                 "vertexes": [
                     [
-                        80.0,
-                        -113.8
+                        -40.62650035561009,
+                        -262.72978291356213
                     ],
                     [
-                        -135.8,
-                        -8.800000000000011
+                        -57.56650035561009,
+                        -262.72978291356213
                     ],
                     [
-                        -131.37420273831037,
-                        0.29606713402497675
+                        -57.56650035561009,
+                        -280.1097829135621
                     ],
                     [
-                        84.42579726168964,
-                        -104.703932865975
+                        -40.62650035561009,
+                        -280.1097829135621
                     ]
                 ],
                 "isLine": false,
                 "collisionFactor": 1.0,
-                "color": "GREY",
+                "color": "BLUE",
                 "isShowingInfo": false,
                 "infoText": null,
                 "isFollowing": false
             },
             {
-                "type": "wall",
+                "type": "rope",
                 "position": [
-                    65.40000000000038,
-                    -131.80000000000032
+                    -70.22369700414461,
+                    -238.08333387259154
                 ],
-                "id": 1961286741968,
-                "vertexes": [
-                    [
-                        80.44292845257941,
-                        -111.03394342762095
-                    ],
-                    [
-                        60.842928452579386,
-                        -157.03394342762095
-                    ],
-                    [
-                        50.35707154742135,
-                        -152.5660565723797
-                    ],
-                    [
-                        69.95707154742136,
-                        -106.5660565723797
-                    ]
-                ],
-                "isLine": false,
+                "id": 10916991,
+                "start_id": 83589484,
+                "end_id": 28150942,
+                "length": 74.09875249191425,
+                "width": 2,
                 "collisionFactor": 1.0,
-                "color": "GREY",
-                "isShowingInfo": false,
-                "infoText": null,
-                "isFollowing": false
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -139.05228056500783,
-                    -14.112237047070664
-                ],
-                "id": 1961286741968,
-                "vertexes": [
-                    [
-                        -124.00935211242881,
-                        6.653819525308705
-                    ],
-                    [
-                        -143.60935211242884,
-                        -39.346180474691295
-                    ],
-                    [
-                        -154.09520901758685,
-                        -34.878293619450034
-                    ],
-                    [
-                        -134.49520901758683,
-                        11.121706380549966
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY",
+                "tensionStiffness": 5000.0,
+                "dampingFactor": 0.2,
+                "color": "black",
                 "isShowingInfo": false,
                 "infoText": null,
                 "isFollowing": false
@@ -384,22 +374,22 @@
             {
                 "type": "ball",
                 "position": [
-                    62.66087247499325,
-                    -110.93176180507643
+                    -91.23243379467915,
+                    -207.223296021621
                 ],
-                "id": 1961287137616,
+                "id": 83589484,
                 "mass": 1.0,
                 "radius": 5.0,
-                "color": "ORANGE",
+                "color": "RED",
                 "velocity": [
-                    0.09424442454036774,
-                    -0.9383883930347996
+                    366.3557877193404,
+                    265.6577788617916
                 ],
                 "acceleration": [
                     0,
                     98.1
                 ],
-                "isShowingInfo": false,
+                "isShowingInfo": true,
                 "infoText": null,
                 "isFollowing": false
             }
@@ -408,31 +398,31 @@
             {
                 "type": "wall",
                 "position": [
-                    -25.687101369155187,
-                    -56.75196643298751
+                    -45.35650035561008,
+                    -266.7997829135621
                 ],
-                "id": 1961287599760,
+                "id": 79139297,
                 "vertexes": [
                     [
-                        80.0,
-                        -113.8
+                        -49.26664820426582,
+                        -270.8906920044712
                     ],
                     [
-                        -135.8,
-                        -8.800000000000011
+                        -41.44635250695435,
+                        -270.8906920044712
                     ],
                     [
-                        -131.37420273831037,
-                        0.29606713402497675
+                        -41.44635250695435,
+                        -262.708873822653
                     ],
                     [
-                        84.42579726168964,
-                        -104.703932865975
+                        -49.26664820426582,
+                        -262.708873822653
                     ]
                 ],
                 "isLine": false,
                 "collisionFactor": 1.0,
-                "color": "GREY",
+                "color": "BLUE",
                 "isShowingInfo": false,
                 "infoText": null,
                 "isFollowing": false
@@ -440,71 +430,68 @@
             {
                 "type": "wall",
                 "position": [
-                    65.40000000000038,
-                    -131.80000000000032
+                    -49.09650035561009,
+                    -271.41978291356213
                 ],
-                "id": 1961286741968,
+                "id": 40398217,
                 "vertexes": [
                     [
-                        80.44292845257941,
-                        -111.03394342762095
+                        -40.62650035561009,
+                        -262.72978291356213
                     ],
                     [
-                        60.842928452579386,
-                        -157.03394342762095
+                        -57.56650035561009,
+                        -262.72978291356213
                     ],
                     [
-                        50.35707154742135,
-                        -152.5660565723797
+                        -57.56650035561009,
+                        -280.1097829135621
                     ],
                     [
-                        69.95707154742136,
-                        -106.5660565723797
+                        -40.62650035561009,
+                        -280.1097829135621
                     ]
                 ],
                 "isLine": false,
                 "collisionFactor": 1.0,
-                "color": "GREY",
-                "isShowingInfo": false,
-                "infoText": null,
-                "isFollowing": false
-            },
-            {
-                "type": "wall",
-                "position": [
-                    -139.05228056500783,
-                    -14.112237047070664
-                ],
-                "id": 1961286741968,
-                "vertexes": [
-                    [
-                        -124.00935211242881,
-                        6.653819525308705
-                    ],
-                    [
-                        -143.60935211242884,
-                        -39.346180474691295
-                    ],
-                    [
-                        -154.09520901758685,
-                        -34.878293619450034
-                    ],
-                    [
-                        -134.49520901758683,
-                        11.121706380549966
-                    ]
-                ],
-                "isLine": false,
-                "collisionFactor": 1.0,
-                "color": "GREY",
+                "color": "BLUE",
                 "isShowingInfo": false,
                 "infoText": null,
                 "isFollowing": false
             }
         ],
-        "rope": [],
+        "rope": [
+            {
+                "type": "rope",
+                "position": [
+                    -70.22369700414461,
+                    -238.08333387259154
+                ],
+                "id": 10916991,
+                "start_id": 83589484,
+                "end_id": 28150942,
+                "length": 74.09875249191425,
+                "width": 2,
+                "collisionFactor": 1.0,
+                "tensionStiffness": 5000.0,
+                "dampingFactor": 0.2,
+                "color": "black",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            }
+        ],
         "spring": [],
         "rod": []
     },
-    "wall_position": []
+    "wall_position": [
+        {
+            "id": 28150942,
+            "wall_id": 79139297,
+            "pos": [
+                -3.8584598580000034,
+                -2.143588809999983
+            ]
+        }
+    ]
 }
