@@ -126,28 +126,31 @@ class InputMenu(Element):
         # 绘制所有输入框和选项文本
         length = len(self.options)
 
-        for i in range(length):
-            optionType = self.options[i]["type"]
-            inputBox = self.inputBoxes[i]
+        try:
+            for i in range(length):
+                optionType = self.options[i]["type"]
+                inputBox = self.inputBoxes[i]
 
-            # 绘制选项文本（现代化配色）
-            optionText = self.font.render(
-                game.translation[optionType], True, (25, 25, 112))  # 午夜蓝
-            
-            # 左侧文本区域的宽度和位置
-            text_area_width = self.width * 0.35
-            text_area_x = self.x
-            text_area_y = inputBox.rect.y
-            text_area_height = inputBox.rect.height
-            
-            # 计算文本在区域内的居中位置
-            text_x = text_area_x + (text_area_width - optionText.get_width()) / 2
-            text_y = text_area_y + (text_area_height - optionText.get_height()) / 2
-            
-            game.screen.blit(optionText, (text_x, text_y))
+                # 绘制选项文本（现代化配色）
+                optionText = self.font.render(
+                    game.translation[optionType], True, (25, 25, 112))  # 午夜蓝
+                
+                # 左侧文本区域的宽度和位置
+                text_area_width = self.width * 0.35
+                text_area_x = self.x
+                text_area_y = inputBox.rect.y
+                text_area_height = inputBox.rect.height
+                
+                # 计算文本在区域内的居中位置
+                text_x = text_area_x + (text_area_width - optionText.get_width()) / 2
+                text_y = text_area_y + (text_area_height - optionText.get_height()) / 2
+                
+                game.screen.blit(optionText, (text_x, text_y))
 
-            # 绘制输入框
-            inputBox.draw(game.screen)
+                # 绘制输入框
+                inputBox.draw(game.screen)
+        except Exception as e:
+            ...
 
         # 最后绘制 UI 弹窗（若存在），覆盖在最上面
         if getattr(game, "uiModal", None):
