@@ -1,6 +1,7 @@
 import time
 
 import pygame
+import json
 
 from ..basic import *
 from .input_box import *
@@ -131,8 +132,11 @@ class InputMenu(Element):
             inputBox = self.inputBoxes[i]
 
             # 绘制选项文本（现代化配色）
-            optionText = self.font.render(
-                game.translation[optionType], True, (25, 25, 112))  # 午夜蓝
+            try:
+                optionText = self.font.render(
+                    game.translation[optionType], True, (25, 25, 112))  # 午夜蓝
+            except KeyError:
+                game.translation = json.load(open("config/translation.json", "r", encoding="utf-8"))
             
             # 左侧文本区域的宽度和位置
             text_area_width = self.width * 0.35
