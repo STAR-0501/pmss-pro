@@ -1412,8 +1412,10 @@ class Game:
         for element in self.elements["all"]:
             element.draw(self)
             # element.update(...) 为了实现电场力效果挪到了下面，bug待发现
-            # if not self.isPaused or self.tempFrames > 0:
-            #     element.update(deltaTime * self.speed)
+            # 好的我们发现了bug，上面有下面没有就会导致电场力不作用，下面有上面没有就会导致绳子出bug
+            # 所以我们两个都写了，然后把帧间时间缩短为原来的一半
+            if not self.isPaused or self.tempFrames > 0:
+                element.update(deltaTime * self.speed / 2)
 
         for ball in self.elements["ball"]:
 
@@ -1714,7 +1716,7 @@ class Game:
         for element in self.elements["all"]:
             # element.draw(self)
             if not self.isPaused or self.tempFrames > 0:
-                element.update(deltaTime * self.speed)
+                element.update(deltaTime * self.speed / 2)
         
         for wall in self.elements["wall"]:
             for ball in self.elements["ball"]:
