@@ -48,15 +48,21 @@ class InputMenu(Element):
             y = self.y + top_margin + i * self.verticalSpacing
             
             # 调整输入框大小比例
+            text_value = str(option["value"]) if "value" in option else ""
+            if option.get("type") == "electricCharge":
+                try:
+                    text_value = f"{float(option['value']):.1f}"
+                except Exception:
+                    text_value = str(option.get("value", ""))
             inputBox = InputBox(
-                self.x + self.width * 0.35,  # 调整左侧区域比例
+                self.x + self.width * 0.35,
                 y,
-                self.width * 0.6,  # 增加输入框宽度
-                int(self.verticalSpacing * 0.65),  # 输入框高度略增
+                self.width * 0.6,
+                int(self.verticalSpacing * 0.65),
                 option,
                 self.target,
-                str(option["value"]),
-                int(self.verticalSpacing * 0.5 * 0.7),  # 固定字体大小
+                text_value,
+                int(self.verticalSpacing * 0.5 * 0.7),
             )
             self.height += self.verticalSpacing  # 更新InputMenu的高度
             self.inputBoxes.append(inputBox)

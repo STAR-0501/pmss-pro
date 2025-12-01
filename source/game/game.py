@@ -1,5 +1,6 @@
 
 import json
+import copy
 import multiprocessing
 import os
 import sys
@@ -1052,10 +1053,8 @@ class Game:
 
     def openEditor(self, inputMenu) -> None:
         """打开参数编辑器"""
-        # 确保每次打开编辑器时，inputMenu.options都反映environmentOptions的最新状态
-        # 使用深拷贝，避免直接修改environmentOptions
-        # import copy
-        # inputMenu.options = copy.deepcopy(self.environmentOptions)
+        if inputMenu is self.inputMenu or inputMenu.target is self:
+            inputMenu.options = copy.deepcopy(self.environmentOptions)
         inputMenu.update(self)
         self.isEditing = True
         inputMenu.update(self)
