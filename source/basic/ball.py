@@ -48,6 +48,8 @@ class Ball(Element):
         self.isShowingInfo: bool = False
         self.attrs: list[dict] = []
         self.electricCharge: float = electricCharge
+        self.leaveTrail: bool = False
+        self.trailPoints: list[Vector2] = []
         
         self.id = randint(0, 100000000)
         self.updateAttrsList()
@@ -91,6 +93,15 @@ class Ball(Element):
                 
             if key == "electricCharge":
                 self.electricCharge = float(value)
+
+            if key == "leaveTrail":
+                try:
+                    if isinstance(value, str):
+                        self.leaveTrail = value.lower() in ["true", "1", "yes"]
+                    else:
+                        self.leaveTrail = bool(value)
+                except Exception:
+                    ...
 
     def copy(self, game) -> None:
         """自我复制"""
@@ -218,10 +229,26 @@ class Ball(Element):
         self.displayedAccelerationFactor *= 0.95
 
         self.updateAttrsList()
+        if self.leaveTrail:
+            try:
+                self.trailPoints.append(self.position.copy())
+                if len(self.trailPoints) > 2000:
+                    del self.trailPoints[0]
+            except Exception:
+                ...
         return self
 
     def draw(self, game) -> None:
         """绘制带渐变效果的小球"""
+        if self.leaveTrail and self.trailPoints:
+            draw_color = colorStringToTuple(self.color) if isinstance(self.color, str) else self.color
+            for p in self.trailPoints:
+                sx = game.realToScreen(p.x, game.x)
+                sy = game.realToScreen(p.y, game.y)
+                try:
+                    pygame.draw.circle(game.screen, draw_color, (sx, sy), 2)
+                except Exception:
+                    ...
         if self.highLighted:
             pygame.draw.circle(
                 game.screen,

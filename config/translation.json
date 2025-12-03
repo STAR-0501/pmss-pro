@@ -18,5 +18,6 @@
     "addVelocity": "添加速度",
     "clearVelocity": "清除速度",
     "addForce": "添加力",
-    "clearForce": "清除所有外力"
+    "clearForce": "清除所有外力",
+    "toggleTrail": "轨迹开关"
 }

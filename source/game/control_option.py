@@ -119,6 +119,16 @@ class ControlOption:
         target.isFollowing = False
         target.isShowingInfo = not target.isShowingInfo
 
+    def toggleTrail(self, game: "Game", target: Element) -> None:
+        """切换运动轨迹开关"""
+        try:
+            if hasattr(target, "leaveTrail"):
+                target.leaveTrail = not target.leaveTrail
+                if not target.leaveTrail and hasattr(target, "trailPoints"):
+                    target.trailPoints.clear()
+        except Exception:
+            ...
+
     def addVelocity(self, game: "Game", target: Element) -> None:
         """添加速度"""
         tempOption = Option(ZERO, ZERO, "temp", [], game.elementMenu)

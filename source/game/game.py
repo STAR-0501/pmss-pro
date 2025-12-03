@@ -375,7 +375,8 @@ class Game:
                                 'radius': element.radius,
                                 'color': str(element.color) if hasattr(element, 'color') else 'black',
                                 'velocity': [element.velocity.x, element.velocity.y],
-                                'acceleration': [element.acceleration.x, element.acceleration.y]
+                                'acceleration': [element.acceleration.x, element.acceleration.y],
+                                'leaveTrail': getattr(element, 'leaveTrail', False)
                             })
                         # 添加墙体特殊属性
                         elif element.type == 'wall':
@@ -533,6 +534,10 @@ class Game:
                         ball.isFollowing = ball_data.get("isFollowing", False)
                         # print(ball_data["id"])
                         ball.id = ball_data["id"]
+                        try:
+                            ball.leaveTrail = bool(ball_data.get("leaveTrail", False))
+                        except Exception:
+                            ...
                         self.elements["ball"].append(ball)
                         self.elements["all"].append(ball)
                     
@@ -715,6 +720,8 @@ class Game:
                     self.elementMenu.options[i].height = currentElementMenu.options[i].height
             if currentFloor is not None:
                 self.floor = currentFloor
+            with open("config/translation.json", "r", encoding="utf-8") as f:
+                self.translation = json.load(f)
 
             # 重置部分状态与时间戳
             self.rightMove = 0
