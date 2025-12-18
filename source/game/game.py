@@ -1769,6 +1769,8 @@ class Game:
                 if allowToPlace:
                     element.position.x = self.screenToReal(pos[0], self.x)
                     element.position.y = self.screenToReal(pos[1], self.y)
+                    if isinstance(element, Wall):
+                        element.update(0)
 
                 # element.update(deltaTime * self.speed)
 
