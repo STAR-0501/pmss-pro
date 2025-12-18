@@ -24,8 +24,8 @@
             1080
         ],
         "mousePos": [
-            1049,
-            550
+            689,
+            754
         ],
         "ratio": 4.132231404958677,
         "lastRatio": 4.132231404958677,
@@ -35,12 +35,12 @@
         "y": 230.25993247674896,
         "lastX": 192.0,
         "lastY": 20000000.0,
-        "currentTime": 1761731820.099054,
-        "lastTime": 1761731820.0907328,
-        "lastLoadTime": 0,
-        "tipDisplayEndTime": 0,
-        "fpsAverage": 117.35384618459268,
-        "fpsMinimum": 80.45391594575413,
+        "currentTime": 1764756446.8004797,
+        "lastTime": 1764756446.792105,
+        "lastLoadTime": 1764756442.7976155,
+        "tipDisplayEndTime": 1764756444.2976155,
+        "fpsAverage": 85.80035290483252,
+        "fpsMinimum": 37.49065036290178,
         "rightMove": 0,
         "upMove": 0,
         "speed": 1,
@@ -220,6 +220,7 @@
             "gravity": "重力加速度",
             "airResistance": "空气阻力",
             "collisionFactor": "碰撞系数",
+            "electricCharge": "电荷",
             "mode": "模式(按P键可切换)",
             "attrEditor": "属性编辑",
             "copy": "复制",
@@ -229,7 +230,8 @@
             "addVelocity": "添加速度",
             "clearVelocity": "清除速度",
             "addForce": "添加力",
-            "clearForce": "清除所有外力"
+            "clearForce": "清除所有外力",
+            "toggleTrail": "轨迹开关"
         },
         "environmentOptionsCopy": [
             {
@@ -260,6 +262,95 @@
         "name": "manualsave"
     },
     "elements": {
+        "all": [
+            {
+                "type": "ball",
+                "position": [
+                    -129.78310764978337,
+                    -117.26427367859829
+                ],
+                "id": 42704036,
+                "mass": 100000.0,
+                "radius": 3.0,
+                "color": "RED",
+                "velocity": [
+                    0.3578605816320491,
+                    0.41405356552468486
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": true,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "wall",
+                "position": [
+                    -124.28248284886473,
+                    -102.48393247674913
+                ],
+                "id": 26692722,
+                "vertexes": [
+                    [
+                        -138.24323457924646,
+                        -114.8757113383478
+                    ],
+                    [
+                        -114.04323457924643,
+                        -86.8757113383478
+                    ],
+                    [
+                        -110.32173111848302,
+                        -90.09215361515047
+                    ],
+                    [
+                        -134.52173111848305,
+                        -118.09215361515051
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 0.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "wall",
+                "position": [
+                    -87.01448284886473,
+                    -88.93193247674914
+                ],
+                "id": 44770659,
+                "vertexes": [
+                    [
+                        -113.41524041375291,
+                        -86.83193247674913
+                    ],
+                    [
+                        -60.613725283976564,
+                        -86.83193247674913
+                    ],
+                    [
+                        -60.613725283976564,
+                        -91.03193247674916
+                    ],
+                    [
+                        -113.41524041375291,
+                        -91.03193247674916
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 0.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            }
+        ],
         "ball": [
             {
                 "type": "ball",
@@ -279,6 +370,7 @@
                     0,
                     98.6
                 ],
+                "leaveTrail": true,
                 "isShowingInfo": false,
                 "infoText": null,
                 "isFollowing": false
@@ -353,5 +445,6 @@
         "rope": [],
         "spring": [],
         "rod": []
-    }
+    },
+    "wall_position": []
 }
