@@ -23,6 +23,7 @@ from .settings_button import *
 if TYPE_CHECKING:
     from ..core.ai_thread_loop import AIThreadLoop
 
+# It's 12.23 today, I test the app for the last time, if works fine, and I hope it'll work fine 4 days later.  --Keenran
 
 class Game:
     """物理运动模拟系统主游戏类"""
