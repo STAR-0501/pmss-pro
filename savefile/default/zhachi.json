@@ -1,0 +1,2988 @@
+{
+    "name": "炸池",
+    "icon": null,
+    "attributes": {
+        "isPaused": true,
+        "isElementCreating": false,
+        "isMoving": false,
+        "isScreenMoving": false,
+        "isMassSetting": false,
+        "isCircularVelocityGetting": false,
+        "isCircularVelocityDirectionAnticlockwise": true,
+        "isCtrlPressing": false,
+        "isEditing": false,
+        "isElementControlling": false,
+        "isPressed": false,
+        "isDragging": false,
+        "isCelestialBodyMode": false,
+        "isModeChangingNaturally": false,
+        "isChatting": false,
+        "icon": "",
+        "gameName": "炸池",
+        "screenSize": [
+            1920,
+            1080
+        ],
+        "mousePos": [
+            1902,
+            133
+        ],
+        "ratio": 1.927716447147657,
+        "lastRatio": 5,
+        "minLimitRatio": 1,
+        "maxLimitRatio": 15,
+        "x": 501.09523407369477,
+        "y": 480.1698214235563,
+        "lastX": 192.0,
+        "lastY": 20000000.0,
+        "currentTime": 1766741867.2676578,
+        "lastTime": 1766741867.2532227,
+        "lastLoadTime": 0,
+        "tipDisplayEndTime": 0,
+        "fpsAverage": 67.51822805544212,
+        "fpsMinimum": 53.623943643964864,
+        "rightMove": 0,
+        "upMove": 0,
+        "speed": 1,
+        "circularVelocityFactor": 1,
+        "isFloorIllegal": false,
+        "background": "lightgrey",
+        "tempFrames": 0,
+        "optionsList": [
+            {
+                "type": "ball",
+                "name": "弹力球",
+                "attrs": [
+                    {
+                        "type": "mass",
+                        "value": 1,
+                        "min": 0.1,
+                        "max": 32767
+                    },
+                    {
+                        "type": "radius",
+                        "value": 5,
+                        "min": 1,
+                        "max": 1024
+                    },
+                    {
+                        "type": "color",
+                        "value": "RED",
+                        "min": "#000000",
+                        "max": "#FFFFFF"
+                    },
+                    {
+                        "type": "electricCharge",
+                        "value": 0,
+                        "min": 0,
+                        "max": 1000000
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "copy"
+                    },
+                    {
+                        "type": "delete"
+                    },
+                    {
+                        "type": "follow"
+                    },
+                    {
+                        "type": "showInfo"
+                    },
+                    {
+                        "type": "toggleTrail"
+                    },
+                    {
+                        "type": "addVelocity"
+                    },
+                    {
+                        "type": "clearVelocity"
+                    },
+                    {
+                        "type": "addForce"
+                    },
+                    {
+                        "type": "clearForce"
+                    }
+                ]
+            },
+            {
+                "type": "wall",
+                "name": "墙",
+                "attrs": [
+                    {
+                        "type": "color",
+                        "value": "BLUE",
+                        "min": "#000000",
+                        "max": "#FFFFFF"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "copy"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            },
+            {
+                "type": "rope",
+                "name": "绳索",
+                "attrs": [
+                    {
+                        "type": "lengthLimit",
+                        "value": "0",
+                        "min": "0",
+                        "max": "2147483647"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            },
+            {
+                "type": "spring",
+                "name": "弹簧",
+                "attrs": [
+                    {
+                        "type": "lengthLimit",
+                        "value": "0",
+                        "min": "0",
+                        "max": "2147483647"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            },
+            {
+                "type": "rod",
+                "name": "轻杆",
+                "attrs": [
+                    {
+                        "type": "lengthLimit",
+                        "value": "0",
+                        "min": "0",
+                        "max": "2147483647"
+                    }
+                ],
+                "controlOptions": [
+                    {
+                        "type": "attrEditor"
+                    },
+                    {
+                        "type": "delete"
+                    }
+                ]
+            }
+        ],
+        "environmentOptions": [
+            {
+                "type": "gravity",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1000.0
+            },
+            {
+                "type": "airResistance",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 100.0
+            },
+            {
+                "type": "collisionFactor",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1.0
+            },
+            {
+                "type": "mode",
+                "value": 0,
+                "min": 0,
+                "max": 1
+            }
+        ],
+        "translation": {
+            "radius": "半径",
+            "mass": "质量",
+            "color": "颜色",
+            "lengthLimit": "长度限制",
+            "gravity": "重力加速度",
+            "airResistance": "空气阻力",
+            "collisionFactor": "碰撞系数",
+            "electricCharge": "电荷",
+            "mode": "模式(按P键可切换)",
+            "attrEditor": "属性编辑",
+            "copy": "复制",
+            "delete": "删除",
+            "showInfo": "显示信息",
+            "follow": "视角跟随",
+            "addVelocity": "添加速度",
+            "clearVelocity": "清除速度",
+            "addForce": "添加力",
+            "clearForce": "清除所有外力",
+            "toggleTrail": "轨迹开关"
+        },
+        "environmentOptionsCopy": [
+            {
+                "type": "gravity",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1000.0
+            },
+            {
+                "type": "airResistance",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 100.0
+            },
+            {
+                "type": "collisionFactor",
+                "value": 1.0,
+                "min": 0.0,
+                "max": 1.0
+            },
+            {
+                "type": "mode",
+                "value": 0,
+                "min": 0,
+                "max": 1
+            }
+        ]
+    },
+    "elements": {
+        "all": [
+            {
+                "type": "wall",
+                "position": [
+                    -65.6,
+                    -65.59966666759257
+                ],
+                "id": 55310764,
+                "vertexes": [
+                    [
+                        -68.0,
+                        -125.6
+                    ],
+                    [
+                        -68.0,
+                        -5.599333335185165
+                    ],
+                    [
+                        -63.19999999999999,
+                        -5.599333335185165
+                    ],
+                    [
+                        -63.19999999999999,
+                        -125.6
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 1.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "wall",
+                "position": [
+                    152.39999999999998,
+                    -68.80000000000001
+                ],
+                "id": 55310764,
+                "vertexes": [
+                    [
+                        149.99999999999997,
+                        -128.80033333240743
+                    ],
+                    [
+                        149.99999999999997,
+                        -8.799666667592604
+                    ],
+                    [
+                        154.79999999999998,
+                        -8.799666667592604
+                    ],
+                    [
+                        154.79999999999998,
+                        -128.80033333240743
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 1.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -52.975856853181824,
+                    -48.93780657863072
+                ],
+                "id": 83730182,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    29.394168133061548,
+                    -15.603197912980203
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -41.40423483512079,
+                    -16.815079825302135
+                ],
+                "id": 87908238,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    0.021857155029739506,
+                    17.370640086590864
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    21.568774251425754,
+                    -15.042781061703524
+                ],
+                "id": 40873901,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    5.16273172160372,
+                    1.7576775279582673
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    67.3165152107845,
+                    -15.000961542508493
+                ],
+                "id": 53296124,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -4.878146358728345,
+                    -30.499863859671457
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    92.7261049224488,
+                    -16.08058077924521
+                ],
+                "id": 20951785,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -15.30143078950886,
+                    -41.78244566909949
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    127.21924170312865,
+                    -26.514982304315033
+                ],
+                "id": 8040774,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -12.285550853841675,
+                    -54.865430215490996
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -44.90205886186209,
+                    -62.67573887758327
+                ],
+                "id": 46327764,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    41.849939412183616,
+                    13.228773165849587
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    82.45365740363629,
+                    -17.542253176698118
+                ],
+                "id": 51561753,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    24.1085571832653,
+                    -30.143175785962928
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -51.295974902784245,
+                    -15.000913974453598
+                ],
+                "id": 91714793,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -0.885538780522263,
+                    -27.0588908304098
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    144.06695832647523,
+                    -80.82033461467712
+                ],
+                "id": 20388384,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    48.54936492790231,
+                    25.827945818225775
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    81.63976196981758,
+                    -71.66913118532334
+                ],
+                "id": 69392552,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    1.6633938865487032,
+                    36.486959164806905
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    32.03404845053854,
+                    -17.393928650042234
+                ],
+                "id": 4485157,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -25.00403565844875,
+                    -21.69131391316973
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -46.5266093585555,
+                    -94.85345919696236
+                ],
+                "id": 37803059,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    12.944829499732188,
+                    -13.401169535443788
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    121.85981081165227,
+                    -16.46525113270698
+                ],
+                "id": 29480243,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -10.238438068595102,
+                    -15.416383062306451
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    52.14763937510806,
+                    -35.11287582136038
+                ],
+                "id": 6554472,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -62.079170204040494,
+                    -7.32539073136495
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -37.04262928408447,
+                    -28.377755110213865
+                ],
+                "id": 51662087,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    16.269425727099378,
+                    25.02205336510128
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    15.786312883099802,
+                    -47.31055768230754
+                ],
+                "id": 63431056,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    9.14719601345965,
+                    -8.618887882105954
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    138.40571941751392,
+                    -51.93322749054226
+                ],
+                "id": 19391070,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -31.178855724181027,
+                    -3.065507574258043
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    124.60585683461296,
+                    -57.64863187604287
+                ],
+                "id": 76143312,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    14.80728682732529,
+                    -17.45383361118947
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    35.87068639112885,
+                    -70.95539649288173
+                ],
+                "id": 86979672,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    22.965775148494135,
+                    33.25186693979543
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    142.95831049180205,
+                    -36.113402758504215
+                ],
+                "id": 4601001,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -13.306870107360009,
+                    60.172284885783114
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    142.61292835614333,
+                    -15.841573224586442
+                ],
+                "id": 75843036,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    25.80251557593724,
+                    -18.295598213323846
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    85.84764755842397,
+                    -80.76947973904191
+                ],
+                "id": 13658334,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    37.54857876816125,
+                    -29.713155665723164
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    91.49520959656707,
+                    -28.45440761585645
+                ],
+                "id": 34267742,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -14.256661532730769,
+                    -5.44823151272489
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -51.2233759391638,
+                    -115.10532679526216
+                ],
+                "id": 67736193,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -28.771674838416114,
+                    13.341659809416836
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -28.62114724005283,
+                    -68.10231857637172
+                ],
+                "id": 67691207,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    18.905899535422503,
+                    1.8229901006905123
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    139.88388366355193,
+                    -61.835742557410086
+                ],
+                "id": 46007628,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    22.406165231966593,
+                    -6.8918828508835
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    115.00069372334532,
+                    -79.39733109935487
+                ],
+                "id": 7056344,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -11.200092578715681,
+                    -11.79338419422105
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    10.128367565879998,
+                    -19.51001234111019
+                ],
+                "id": 48766583,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    33.029036121829336,
+                    -20.8545667865355
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -42.47034136644259,
+                    -79.92484850283614
+                ],
+                "id": 87489741,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -21.44632956769394,
+                    7.208509529867343
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    0.05469130439645145,
+                    -118.13646672969311
+                ],
+                "id": 65031579,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -23.26335440362759,
+                    13.384213186947614
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    52.1814191194666,
+                    -20.108196225460723
+                ],
+                "id": 86956857,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    0.7036768464965015,
+                    0.09875372015726658
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    74.5542982126009,
+                    -94.03856585041807
+                ],
+                "id": 18948729,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -24.90305656777768,
+                    -13.820855205914398
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -51.89751970536241,
+                    -30.488176246216277
+                ],
+                "id": 40417345,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -21.09924087029829,
+                    -40.947776771848496
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -36.33060829392764,
+                    -47.0886161424757
+                ],
+                "id": 13122933,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -25.88961551974253,
+                    -26.556660481158982
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -16.757621138850517,
+                    -23.221068184790795
+                ],
+                "id": 51682705,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    11.75191869852376,
+                    -0.6068857999785723
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    128.95414911761708,
+                    -72.58105533137665
+                ],
+                "id": 33896325,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    11.28600056777872,
+                    -50.78818905092124
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    121.49221879882805,
+                    -41.08815667613045
+                ],
+                "id": 98322163,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    1.6066359555519185,
+                    2.480458333935857
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    72.36995662619312,
+                    -30.707897115618042
+                ],
+                "id": 72521537,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    8.367277922550121,
+                    29.417349021471786
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    24.054379633058172,
+                    -31.147054340900706
+                ],
+                "id": 45879455,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    48.67730470391844,
+                    31.407493687774124
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -16.02060002094717,
+                    -50.42137113605366
+                ],
+                "id": 96937170,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -0.606038633751993,
+                    -10.128787604342778
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    1.2117699337157468,
+                    -38.407259447186696
+                ],
+                "id": 14720269,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    24.360191561661622,
+                    24.041360352052642
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -14.80159668316762,
+                    -81.91913021347797
+                ],
+                "id": 78084857,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    8.191541114512502,
+                    -16.976691858340267
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    13.066988784481355,
+                    -102.05569040792348
+                ],
+                "id": 63856164,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    23.14646603391686,
+                    -0.8611864049733045
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    37.10043661348326,
+                    -48.847336957973326
+                ],
+                "id": 11445095,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -17.260548272221506,
+                    -7.6255075109330885
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    97.51219963552934,
+                    -65.7517548744417
+                ],
+                "id": 95264171,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -14.49542663972957,
+                    -31.705892029782916
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    77.87257245517377,
+                    -53.92032249105161
+                ],
+                "id": 16737812,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    22.85786050245083,
+                    -6.056023032681192
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    46.52514432065525,
+                    -91.56191979743166
+                ],
+                "id": 8686571,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -14.941673997860795,
+                    -36.53902297696321
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    10.467879789647181,
+                    -81.99415386273412
+                ],
+                "id": 93297148,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -22.233228261003873,
+                    19.966778589536652
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    0.6522732959165897,
+                    -62.63275596275776
+                ],
+                "id": 55990373,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    21.171733224619413,
+                    -6.021048226102675
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    21.80362057458764,
+                    -63.95465533545714
+                ],
+                "id": 64739123,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    11.59506744979334,
+                    -6.437698583089951
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    58.423340407550846,
+                    -69.42170585637135
+                ],
+                "id": 31700842,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -37.01466861642571,
+                    -10.179005748939774
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    106.56170322124778,
+                    -24.364028157383167
+                ],
+                "id": 18057904,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -16.518536623558077,
+                    22.283556060127736
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    96.31486287978622,
+                    -42.97692221032724
+                ],
+                "id": 54140482,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    37.94322988544996,
+                    22.351331032193787
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    58.45418254641105,
+                    -49.061881639128046
+                ],
+                "id": 87416032,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -20.36212373056408,
+                    -15.429504788873656
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    130.7404292066658,
+                    -432.96370864973625
+                ],
+                "id": 94547175,
+                "mass": 100.0,
+                "radius": 30.0,
+                "color": "RED",
+                "velocity": [
+                    -215.79937268032018,
+                    801.9851686629206
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            }
+        ],
+        "ball": [
+            {
+                "type": "ball",
+                "position": [
+                    -52.975856853181824,
+                    -48.93780657863072
+                ],
+                "id": 83730182,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    29.394168133061548,
+                    -15.603197912980203
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -41.40423483512079,
+                    -16.815079825302135
+                ],
+                "id": 87908238,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    0.021857155029739506,
+                    17.370640086590864
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    21.568774251425754,
+                    -15.042781061703524
+                ],
+                "id": 40873901,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    5.16273172160372,
+                    1.7576775279582673
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    67.3165152107845,
+                    -15.000961542508493
+                ],
+                "id": 53296124,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -4.878146358728345,
+                    -30.499863859671457
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    92.7261049224488,
+                    -16.08058077924521
+                ],
+                "id": 20951785,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -15.30143078950886,
+                    -41.78244566909949
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    127.21924170312865,
+                    -26.514982304315033
+                ],
+                "id": 8040774,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -12.285550853841675,
+                    -54.865430215490996
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -44.90205886186209,
+                    -62.67573887758327
+                ],
+                "id": 46327764,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    41.849939412183616,
+                    13.228773165849587
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    82.45365740363629,
+                    -17.542253176698118
+                ],
+                "id": 51561753,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    24.1085571832653,
+                    -30.143175785962928
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -51.295974902784245,
+                    -15.000913974453598
+                ],
+                "id": 91714793,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -0.885538780522263,
+                    -27.0588908304098
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    144.06695832647523,
+                    -80.82033461467712
+                ],
+                "id": 20388384,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    48.54936492790231,
+                    25.827945818225775
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    81.63976196981758,
+                    -71.66913118532334
+                ],
+                "id": 69392552,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    1.6633938865487032,
+                    36.486959164806905
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    32.03404845053854,
+                    -17.393928650042234
+                ],
+                "id": 4485157,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -25.00403565844875,
+                    -21.69131391316973
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -46.5266093585555,
+                    -94.85345919696236
+                ],
+                "id": 37803059,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    12.944829499732188,
+                    -13.401169535443788
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    121.85981081165227,
+                    -16.46525113270698
+                ],
+                "id": 29480243,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -10.238438068595102,
+                    -15.416383062306451
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    52.14763937510806,
+                    -35.11287582136038
+                ],
+                "id": 6554472,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -62.079170204040494,
+                    -7.32539073136495
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -37.04262928408447,
+                    -28.377755110213865
+                ],
+                "id": 51662087,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    16.269425727099378,
+                    25.02205336510128
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    15.786312883099802,
+                    -47.31055768230754
+                ],
+                "id": 63431056,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    9.14719601345965,
+                    -8.618887882105954
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    138.40571941751392,
+                    -51.93322749054226
+                ],
+                "id": 19391070,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -31.178855724181027,
+                    -3.065507574258043
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    124.60585683461296,
+                    -57.64863187604287
+                ],
+                "id": 76143312,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    14.80728682732529,
+                    -17.45383361118947
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    35.87068639112885,
+                    -70.95539649288173
+                ],
+                "id": 86979672,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    22.965775148494135,
+                    33.25186693979543
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    142.95831049180205,
+                    -36.113402758504215
+                ],
+                "id": 4601001,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -13.306870107360009,
+                    60.172284885783114
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    142.61292835614333,
+                    -15.841573224586442
+                ],
+                "id": 75843036,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    25.80251557593724,
+                    -18.295598213323846
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    85.84764755842397,
+                    -80.76947973904191
+                ],
+                "id": 13658334,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    37.54857876816125,
+                    -29.713155665723164
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    91.49520959656707,
+                    -28.45440761585645
+                ],
+                "id": 34267742,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -14.256661532730769,
+                    -5.44823151272489
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -51.2233759391638,
+                    -115.10532679526216
+                ],
+                "id": 67736193,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -28.771674838416114,
+                    13.341659809416836
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -28.62114724005283,
+                    -68.10231857637172
+                ],
+                "id": 67691207,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    18.905899535422503,
+                    1.8229901006905123
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    139.88388366355193,
+                    -61.835742557410086
+                ],
+                "id": 46007628,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    22.406165231966593,
+                    -6.8918828508835
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    115.00069372334532,
+                    -79.39733109935487
+                ],
+                "id": 7056344,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    -11.200092578715681,
+                    -11.79338419422105
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    10.128367565879998,
+                    -19.51001234111019
+                ],
+                "id": 48766583,
+                "mass": 1.0,
+                "radius": 5.0,
+                "color": "RED",
+                "velocity": [
+                    33.029036121829336,
+                    -20.8545667865355
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -42.47034136644259,
+                    -79.92484850283614
+                ],
+                "id": 87489741,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -21.44632956769394,
+                    7.208509529867343
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    0.05469130439645145,
+                    -118.13646672969311
+                ],
+                "id": 65031579,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -23.26335440362759,
+                    13.384213186947614
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    52.1814191194666,
+                    -20.108196225460723
+                ],
+                "id": 86956857,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    0.7036768464965015,
+                    0.09875372015726658
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    74.5542982126009,
+                    -94.03856585041807
+                ],
+                "id": 18948729,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -24.90305656777768,
+                    -13.820855205914398
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -51.89751970536241,
+                    -30.488176246216277
+                ],
+                "id": 40417345,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -21.09924087029829,
+                    -40.947776771848496
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -36.33060829392764,
+                    -47.0886161424757
+                ],
+                "id": 13122933,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -25.88961551974253,
+                    -26.556660481158982
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -16.757621138850517,
+                    -23.221068184790795
+                ],
+                "id": 51682705,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    11.75191869852376,
+                    -0.6068857999785723
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    128.95414911761708,
+                    -72.58105533137665
+                ],
+                "id": 33896325,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    11.28600056777872,
+                    -50.78818905092124
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    121.49221879882805,
+                    -41.08815667613045
+                ],
+                "id": 98322163,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    1.6066359555519185,
+                    2.480458333935857
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    72.36995662619312,
+                    -30.707897115618042
+                ],
+                "id": 72521537,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    8.367277922550121,
+                    29.417349021471786
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    24.054379633058172,
+                    -31.147054340900706
+                ],
+                "id": 45879455,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    48.67730470391844,
+                    31.407493687774124
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -16.02060002094717,
+                    -50.42137113605366
+                ],
+                "id": 96937170,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -0.606038633751993,
+                    -10.128787604342778
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    1.2117699337157468,
+                    -38.407259447186696
+                ],
+                "id": 14720269,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    24.360191561661622,
+                    24.041360352052642
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    -14.80159668316762,
+                    -81.91913021347797
+                ],
+                "id": 78084857,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    8.191541114512502,
+                    -16.976691858340267
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    13.066988784481355,
+                    -102.05569040792348
+                ],
+                "id": 63856164,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    23.14646603391686,
+                    -0.8611864049733045
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    37.10043661348326,
+                    -48.847336957973326
+                ],
+                "id": 11445095,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -17.260548272221506,
+                    -7.6255075109330885
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    97.51219963552934,
+                    -65.7517548744417
+                ],
+                "id": 95264171,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -14.49542663972957,
+                    -31.705892029782916
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    77.87257245517377,
+                    -53.92032249105161
+                ],
+                "id": 16737812,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    22.85786050245083,
+                    -6.056023032681192
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    46.52514432065525,
+                    -91.56191979743166
+                ],
+                "id": 8686571,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -14.941673997860795,
+                    -36.53902297696321
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    10.467879789647181,
+                    -81.99415386273412
+                ],
+                "id": 93297148,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -22.233228261003873,
+                    19.966778589536652
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    0.6522732959165897,
+                    -62.63275596275776
+                ],
+                "id": 55990373,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    21.171733224619413,
+                    -6.021048226102675
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    21.80362057458764,
+                    -63.95465533545714
+                ],
+                "id": 64739123,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    11.59506744979334,
+                    -6.437698583089951
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    58.423340407550846,
+                    -69.42170585637135
+                ],
+                "id": 31700842,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -37.01466861642571,
+                    -10.179005748939774
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    106.56170322124778,
+                    -24.364028157383167
+                ],
+                "id": 18057904,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -16.518536623558077,
+                    22.283556060127736
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    96.31486287978622,
+                    -42.97692221032724
+                ],
+                "id": 54140482,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    37.94322988544996,
+                    22.351331032193787
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    58.45418254641105,
+                    -49.061881639128046
+                ],
+                "id": 87416032,
+                "mass": 1.0,
+                "radius": 10.0,
+                "color": "RED",
+                "velocity": [
+                    -20.36212373056408,
+                    -15.429504788873656
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "ball",
+                "position": [
+                    130.7404292066658,
+                    -432.96370864973625
+                ],
+                "id": 94547175,
+                "mass": 100.0,
+                "radius": 30.0,
+                "color": "RED",
+                "velocity": [
+                    -215.79937268032018,
+                    801.9851686629206
+                ],
+                "acceleration": [
+                    0,
+                    98.6
+                ],
+                "leaveTrail": false,
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            }
+        ],
+        "wall": [
+            {
+                "type": "wall",
+                "position": [
+                    -65.6,
+                    -65.59966666759257
+                ],
+                "id": 55310764,
+                "vertexes": [
+                    [
+                        -68.0,
+                        -125.6
+                    ],
+                    [
+                        -68.0,
+                        -5.599333335185165
+                    ],
+                    [
+                        -63.19999999999999,
+                        -5.599333335185165
+                    ],
+                    [
+                        -63.19999999999999,
+                        -125.6
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 1.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            },
+            {
+                "type": "wall",
+                "position": [
+                    152.39999999999998,
+                    -68.80000000000001
+                ],
+                "id": 55310764,
+                "vertexes": [
+                    [
+                        149.99999999999997,
+                        -128.80033333240743
+                    ],
+                    [
+                        149.99999999999997,
+                        -8.799666667592604
+                    ],
+                    [
+                        154.79999999999998,
+                        -8.799666667592604
+                    ],
+                    [
+                        154.79999999999998,
+                        -128.80033333240743
+                    ]
+                ],
+                "isLine": false,
+                "collisionFactor": 1.0,
+                "color": "BLUE",
+                "isShowingInfo": false,
+                "infoText": null,
+                "isFollowing": false
+            }
+        ],
+        "rope": [],
+        "spring": [],
+        "rod": []
+    },
+    "wall_position": []
+}
