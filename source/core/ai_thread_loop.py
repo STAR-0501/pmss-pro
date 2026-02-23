@@ -137,11 +137,11 @@ def AIThreadLoop(game: Game) -> None:
                     + wallsToString(game.celestialElements["wall"])
                 )
 
-                try:
-                    text = text.split("$")[1]
+                # try:
+                #     text = text.split("$")[1]
 
-                except IndexError:
-                    ...
+                # except IndexError:
+                #     ...
 
                 result: list = re.findall("<.*>", text)
 

@@ -189,17 +189,30 @@ class Wall(Element):
                 ],
                 0,
             )
-
-        pygame.draw.polygon(
-            game.screen,
-            self.color,
-            [
-                (
-                    game.realToScreen(vertex.x, game.x),
-                    game.realToScreen(vertex.y, game.y),
-                )
-                for vertex in self.vertexes
-            ],
-            0,
-        )
+        try:
+            pygame.draw.polygon(
+                game.screen,
+                self.color,
+                [
+                    (
+                        game.realToScreen(vertex.x, game.x),
+                        game.realToScreen(vertex.y, game.y),
+                    )
+                    for vertex in self.vertexes
+                ],
+                0,
+            )
+        except ValueError:
+            pygame.draw.polygon(
+                game.screen,
+                "BLACK",
+                [
+                    (
+                        game.realToScreen(vertex.x, game.x),
+                        game.realToScreen(vertex.y, game.y),
+                    )
+                    for vertex in self.vertexes
+                ],
+                0,
+            )
         self.highLighted = False
