@@ -1,7 +1,7 @@
 import pygame
 
-from ..basic import *
-from .control_option import *
+from ..basic import Element, Vector2
+from .control_option import ControlOption
 
 
 class ElementController:

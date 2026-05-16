@@ -2,8 +2,8 @@ import time
 
 import pygame
 
-from ..basic import *
-from .option import *
+from ..basic import Element
+from .option import Option
 
 # from tkinter import messagebox
 # 移除 tkinter 弹窗，改用 pygame 窗口内美化弹窗

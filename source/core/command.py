@@ -1,11 +1,8 @@
-import json
+from ..basic import Ball, Element, Vector2, Wall, ZERO
+from ..config_manager import config_manager
+from ..game import Game
 
-from ..ai import *
-from ..basic import *
-from ..game import *
-
-modelList = json.loads(
-    open("config/modelList.json", "r", encoding="utf-8").read())
+modelList = config_manager.model_list
 
 
 def ballsToString(balls: list[Element]) -> str:

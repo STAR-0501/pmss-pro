@@ -1,6 +1,6 @@
 import pygame
 
-from ..basic import *
+from ..basic import Vector2
 
 
 class SettingsButton:

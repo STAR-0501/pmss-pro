@@ -1,6 +1,23 @@
-from ..basic import *
-from .set_caps_lock import *
+from ..basic import (
+    Ball,
+    Coordinator,
+    Element,
+    Rope,
+    Rod,
+    Spring,
+    Vector2,
+    Wall,
+    WallPosition,
+    ZERO,
+    colorMiddle,
+    colorSuitable,
+    colorStringToTuple,
+)
+from .set_caps_lock import setCapsLock
 
+import copy
+import math
+import pygame
 import time
 
 class Option:

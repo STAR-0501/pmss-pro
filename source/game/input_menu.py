@@ -1,11 +1,11 @@
 import time
 
 import pygame
-import json
 
-from ..basic import *
-from .input_box import *
-from .option import *
+from ..basic import Element, Vector2
+from ..config_manager import config_manager
+from .input_box import InputBox
+from .option import Option
 
 
 class InputMenu(Element):
@@ -29,6 +29,10 @@ class InputMenu(Element):
         self.target: Element = target
         # 弹窗按钮区域（用于点击检测）
         self.modalOkRect: pygame.Rect | None = None
+
+    def setAttr(self, key: str, value: str) -> None:
+        """设置InputMenu属性（满足Element抽象接口）"""
+        pass
 
     def update(self, game: "Game") -> None:
         """更新输入菜单布局"""
@@ -143,7 +147,7 @@ class InputMenu(Element):
                     optionText = self.font.render(
                         game.translation[optionType], True, (25, 25, 112))  # 午夜蓝
                 except KeyError:
-                    game.translation = json.load(open("config/translation.json", "r", encoding="utf-8"))
+                    game.translation = dict(config_manager.translation)
                     optionText = self.font.render(
                         game.translation[optionType], True, (25, 25, 112))  # 午夜蓝
                 

@@ -4,21 +4,21 @@ import copy
 import multiprocessing
 import os
 import sys
-import threading
 import time
-import pickle
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pygame
 
 from shared_game_state import SharedGameState
 
-from ..basic import *
-from .element_controller import *
-from .input_menu import *
-from .menu import *
-from .set_caps_lock import *
-from .settings_button import *
+from ..basic import Ball, Element, Rope, Vector2, Wall, WallPosition, ZERO
+from ..config_manager import config_manager
+from ..physics.engine import PhysicsEngine
+from .element_controller import ElementController
+from .input_menu import InputMenu
+from .menu import Menu
+from .set_caps_lock import setCapsLock
+from .settings_button import SettingsButton
 
 if TYPE_CHECKING:
     from ..core.ai_thread_loop import AIThreadLoop
@@ -50,11 +50,8 @@ class Game:
         self.gameName: str = "未命名"
 
         try:
-            with open("config/screenSize.txt", "r", encoding="utf-8") as f:
-                self.screenSize: list[int, int] = [
-                    int(i.replace(" ", "")) for i in f.read().split("x")
-                ]
-
+            width, height = config_manager.screen_size
+            self.screenSize: list[int, int] = [width, height]
         except Exception:
             self.screenSize: list[int, int] = [0, 0]
 
@@ -100,7 +97,21 @@ class Game:
         self.upMove: int = 0
         self.speed: int = 1
         self.circularVelocityFactor: float = 1
-        self.floor: Wall = Wall(
+        self.background: str | pygame.Color = "lightgrey"
+        self.settingsButton: SettingsButton = SettingsButton(0, 0, 50, 50)
+        self.fpsSaver: list[float] = []
+        self.tempFrames: int = 0
+        
+        # 多进程通信队列（用于向投影显示进程发送数据）
+        self.projection_queue: multiprocessing.Queue = None
+        self.shared_state: Any = None
+        self.optionsList: list[dict] = config_manager.element_options
+        self.wall_positions: list[WallPosition] = []
+
+        # -- Physics engine (owns element collections + floor) -----------
+        self._physics: PhysicsEngine = PhysicsEngine(self.optionsList)
+
+        self._physics.floor = Wall(
             [
                 Vector2(0, -10),
                 Vector2(self.screen.get_width(), -10),
@@ -110,55 +121,14 @@ class Game:
             (200, 200, 200),
             True,
         )
-        self.isFloorIllegal: bool = False
-        self.background: str | pygame.Color = "lightgrey"
-        self.settingsButton: SettingsButton = SettingsButton(0, 0, 50, 50)
-        self.fpsSaver: list[float] = []
-        self.tempFrames: int = 0
-        
-        # 多进程通信队列（用于向投影显示进程发送数据）
-        self.projection_queue: multiprocessing.Queue = None
-        self.shared_state = None
-        self.optionsList: list[dict] = []
-        self.environmentOptions: list[dict] = []
-        self.elements: dict[str, list[Element | Ball | Wall | Rope]] = {}
-        self.wall_positions: list[WallPosition] = []
-        
-        self.groundElements: dict[str, list[Element | Ball | Wall | Rope]] = {
-            "all": [],
-            "ball": [],
-            "wall": [],
-            "rope": [],
-            "controlling": [],
-        }
-
-        self.celestialElements: dict[str, list[Element | Ball | Wall | Rope]] = {
-            "all": [],
-            "ball": [],
-            "wall": [],
-            "rope": [],
-            "controlling": [],
-        }
 
         self.translation: dict[str, str] = {}
         self.inputMenu: InputMenu = None
 
-        with open("config/elementOptions.json", "r", encoding="utf-8") as f:
-            self.optionsList = json.load(f)
-
-        for i in range(len(self.optionsList)):
-            self.groundElements[self.optionsList[i]["type"]] = []
-            self.celestialElements[self.optionsList[i]["type"]] = []
-
-        self.elements = self.groundElements
-
-        with open("config/environmentOptions.json", "r", encoding="utf-8") as f:
-            self.environmentOptions = json.load(f)
-
+        self.environmentOptions: list[dict] = config_manager.environment_options
         self.environmentOptionsCopy = self.environmentOptions.copy()
 
-        with open("config/translation.json", "r", encoding="utf-8") as f:
-            self.translation = json.load(f)
+        self.translation = dict(config_manager.translation)
 
         self.inputMenu = InputMenu(
             Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2),
@@ -170,7 +140,52 @@ class Game:
 
         self.test()
 
-    
+    # -- Physics engine delegation properties ---------------------------
+
+    @property
+    def elements(self) -> dict[str, list]:
+        """Delegate to physics engine's active element set."""
+        return self._physics.current_elements
+
+    @elements.setter
+    def elements(self, value: dict[str, list]) -> None:
+        """Allow direct assignment (backward compat for mode switching)."""
+        self._physics.current_elements = value
+
+    @property
+    def groundElements(self) -> dict[str, list]:
+        """Delegate to physics engine's ground element set."""
+        return self._physics.ground_elements
+
+    @groundElements.setter
+    def groundElements(self, value: dict[str, list]) -> None:
+        self._physics.ground_elements = value
+
+    @property
+    def celestialElements(self) -> dict[str, list]:
+        """Delegate to physics engine's celestial element set."""
+        return self._physics.celestial_elements
+
+    @celestialElements.setter
+    def celestialElements(self, value: dict[str, list]) -> None:
+        self._physics.celestial_elements = value
+
+    @property
+    def floor(self) -> Wall | None:
+        """Delegate to physics engine's floor."""
+        return self._physics.floor
+
+    @floor.setter
+    def floor(self, value: Wall | None) -> None:
+        self._physics.floor = value
+
+    @property
+    def isFloorIllegal(self) -> bool:
+        return self._physics.is_floor_illegal
+
+    @isFloorIllegal.setter
+    def isFloorIllegal(self, value: bool) -> None:
+        self._physics.is_floor_illegal = value
 
     def getPresetFileByIndex(self, index: int) -> str:
         """根据索引获取按字典序排序的预设文件名"""
@@ -721,8 +736,7 @@ class Game:
                     self.elementMenu.options[i].height = currentElementMenu.options[i].height
             if currentFloor is not None:
                 self.floor = currentFloor
-            with open("config/translation.json", "r", encoding="utf-8") as f:
-                self.translation = json.load(f)
+            self.translation = dict(config_manager.translation)
 
             # 重置部分状态与时间戳
             self.rightMove = 0
@@ -1236,10 +1250,9 @@ class Game:
         """更新菜单界面"""
         width, height = self.screen.get_size()
         if self.elementMenu is None:
-            with open("config/elementOptions.json", "r", encoding="utf-8") as filenames:
-                self.elementMenu = Menu(
-                    Vector2(width * 97 / 100, 0), json.load(filenames)
-                )
+            self.elementMenu = Menu(
+                Vector2(width * 97 / 100, 0), config_manager.element_options
+            )
         self.elementMenu.draw(game=self)
 
         if self.exampleMenu is None:
@@ -1401,19 +1414,8 @@ class Game:
 
     def updateElements(self) -> None:
         """更新所有物理元素状态"""
-        for element in self.groundElements["all"]:
-            if element.position.y <= -1.5e7:
-                self.groundElements["all"].remove(element)
-                self.groundElements[element.type].remove(element)
-                self.celestialElements["all"].append(element)
-                self.celestialElements[element.type].append(element)
-
-        for element in self.celestialElements["all"]:
-            if element.position.y >= -1.5e7:
-                self.groundElements["all"].append(element)
-                self.groundElements[element.type].append(element)
-                self.celestialElements["all"].remove(element)
-                self.celestialElements[element.type].remove(element)
+        # -- Handle ground↔celestial boundary transitions via engine ------
+        self._physics.handle_boundary_transitions()
 
         deltaTime = self.currentTime - self.lastTime
         for element in self.elements["all"]:
@@ -1711,19 +1713,8 @@ class Game:
                 if self.floor.isPosOn(self, ball1.position):
                     ball1.reboundByWall(self.floor)
 
-            for option in self.environmentOptions:
-
-                if option["type"] == "gravity":
-                    ball1.gravity = float(option["value"])
-
-                if option["type"] == "airResistance":
-                    ball1.airResistance = float(option["value"])
-
-                if option["type"] == "collisionFactor":
-                    ball1.collisionFactor = float(option["value"])
-                    for wall in self.elements["wall"]:
-                        wall.collisionFactor = float(option["value"])
-                    self.floor.collisionFactor = float(option["value"])
+            # -- Apply environment parameters via engine -----------------
+            self._physics.apply_environment(self.environmentOptions)
         
         for element in self.elements["all"]:
             # element.draw(self)
@@ -1809,26 +1800,7 @@ class Game:
 
     def findMaximumGravitationBall(self, ball: Ball) -> Ball | None:
         """寻找给予指定球最大引力的球"""
-        if ball is None:
-            return
-
-        result = None
-        # minDistance = float("inf")
-        maxGravitation = 0
-
-        for ball2 in self.elements["ball"]:
-            # if ball2.mass > ball.mass and ball.position.distance(ball2.position) < minDistance:
-            #     result = ball2
-            #     minDistance = ball.position.distance(ball2.position)
-
-            distance = ball.position.distance(ball2.position)
-
-            if gravityFactor * ball.mass * ball2.mass / (distance**2 + 1e-6) > maxGravitation:
-                result = ball2
-                maxGravitation = gravityFactor * ball.mass * \
-                    ball2.mass / (distance**2 + 1e-6)
-
-        return result
+        return self._physics.find_max_gravitation_ball(ball)
 
     def CelestialBodyMode(self) -> None:
         """切换天体模式"""

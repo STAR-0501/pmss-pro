@@ -1,13 +1,13 @@
 import copy
-from random import random
+from random import random, randint
 from typing import Self
 
 import pygame
 
-from .collision_line import *
-from .color import *
-from .element import *
-from .vector2 import *
+from .collision_line import CollisionLine
+from .color import colorStringToTuple, colorTupleToString, colorMiddle
+from .element import Element, gravityFactor, electrostaticFactor
+from .vector2 import Vector2, ZERO
 
 
 class Ball(Element):

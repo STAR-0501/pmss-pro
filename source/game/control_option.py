@@ -1,7 +1,9 @@
 import pygame
 
-from ..basic import *
-from .input_menu import *
+from ..basic import Coordinator, Element, Vector2, ZERO
+from .input_menu import InputMenu
+from .option import Option
+from .set_caps_lock import setCapsLock
 
 
 class ControlOption:

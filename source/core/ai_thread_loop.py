@@ -1,10 +1,10 @@
-import json
 import re
 
-from ..ai import *
-from ..basic import *
-from ..game import *
-from .command import *
+from ..ai import AI
+from ..basic import Vector2
+from ..config_manager import config_manager
+from ..game import Game
+from .command import ballsToString, command, modelList, wallsToString
 
 
 def AIThreadLoop(game: Game) -> None:
@@ -16,8 +16,8 @@ def AIThreadLoop(game: Game) -> None:
 直接输入使用第一模型
 在开头插入“~”使用第二模型
 
-当前第一模型：{config["models"][0]}
-当前第二模型：{config["models"][1]}
+当前第一模型：{config_manager.api_models[0]}
+当前第二模型：{config_manager.api_models[1]}
 
 输入“.”切换第一模型
 输入“..”切换第二模型
@@ -77,7 +77,7 @@ def AIThreadLoop(game: Game) -> None:
                 while True:
 
                     user_input = input(
-                        f"\n当前第一模型：{config['models'][0]}\n请选择模型以切换第一模型："
+                        f"\n当前第一模型：{config_manager.api_models[0]}\n请选择模型以切换第一模型："
                     )
 
                     if not user_input.isdigit() or not 1 <= int(user_input) <= len(modelList):
@@ -85,11 +85,10 @@ def AIThreadLoop(game: Game) -> None:
                         continue
 
                     index = int(user_input) - 1
-                    config["models"][0] = modelList[index]
-                    print("已切换第一模型：" + config["models"][0] + "\n")
-
-                    json.dump(config, open(
-                        "config/siliconFlowConfig.json", "w"), indent=4)
+                    new_models = list(config_manager.api_models)
+                    new_models[0] = modelList[index]
+                    config_manager.set_silicon_flow_models(new_models)
+                    print("已切换第一模型：" + config_manager.api_models[0] + "\n")
 
                     break
 
@@ -102,7 +101,7 @@ def AIThreadLoop(game: Game) -> None:
                 while True:
 
                     user_input = input(
-                        f"\n当前第二模型：{config['models'][1]}\n请选择模型以切换第二模型："
+                        f"\n当前第二模型：{config_manager.api_models[1]}\n请选择模型以切换第二模型："
                     )
 
                     if not user_input.isdigit() or not 1 <= int(user_input) <= len(modelList):
@@ -110,11 +109,10 @@ def AIThreadLoop(game: Game) -> None:
                         continue
 
                     index = int(user_input) - 1
-                    config["models"][1] = modelList[index]
-                    print("已切换第二模型：" + config["models"][1] + "\n")
-
-                    json.dump(config, open(
-                        "config/siliconFlowConfig.json", "w"), indent=4)
+                    new_models = list(config_manager.api_models)
+                    new_models[1] = modelList[index]
+                    config_manager.set_silicon_flow_models(new_models)
+                    print("已切换第二模型：" + config_manager.api_models[1] + "\n")
 
                     break
 

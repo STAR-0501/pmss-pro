@@ -1,5 +1,7 @@
-from .vector2 import *
-from .wall import *
+from random import randint
+
+from .vector2 import Vector2, ZERO
+from .wall import Wall
 
 
 class WallPosition:

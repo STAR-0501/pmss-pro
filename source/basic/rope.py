@@ -1,12 +1,14 @@
 import math
+from random import randint
 from typing import Self
 
 import pygame
 
-from .ball import *
-from .element import *
-from .vector2 import *
-from .wall_position import *
+from .ball import Ball
+from .color import colorMiddle
+from .element import Element
+from .vector2 import Vector2, ZERO
+from .wall_position import WallPosition
 
 
 class Rope(Element):
@@ -116,6 +118,10 @@ class Rope(Element):
             return True
 
         return False
+
+    def setAttr(self, key: str, value: str) -> None:
+        """设置绳索属性（满足Element抽象接口）"""
+        pass
 
     def update(self, deltaTime: float) -> Self:
         """更新绳索位置和物理状态"""

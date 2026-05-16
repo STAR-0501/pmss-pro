@@ -1,12 +1,13 @@
 import math
+from random import randint
 from typing import Self
 
 import pygame
 
-from .ball import *
-from .element import *
-from .vector2 import *
-from .wall_position import *
+from .ball import Ball
+from .element import Element
+from .vector2 import Vector2, ZERO
+from .wall_position import WallPosition
 
 
 class Spring(Element):
@@ -95,6 +96,10 @@ class Spring(Element):
             self.end.force(-(springForceOnStart + dampingForceOnStart), isNatural=True)
 
         return True
+
+    def setAttr(self, key: str, value: str) -> None:
+        """设置弹簧属性（满足Element抽象接口）"""
+        pass
 
     def update(self, deltaTime: float) -> Self:
         """更新弹簧状态

@@ -1,7 +1,7 @@
 import pygame
 
-from ..basic import *
-from .option import *
+from ..basic import Vector2
+from .option import Option
 
 
 class Menu:

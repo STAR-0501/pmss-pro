@@ -3,7 +3,7 @@ from typing import Self
 
 import pygame
 
-from .vector2 import *
+from .vector2 import Vector2, ZERO
 
 
 class Coordinator:

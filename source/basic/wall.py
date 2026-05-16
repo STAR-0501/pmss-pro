@@ -1,13 +1,13 @@
 import copy
+from random import randint
 from typing import Self
 
 import pygame
 
-from .ball import *
-from .collision_line import *
-from .coordinator import *
-from .element import *
-from .vector2 import *
+from .ball import Ball
+from .collision_line import CollisionLine
+from .element import Element
+from .vector2 import Vector2, ZERO
 
 
 class Wall(Element):
